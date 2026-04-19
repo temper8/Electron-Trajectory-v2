@@ -181,3 +181,5 @@ cython_debug/
 .cursorindexingignore
 uv.lock
 *.pkl
+*.prof
+*.lprof
