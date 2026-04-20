@@ -447,21 +447,4 @@ def fin_fun(t,y,eqq,m0,ccc,a,R0,delr,delfi,nfi,n,pparini,pperpini,muini):
     dBraddr,dBraddthet,dBraddfi,dBtordr,dBtordthet,dBtordfi,Bpol,Brad,Btor,psitor,dpsidr,dpsidfi,sf)
     return(dydt)
 
-#from parameters_FT2_r_3 import *
-from parameters import *
-t_ini=0.2*ccc_R0/tau_norm
-t0c=t_ini
-sf0=spl_q0(t0c)
-sfb=spl_qa(t0c)
-Uloop=spl_U(t0c)
-B0=spl_B(t0c)
-#print('t_ini=',t0c,'sf0=',sf0,'sfb=',sfb,'B0=',B0,'Uloop=',Uloop)
-sf=saf_fact(sf0,sfb,rini,a,Uloop)
-R,Btotini,Btorini,Bpolini,Bpol1,Bradini,brad,btor,bpol,bpol1,dBpoldr,dBtordfi,dBraddr,dBtordr,dBpoldfi,dBraddfi,  \
-dBpoldthet,dBtordthet,dBraddthet,dBpoldthet1,dBtordthet1,dBraddthet1,psitorini,dpsidr,dpsidfi,sf \
-=Mag_field(rini,thetini,fiini,R0,a,B0,delfi,nfi,delr,n,sf0,sfb,Uloop)
-pperp2ini=pperpini**2    
-muini=pperp2ini/Btotini
-p2ini=pparini**2+pperp2ini
-psipolini=pi*B0*a**2/(sfb-sf0)*log((sf0+(sfb-sf0)*(rini/a)**2)/sf0)
-energyini=m01*ccc1**2*(sqrt(1+p2ini)-1)/1.6022e-12
+
