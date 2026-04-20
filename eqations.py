@@ -1,6 +1,8 @@
-# from math import tan, atan
+from loguru import logger
 import numpy as np
-import scipy.special as sc
+import numba 
+from numba import njit
+import scipy.special.cython_special as cs
 from scipy.integrate import odeint 
 from scipy.integrate import quad
 from scipy.interpolate import CubicSpline
@@ -13,22 +15,27 @@ from numpy import pi, sin, cos, sqrt, log, tan, atan
 #from field_FT2 import *
 from field_EXL import *
 
+numba.config.DISABLE_JIT = True
+logger.info(f"Disable numba: {numba.config.DISABLE_JIT}")
 
+@njit
 def integrand(x):
     return x/sqrt(1-x**2)
+@njit
 def integrandn(x,n):
     return(x**(n+1)/sqrt(1-x**2))
+@njit
 def integrandn1(x,n):
     if abs(x)>0.002:
         y=x**n*(1.-1./sqrt(1.-x**2))
     else:
         y=-x**(n+2)*0.5*(1.+3.*x**2/4)
     return(y)
-
+@njit
 def E0_field(r,thet,fi,R0,Uloop):
     E0tor=Uloop/(2*pi*R0)
     return(E0tor)
-    
+@njit    
 def E_field(r,thet,fi,R0,E0tor):
     Etor=E0tor*R0/(R0+r*cos(thet))
     Erad=0.
@@ -48,12 +55,12 @@ def E_field(r,thet,fi,R0,E0tor):
 #    Bpol1=B0/(R0*sf)/(1+r/R0*cos(thet))
 #    Bpol=Bpol1*r
 #    return(Bpol,Bpol1)
-
+@njit
 def saf_fact(sf0,sfb,r,a,Uloop):
     sf=sf0+(sfb-sf0)*(r/a)**2
 #    sf=sf*np.sign(Uloop)
     return(sf)
-
+@njit
 def fn(x,n):
     res1=0.
     if abs(x) >=5.e-2:
@@ -67,6 +74,59 @@ def fn(x,n):
         res1=res1*(-1)**n/(1+x)
     return(res1)
 
+@njit
+def fast_hyp_part(x, n, terms=10):
+    """
+    Аппроксимация hyp2f1(0.5, (2+n)/2, (4+n)/2, x^2) / (2+n)
+    через степенной ряд.
+    """
+    x2 = x**2
+    a = 0.5
+    b = (2.0 + n) / 2.0
+    c = (4.0 + n) / 2.0
+    
+    # Первый член ряда (k=0) всегда 1
+    hyp_sum = 1.0
+    current_term = 1.0
+    
+    # Итерируемся для точности (10-15 итераций обычно за глаза при x < 0.9)
+    for k in range(1, terms):
+        # Рекуррентное отношение для следующего члена ряда
+        # (a+k-1)*(b+k-1) / ((c+k-1)*k) * z
+        multiplier = ((a + k - 1) * (b + k - 1)) / ((c + k - 1) * k) * x2
+        current_term *= multiplier
+        hyp_sum += current_term
+        
+        # Если член ряда стал ничтожно мал, выходим раньше
+        if abs(current_term) < 1e-12:
+            break
+            
+    return (x**(n + 2)) * hyp_sum / (2.0 + n)
+@njit
+def fast_hyp2f1_specific(x, n, terms=15):
+    """
+    Аппроксимация hyp2f1(0.5, (1+n)/2, (3+n)/2, x^2)
+    через рекуррентный расчет степенного ряда.
+    """
+    x2 = x**2
+    a = 0.5
+    b = (1.0 + n) / 2.0
+    c = (3.0 + n) / 2.0
+    
+    hyp_sum = 1.0
+    current_term = 1.0
+    
+    for k in range(1, terms):
+        # Формула: term_{k} = term_{k-1} * (a+k-1)*(b+k-1) / ((c+k-1)*k) * z
+        multiplier = ((a + k - 1) * (b + k - 1)) / ((c + k - 1) * k) * x2
+        current_term *= multiplier
+        hyp_sum += current_term
+        
+        if abs(current_term) < 1e-14:
+            break
+            
+    return hyp_sum
+@njit
 def Mag_field(r,thet,fi,R0,a,B0,delfi,nfi,delr,n,sf0,sfb,Uloop):
     x=r/R0
     R=R0+r*cos(thet)
@@ -117,7 +177,7 @@ def Mag_field(r,thet,fi,R0,a,B0,delfi,nfi,delr,n,sf0,sfb,Uloop):
 #    A1=psi0*res[0]
 #    print(A,A1,A1/A,psi0)
 #    print('A1',A1)
-    resn=x**(n+2)*sc.hyp2f1(0.5,(2.+n)/2,(4.+n)/2,x**2)/(2+n)
+    resn=x**(n+2)*fast_hyp_part(x, n)/(2+n)
 #    print('resn',resn)
     An=psi0n*resn
 #    print('resn',resn)
@@ -125,7 +185,8 @@ def Mag_field(r,thet,fi,R0,a,B0,delfi,nfi,delr,n,sf0,sfb,Uloop):
 #    print('An',An)
 #    resn1=quad(integrandn1,0.,r/R0,args=(n))
 #    An1=psi0n*resn1[0]
-    resn1=-x**(1+n)*(-1.+sc.hyp2f1(0.5,(1.+n)/2,(3.+n)/2,x**2))/(1+n)
+    #resn1=-x**(1+n)*(-1.+cs.hyp2f1(0.5,(1.+n)/2,(3.+n)/2,x**2))/(1+n)
+    resn1=-x**(1+n)*(-1.+fast_hyp2f1_specific(x,n))/(1+n)
     An1=psi0n*resn1
 
 #    print('An1',An1)
