@@ -77,26 +77,16 @@ for it in range(num_it):
     sol= solve_ivp(fin_fun,
                    [t_ini, time], 
                    y0, 
-                   method=''DOP853', 
+                   method='DOP853', 
                    t_eval= np.linspace(t_ini, time, nrange), 
                    args=(eqq, m0, ccc, a, R0, delr, delfi, nfi, n, pparini, pperpini, muini),
                    rtol= 1e-7,
                    atol= 1e-10) 
     logger.info(f"Number of function evaluations {sol.nfev}")
-    # print(len(sol.t))
+
     t_ini=sol.t[nrange-1]
-    pparini=sol.y[0,nrange-1]
-    rini=sol.y[1,nrange-1]
-    thetini=sol.y[2,nrange-1]
-    fiini=sol.y[3,nrange-1]
-    pperp2ini=sol.y[4,nrange-1]
-    Bpolini=sol.y[5,nrange-1]
-    Btotini=sol.y[6,nrange-1]
-    Bradini=sol.y[7,nrange-1]
-    Btorini=sol.y[8,nrange-1]
-    psipolini=sol.y[9,nrange-1]
-    psitorini=sol.y[10,nrange-1]
-    energyini=sol.y[11,nrange-1]
+    y_last = sol.y[:, -1]
+    pparini, rini, thetini, fiini, pperp2ini, Bpolini, Btotini, Bradini, Btorini, psipolini, psitorini, energyini = y_last
 
 #    print('thetini=',thetini,'fiini=',fiini)
 #    print('int(thetini/(2*pi))*2*pi=',int(thetini/(2*pi))*2*pi,'int(fiini/(2*pi))*2*pi=',int(fiini/(2*pi))*2*pi)
