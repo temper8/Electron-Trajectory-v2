@@ -7,7 +7,7 @@ from scipy.interpolate import CubicSpline
 import pandas as pd
 #from mgn_best_DOP853 import saf_fact, Mag_field, fin_fun, eq_mot, rot_b, eq_mot_1
 
-from numpy import *  #pi, sin, cos, sqrt, log, tan, atan
+from numpy import pi, sin, cos, sqrt, log, tan, atan
 
 #from field import *
 #from field_FT2 import *

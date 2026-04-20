@@ -22,8 +22,7 @@ psipolini=pi*B0*a**2/(sfb-sf0)*log((sf0+(sfb-sf0)*(rini/a)**2)/sf0)
 energyini=m01*ccc1**2*(sqrt(1+p2ini)-1)/1.6022e-12
 
 logger.info('+++++++  start  +++++++++')
-if os.path.exists("result_11_equations_EXL_50U_13976_r_0.2_t_0.1_00"
-".pkl"):
+if os.path.exists("result_11_equations_EXL_50U_13976_r_0.2_t_0.1_00.pkl"):
     print('----------------')
     df = pd.read_pickle('result_11_equations_EXL_50U_13976_r_0.2_t_0.1_00.pkl')
     print(df)
@@ -49,7 +48,7 @@ if os.path.exists("result_11_equations_EXL_50U_13976_r_0.2_t_0.1_00"
 logger.info(f'rini= {rini}, thetini={thetini}, fiini={fiini}, pparini= {pparini}, energyini= {energyini}')
 #exit()
 
-num_it=5
+num_it=10
 nrange=2000
 delt=200000
 #result_df = pd.DataFrame(columns=['pparnp', 'rnp', 'finp', 'thetnp', 'tnp1',])
@@ -58,7 +57,8 @@ result_df = pd.DataFrame(columns=['pparini','rini','thetini','fiini','pperp2ini'
 import time as timer
 from scipy.integrate import odeint,solve_ivp    
 for it in range(num_it):
-    logger.info(f"num it={it}")
+    logger.info(f"   ")
+    logger.info(f"----- Iteration {it}. Start ----- ")
     start_time = timer.time()
     t0c=t_ini
     sf0=spl_q0(t0c)
@@ -70,11 +70,10 @@ for it in range(num_it):
     logger.info(f'rini= {rini}, thetini= {thetini}, fiini= {fiini}, pparini= {pparini}')
 
     y0= [pparini,rini,thetini,fiini,pperp2ini,Bpolini,Btotini,Bradini,Btorini,psipolini,psitorini,energyini]
-    #y0=[pparini,rini,thetini,fiini]
     time= t_ini + delt  #t1UL
     logger.info(f'rini= {rini}, thetini= {thetini}, fiini= {fiini}, pparini= {pparini}, energyini= {energyini}')
     logger.info(f't_ini(s)= {t_ini*R0/ccc*tau_norm}, del_t_calculation(s)= {(time-t_ini)*R0/ccc*tau_norm}, time(s)={time*R0/ccc*tau_norm}')
-   
+    logger.info(f'solve_ivp: method= DOP853, t_eval={nrange}')
     sol= solve_ivp(fin_fun,
                    [t_ini, time], 
                    y0, 
@@ -83,21 +82,11 @@ for it in range(num_it):
                    args=(eqq, m0, ccc, a, R0, delr, delfi, nfi, n, pparini, pperpini, muini),
                    rtol= 1e-7,
                    atol= 1e-10) 
-    # print(sol.t)
-    # print(len(sol.t))
-    t_ini=sol.t[nrange-1]
-    pparini=sol.y[0,nrange-1]
-    rini=sol.y[1,nrange-1]
-    thetini=sol.y[2,nrange-1]
-    fiini=sol.y[3,nrange-1]
-    pperp2ini=sol.y[4,nrange-1]
-    Bpolini=sol.y[5,nrange-1]
-    Btotini=sol.y[6,nrange-1]
-    Bradini=sol.y[7,nrange-1]
-    Btorini=sol.y[8,nrange-1]
-    psipolini=sol.y[9,nrange-1]
-    psitorini=sol.y[10,nrange-1]
-    energyini=sol.y[11,nrange-1]
+    logger.info(f"Number of function evaluations {sol.nfev}")
+
+    t_ini=sol.t[-1]
+    y_last = sol.y[:, -1]
+    pparini, rini, thetini, fiini, pperp2ini, Bpolini, Btotini, Bradini, Btorini, psipolini, psitorini, energyini = y_last
 
 #    print('thetini=',thetini,'fiini=',fiini)
 #    print('int(thetini/(2*pi))*2*pi=',int(thetini/(2*pi))*2*pi,'int(fiini/(2*pi))*2*pi=',int(fiini/(2*pi))*2*pi)
@@ -124,7 +113,10 @@ for it in range(num_it):
     result_df = pd.concat([result_df, df])
     #print(result_df.head)
     result_df.to_pickle('result_11_equations_EXL_50U_13976_r_0.2_t_0.2_.pkl') 
-    logger.info(f"----- Iteration execution time: {(timer.time() - start_time):0.2f} sec -----")
+    
+    eval_time = timer.time() - start_time
+    logger.info(f"Number of function evaluations per sec {(sol.nfev/eval_time):0.2f}")
+    logger.info(f"----- Iteration {it}. Execution time: {eval_time:0.2f} sec -----")
 #    df.to_pickle('final_data.pkl') 
 #LSODA
 #DOP853
