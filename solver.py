@@ -22,28 +22,6 @@ psipolini=pi*B0*a**2/(sfb-sf0)*log((sf0+(sfb-sf0)*(rini/a)**2)/sf0)
 energyini=m01*ccc1**2*(sqrt(1+p2ini)-1)/1.6022e-12
 
 logger.info('+++++++  start  +++++++++')
-if os.path.exists("result_11_equations_EXL_50U_13976_r_0.2_t_0.1_00.pkl"):
-    print('----------------')
-    df = pd.read_pickle('result_11_equations_EXL_50U_13976_r_0.2_t_0.1_00.pkl')
-    print(df)
-    last_row = df.iloc[-1]
-    print(last_row)
-    #'pparini','rini','thetini','fiini','pperp2ini','Bpolini','Btotini','Bradini','Btorini','psipolini','psitorini'
-    pparini = last_row['pparini']
-    rini = last_row['rini']
-    thetini = last_row['thetini']
-    fiini = last_row['fiini']
-    pperp2ini = last_row['pperp2ini']
-    Bpolini =  last_row['Bpolini']
-    Btotini =  last_row['Btotini']
-    Bradini =  last_row['Bradini']
-    Btorini =  last_row['Btorini']
-    psipolini =  last_row['psipolini']
-    psitorini =  last_row['psitorini']
-    energyini =  last_row['energyini']
-    t_ini = last_row['t_ini']
-    thetini=thetini-int(thetini/(2*pi))*2*pi
-    fiini=fiini-int(fiini/(2*pi))*2*pi
 
 logger.info(f'rini= {rini}, thetini={thetini}, fiini={fiini}, pparini= {pparini}, energyini= {energyini}')
 #exit()
