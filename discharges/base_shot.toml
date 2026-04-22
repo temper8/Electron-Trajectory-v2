@@ -5,10 +5,11 @@ a  = 0.6           # [m] Minor radius
 delr  = 0.0        #
 delfi = 0.0        #
 nfi=0              #
-#b = 3.3            # [m] Vertical minor radius (for elongation)
+# параметры выше уже используються
+#b = 3.3           # [m] Vertical minor radius (for elongation)
 #wall_material = "Be"
 
-
+# тут можно придумывать все что угодно
 [discharge.main]
 shot_number = 12345
 B0 = 5.3           # [T] Toroidal field on axis
