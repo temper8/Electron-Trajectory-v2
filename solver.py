@@ -1,5 +1,5 @@
 import os
-from logger_config import logger
+from logger_config import log_memory_usage, logger
 from eqations import *
 
 #from parameters_FT2_r_3 import *
@@ -40,6 +40,7 @@ t_start = t_ini
 for it in range(num_it):
     logger.info(f"   ")
     logger.info(f"----- Iteration {it}. Start ----- ")
+    log_memory_usage()
     start_time = time.time()
     t0c=t_start
     sf0=spl_q0(t0c)
@@ -82,7 +83,7 @@ for it in range(num_it):
     logger.debug("\n" + df.head().to_string())
     result_df = pd.concat([result_df, df])
     result_df.to_pickle('full_trajectory.pkl') 
-
+    logger.info(f"save results to pickle:  full_trajectory.pkl ")
     eval_time = time.time() - start_time
     logger.info(f"Number of function evaluations per sec {(sol.nfev/eval_time):0.2f}")
     logger.info(f"----- Iteration {it}. Execution time: {eval_time:0.2f} sec -----")
