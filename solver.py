@@ -1,5 +1,5 @@
 import os
-from logger_config import logger
+from logger_config import log_memory_usage, logger
 from eqations import *
 
 #from parameters_FT2_r_3 import *
@@ -36,12 +36,15 @@ columns_list = ['ppar','r','thet','fi','pperp2','Bpol','Btot','Brad','Btor','psi
 import time
 from scipy.integrate import odeint,solve_ivp    
 
-# Открываем HDF5-файл для записи (перезапишет старый файл, аналогично to_pickle)
-with pd.HDFStore('full_trajectory.h5', mode='w') as store:
+# Open the HDF5 file for writing (this will overwrite the old file)
+file_name ='full_trajectory.h5'
+with pd.HDFStore(file_name, mode='w') as store:
+    logger.info(f" Open the HDF5 file :  {file_name}")
     t_start = t_ini
     for it in range(num_it):
         logger.info(f"   ")
         logger.info(f"----- Iteration {it}. Start ----- ")
+        log_memory_usage()
         start_time = time.time()
         t0c=t_start
         sf0=spl_q0(t0c)
@@ -67,6 +70,8 @@ with pd.HDFStore('full_trajectory.h5', mode='w') as store:
                     rtol= 1e-7,
                     atol= 1e-10) 
         logger.info(f"Number of function evaluations {sol.nfev}")
+        eval_time = time.time() - start_time
+        logger.info(f"Number of function evaluations per sec {(sol.nfev/eval_time):0.2f}")
 
         t_steps = np.linspace(t_start, t_end, nrange)
         all_data = sol.sol(t_steps) # Получаем все данные разом!
@@ -86,10 +91,8 @@ with pd.HDFStore('full_trajectory.h5', mode='w') as store:
         # Инкрементная запись в HDF5 (без concat и перезаписи всего файла)
         store.append('trajectory', df, index=False)
 
-        eval_time = time.time() - start_time
-        logger.info(f"Number of function evaluations per sec {(sol.nfev/eval_time):0.2f}")
         logger.info(f"----- Iteration {it}. Execution time: {eval_time:0.2f} sec -----")
-#    df.to_pickle('final_data.pkl') 
+
 #LSODA
 #DOP853
 # Сохраняем DataFrame в бинарный файл
