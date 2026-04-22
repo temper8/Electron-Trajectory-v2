@@ -3,6 +3,7 @@ import pandas as pd
 from numpy import cos,sin
 import matplotlib.pyplot as plt    
 from config import load_configs
+from physical_constants import *
 from parameters import *
 
 run_cfg = load_configs('discharges/base_shot.toml')
@@ -10,9 +11,8 @@ run_cfg = load_configs('discharges/base_shot.toml')
 a, R0, delr, delfi, nfi =  run_cfg
 
 # eval const
-ccc_R0=ccc/R0
-cvr=m0/eqq
-cvr1=m01/eqq1
+ccc_R0= ccc/R0
+
 
 df = pd.read_hdf('results/full_trajectory_1.h5', 'trajectory')
 df.head
@@ -58,7 +58,7 @@ fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
 #ax.plot(thetpr1, rpr1, alpha=0.5)
 #ax.plot(thetpr0, rpr0, alpha=0.5)
 ax.scatter(thetpr0, rpr0, alpha=0.05, color='blue', edgecolors='none', s=10)
-ax.set_rmax(1)
+#ax.set_rmax(1)
 #ax.set_rticks([0.2, 0.4, 0.6, 0.8])  # Less radial ticks
 ax.set_rlabel_position(-22.5)  # Move radial labels away from plotted line
 ax.grid(True)
