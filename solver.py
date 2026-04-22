@@ -31,61 +31,64 @@ nrange=2000
 delt=200000
 #result_df = pd.DataFrame(columns=['pparnp', 'rnp', 'finp', 'thetnp', 'tnp1',])
 columns_list = ['ppar','r','thet','fi','pperp2','Bpol','Btot','Brad','Btor','psipol','psitor','energy','time',]
-result_df = pd.DataFrame(columns= columns_list)
+#result_df = pd.DataFrame(columns= columns_list)
 
 import time
 from scipy.integrate import odeint,solve_ivp    
 
-t_start = t_ini
-for it in range(num_it):
-    logger.info(f"   ")
-    logger.info(f"----- Iteration {it}. Start ----- ")
-    start_time = time.time()
-    t0c=t_start
-    sf0=spl_q0(t0c)
-    sfb=spl_qa(t0c)
-    Uloop=spl_U(t0c)
-    B0=spl_B(t0c)
-    logger.info(f't_start= {t0c}, sf0= {sf0}, sfb={sfb}, B0= {B0}, Uloop= {Uloop}')
-    sf=saf_fact(sf0,sfb,rini,a,Uloop)
-    logger.info(f'rini= {rini}, thetini= {thetini}, fiini= {fiini}, pparini= {pparini}')
+# Открываем HDF5-файл для записи (перезапишет старый файл, аналогично to_pickle)
+with pd.HDFStore('full_trajectory.h5', mode='w') as store:
+    t_start = t_ini
+    for it in range(num_it):
+        logger.info(f"   ")
+        logger.info(f"----- Iteration {it}. Start ----- ")
+        start_time = time.time()
+        t0c=t_start
+        sf0=spl_q0(t0c)
+        sfb=spl_qa(t0c)
+        Uloop=spl_U(t0c)
+        B0=spl_B(t0c)
+        logger.info(f't_start= {t0c}, sf0= {sf0}, sfb={sfb}, B0= {B0}, Uloop= {Uloop}')
+        sf=saf_fact(sf0,sfb,rini,a,Uloop)
+        logger.info(f'rini= {rini}, thetini= {thetini}, fiini= {fiini}, pparini= {pparini}')
 
-    y0= [pparini, rini, thetini, fiini, pperp2ini, Bpolini, Btotini, Bradini, Btorini, psipolini, psitorini, energyini]
-    t_end= t_start + delt  #t1UL
-    logger.info(f'rini= {rini}, thetini= {thetini}, fiini= {fiini}, pparini= {pparini}, energyini= {energyini}')
-    logger.info(f't_start(s)= {t_start*R0/ccc*tau_norm}, del_t_calculation(s)= {(t_end-t_start)*R0/ccc*tau_norm}, time(s)={t_end*R0/ccc*tau_norm}')
-    #logger.info(f'solve_ivp: method= DOP853, t_eval={nrange}')
-    logger.info(f'solve_ivp: method= DOP853, dense_output=True')
-    sol= solve_ivp(fin_fun,
-                   [t_start, t_end], 
-                   y0, 
-                   method='DOP853', 
-                   dense_output=True, 
-                   args=(eqq, m0, ccc, a, R0, delr, delfi, nfi, n, pparini, pperpini, muini),
-                   rtol= 1e-7,
-                   atol= 1e-10) 
-    logger.info(f"Number of function evaluations {sol.nfev}")
+        y0= [pparini, rini, thetini, fiini, pperp2ini, Bpolini, Btotini, Bradini, Btorini, psipolini, psitorini, energyini]
+        t_end= t_start + delt  #t1UL
+        logger.info(f'rini= {rini}, thetini= {thetini}, fiini= {fiini}, pparini= {pparini}, energyini= {energyini}')
+        logger.info(f't_start(s)= {t_start*R0/ccc*tau_norm}, del_t_calculation(s)= {(t_end-t_start)*R0/ccc*tau_norm}, time(s)={t_end*R0/ccc*tau_norm}')
+        #logger.info(f'solve_ivp: method= DOP853, t_eval={nrange}')
+        logger.info(f'solve_ivp: method= DOP853, dense_output=True')
+        sol= solve_ivp(fin_fun,
+                    [t_start, t_end], 
+                    y0, 
+                    method='DOP853', 
+                    dense_output=True, 
+                    args=(eqq, m0, ccc, a, R0, delr, delfi, nfi, n, pparini, pperpini, muini),
+                    rtol= 1e-7,
+                    atol= 1e-10) 
+        logger.info(f"Number of function evaluations {sol.nfev}")
 
-    t_steps = np.linspace(t_start, t_end, nrange)
-    all_data = sol.sol(t_steps) # Получаем все данные разом!
+        t_steps = np.linspace(t_start, t_end, nrange)
+        all_data = sol.sol(t_steps) # Получаем все данные разом!
 
-    t_start= t_steps[-1]
-    y_last = all_data[:, -1]
-    pparini, rini, thetini, fiini, pperp2ini, Bpolini, Btotini, Bradini, Btorini, psipolini, psitorini, energyini = y_last
+        t_start= t_steps[-1]
+        y_last = all_data[:, -1]
+        pparini, rini, thetini, fiini, pperp2ini, Bpolini, Btotini, Bradini, Btorini, psipolini, psitorini, energyini = y_last
 
-    thetini=thetini-int(thetini/(2*pi))*2*pi
-    fiini=fiini-int(fiini/(2*pi))*2*pi
+        thetini=thetini-int(thetini/(2*pi))*2*pi
+        fiini=fiini-int(fiini/(2*pi))*2*pi
 
-    df = pd.DataFrame(all_data.T, columns=columns_list[0:-1])
-    df['time'] =  t_steps
+        df = pd.DataFrame(all_data.T, columns=columns_list[0:-1])
+        df['time'] =  t_steps
 
-    logger.debug("\n" + df.head().to_string())
-    result_df = pd.concat([result_df, df])
-    result_df.to_pickle('full_trajectory.pkl') 
+        logger.debug("\n" + df.head().to_string())
 
-    eval_time = time.time() - start_time
-    logger.info(f"Number of function evaluations per sec {(sol.nfev/eval_time):0.2f}")
-    logger.info(f"----- Iteration {it}. Execution time: {eval_time:0.2f} sec -----")
+        # Инкрементная запись в HDF5 (без concat и перезаписи всего файла)
+        store.append('trajectory', df, index=False)
+
+        eval_time = time.time() - start_time
+        logger.info(f"Number of function evaluations per sec {(sol.nfev/eval_time):0.2f}")
+        logger.info(f"----- Iteration {it}. Execution time: {eval_time:0.2f} sec -----")
 #    df.to_pickle('final_data.pkl') 
 #LSODA
 #DOP853
