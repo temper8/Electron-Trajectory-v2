@@ -42,7 +42,8 @@ logger.info(f'rini= {rini}, thetini={thetini}, fiini={fiini}, pparini= {pparini}
 num_it=20
 nrange=10000
 delt=200000
-
+logger.info(f"num_it= {num_it}")
+logger.info(f"nrange= {nrange}")
 
 # Open the HDF5 file for writing (this will overwrite the old file)
 file_name ='results/full_trajectory.h5'
@@ -95,7 +96,7 @@ with pd.HDFStore(file_name, mode='w') as store:
         df['time'] =  t_steps
 
         logger.debug("\n" + df.head().to_string())
-
+        logger.info(f"df size= {len(df)}")
         # Инкрементная запись в HDF5 
         store.append('trajectory', df, index=False)
         del df
