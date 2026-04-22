@@ -1,22 +1,19 @@
 import numpy as np
 import pandas as pd
 from numpy import cos,sin
+import matplotlib.pyplot as plt    
+from parameters import *
 
-#df = pd.read_pickle('old_calculation/result_11_equations_FT2_r_6_t_15_.pkl')
-df = pd.read_pickle('full_trajectory.pkl')
-#df = pd.read_pickle('result_11_equations_EXL_50U_13976_r_0.4_t_0.3_.pkl')
+df = pd.read_hdf('full_trajectory.h5', 'trajectory')
 df.head
 
-import matplotlib.pyplot as plt    
+
 #ax = df.plot(x= 'rini', y='thetini', kind='line', title='My Line Plot'
 #plt.show()
 
-from parameters import *
-#from parameters_EXL_50U_13976 import *
+
 df['time']=df['time']/ccc_R0*tau_norm
 print(len(df['time'])) #,'df[t_ini[0]]=',df['t_ini[0]']   #,'t_ini[len(t_ini)-1]=',t_ini[len(t_ini)-1])
-
-import matplotlib.pyplot as plt
 
 rpr=df['r']/a
 thetpr=df['thet']
