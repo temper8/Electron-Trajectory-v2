@@ -135,7 +135,7 @@ def fast_hyp2f1_specific(x, n, terms=15):
     return hyp_sum
 
 #@profile
-#@njit
+@njit
 def Mag_field(r, thet, fi, B0, sf0, sfb, Uloop, run_cfg :RunConfig):
     #R0, a, delr, delfi, nfi, n, r, thet, fi, ppar, pperp
     R0, a, delr, delfi, nfi, n, _, _, _, _, _ = run_cfg
