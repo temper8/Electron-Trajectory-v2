@@ -433,11 +433,13 @@ def fin_fun(t, y, run_cfg:RunConfig, muini):
     =rot_b(r,thet,fi,R,Btot,Btor,Bpol,Bpol1,Brad,brad,btor,bpol,bpol1,dBpoldr,   \
     dBtordfi,dBraddr,dBtordr,dBpoldfi,dBraddfi,  \
     dBpoldthet,dBtordthet,dBraddthet,dBpoldthet1,dBtordthet1,dBraddthet1)
+
     pperp2=muini*Btot
     pperp=sqrt(pperp2)
+
     dydt=eq_mot(t, run_cfg.R0,pperp,ppar,r,thet,fi,R,Uloop,brtr,brtt,brtfi,gbr,gbt,gbfi, \
     bgrr,bgrt,bgrfi,bbrtr,bbrtt,bbrtfi,brad,btor,bpol,muini,Btot,dBpoldr,dBpoldthet,dBpoldfi,  \
     dBraddr,dBraddthet,dBraddfi,dBtordr,dBtordthet,dBtordfi,Bpol,Brad,Btor,psitor,dpsidr,dpsidfi,sf)
-    return(dydt)
+    return dydt 
 
 
