@@ -75,7 +75,7 @@ with pd.HDFStore(file_name, mode='w') as store:
 
         y0= [pparini, rini, thetini, fiini] #, pperp2ini, Bpolini, Btotini, Bradini, Btorini, psipolini, psitorini, energyini]
         t_end= t_start + delt  #t1UL
-        logger.info(f'rini= {rini}, thetini= {thetini}, fiini= {fiini}, pparini= {pparini}, energyini= {energyini}')
+        #logger.info(f'rini= {rini}, thetini= {thetini}, fiini= {fiini}, pparini= {pparini}, energyini= {energyini}')
         logger.info(f't_start(s)= {t_start*run_cfg.R0/ccc*tau_norm}, del_t_calculation(s)= {(t_end-t_start)*run_cfg.R0/ccc*tau_norm}, time(s)={t_end*run_cfg.R0/ccc*tau_norm}')
         #logger.info(f'solve_ivp: method= DOP853, t_eval={nrange}')
         logger.info(f'solve_ivp: method= DOP853, dense_output=True')
@@ -99,9 +99,12 @@ with pd.HDFStore(file_name, mode='w') as store:
         #pparini, rini, thetini, fiini , pperp2ini, Bpolini, Btotini, Bradini, Btorini, psipolini, psitorini, energyini = y_last
         pparini, rini, thetini, fiini = y_last
 
-        thetini=thetini-int(thetini/(2*pi))*2*pi
-        fiini=fiini-int(fiini/(2*pi))*2*pi
-
+        theta_revolutions = thetini/(2*pi)
+        fi_revolutions = fiini/(2*pi)
+        logger.info(f'theta_revolutions= {theta_revolutions:0.2f}, fi_revolutions= {fi_revolutions:0.2f}')
+        thetini=thetini-int(theta_revolutions)*2*pi
+        fiini=fiini-int(fi_revolutions)*2*pi
+        
         df = pd.DataFrame(all_data.T, columns=['ppar','r','thet','fi'])
         df['time'] =  t_steps
 
