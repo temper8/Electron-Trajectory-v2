@@ -44,8 +44,8 @@ logger.info('+++++++  start  +++++++++')
 logger.info(f'rini= {run_cfg.r}, thetini={run_cfg.thet}, fiini={run_cfg.fi}, pparini= {run_cfg.ppar}, energyini= {energyini}')
 #exit()
 
-num_it=20
-nrange=10000
+num_it= 10
+nrange= 20000
 delt=200000
 logger.info(f"num_it= {num_it}, nrange= {nrange}")
 logger.info(f"------------------------------------------------------------")
@@ -71,11 +71,11 @@ with pd.HDFStore(file_name, mode='w') as store:
         B0=spl_B(t0c)
         logger.info(f't_start= {t0c}, sf0= {sf0}, sfb={sfb}, B0= {B0}, Uloop= {Uloop}')
         sf=saf_fact(sf0,sfb,rini,run_cfg.a,Uloop)
-        logger.info(f'rini= {rini}, thetini= {thetini}, fiini= {fiini}, pparini= {pparini}')
-
+        
         y0= [pparini, rini, thetini, fiini] #, pperp2ini, Bpolini, Btotini, Bradini, Btorini, psipolini, psitorini, energyini]
         t_end= t_start + delt  #t1UL
-        #logger.info(f'rini= {rini}, thetini= {thetini}, fiini= {fiini}, pparini= {pparini}, energyini= {energyini}')
+
+        logger.info(f'rini= {rini}, thetini= {thetini}, fiini= {fiini}, pparini= {pparini}, energyini= {energyini}')
         logger.info(f't_start(s)= {t_start*run_cfg.R0/ccc*tau_norm}, del_t_calculation(s)= {(t_end-t_start)*run_cfg.R0/ccc*tau_norm}, time(s)={t_end*run_cfg.R0/ccc*tau_norm}')
         #logger.info(f'solve_ivp: method= DOP853, t_eval={nrange}')
         logger.info(f'solve_ivp: method= DOP853, dense_output=True')
