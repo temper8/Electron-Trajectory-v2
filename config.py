@@ -1,6 +1,5 @@
 import tomllib
 from typing import NamedTuple
-from logger_config import logger
 
 class RunConfig(NamedTuple):
     R0: float
@@ -15,12 +14,15 @@ class RunConfig(NamedTuple):
     ppar: float
     pperp: float
 
+
+def get_tokamak(discharge_path):
+    with open(discharge_path, "rb") as f:
+        cfg = tomllib.load(f)
+    return f"Tokamak: {cfg['tokamak']['name']}"
+
 def load_configs(discharge_path):
     with open(discharge_path, "rb") as f:
         cfg = tomllib.load(f)
-        
-    logger.info(f"Tokamak: {cfg['tokamak']['name']}")
-
     return RunConfig(
         R0=    cfg['tokamak']['R0'],
         a=     cfg['tokamak']['a'],
@@ -35,7 +37,9 @@ def load_configs(discharge_path):
         pperp= cfg['initial_conditions']['pperp'],
     )
 
-def log_config(cfg):
-    logger.info(f"R0 = {cfg.R0} a = {cfg.a}")
-    logger.info(f"delr = {cfg.delr} delr = {cfg.delr}")
-    logger.info(f"nfi = {cfg.nfi}")
+def info_string(cfg):
+    info = f"R0 = {cfg.R0}, a = {cfg.a}, "
+    info += f"delr = {cfg.delr}, delr = {cfg.delr}, "
+    info += f"nfi = {cfg.nfi}"
+    return info
+

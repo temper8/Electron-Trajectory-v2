@@ -1,15 +1,16 @@
 import gc
 import pandas as pd
-from config import load_configs, log_config
+import config 
 from logger_config import log_memory_usage, logger
 import time
 from scipy.integrate import odeint,solve_ivp  
 
 from physical_constants import *
 import parameters
-
-run_cfg = load_configs('discharges/base_shot.toml')
-log_config(run_cfg)
+        
+logger.info(config.get_tokamak('discharges/base_shot.toml'))
+run_cfg = config.load_configs('discharges/base_shot.toml')
+logger.info(config.info_string(run_cfg))
 #parameters.a, parameters.R0, parameters.delr, parameters.delfi, parameters.nfi =  run_cfg
 
 #from parameters import *
