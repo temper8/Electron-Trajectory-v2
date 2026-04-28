@@ -1,3 +1,4 @@
+from line_profiler import profile
 from loguru import logger
 import numpy as np
 import numba 
@@ -106,7 +107,7 @@ def fast_hyp_part(x, n, terms=10):
         if abs(current_term) < 1e-12:
             break
             
-    return (x**(n + 2)) * hyp_sum / (2.0 + n)
+    return hyp_sum
 
 @njit
 def fast_hyp2f1_specific(x, n, terms=15):
@@ -133,7 +134,8 @@ def fast_hyp2f1_specific(x, n, terms=15):
             
     return hyp_sum
 
-@njit
+#@profile
+#@njit
 def Mag_field(r, thet, fi, B0, sf0, sfb, Uloop, run_cfg :RunConfig):
     #R0, a, delr, delfi, nfi, n, r, thet, fi, ppar, pperp
     R0, a, delr, delfi, nfi, n, _, _, _, _, _ = run_cfg
@@ -186,7 +188,7 @@ def Mag_field(r, thet, fi, B0, sf0, sfb, Uloop, run_cfg :RunConfig):
     A1=psitor
     rpsi=(R0/abs(psi0))*sqrt((2*psi0-A1)*A1)
     sf=saf_fact(sf0,sfb,rpsi,a,Uloop)
-    sf1=saf_fact(sf0,sfb,r,a,Uloop)
+    #sf1=saf_fact(sf0,sfb,r,a,Uloop)
 
     dpsidA1=1.
     dA1dr=(psi0/R0)*x/sqrt(1-x**2)
