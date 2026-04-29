@@ -22,7 +22,11 @@ parameters.R0 = run_cfg.R0
 parameters.n = run_cfg.n
 from eqations import *
 
+num_it= 10
+nrange= 20000
+delt=200000
 t_ini=0.2*ccc_R0/tau_norm
+logger.info(f"num_it= {num_it}, nrange= {nrange}")
 t0c=t_ini
 sf0=spl_q0(t0c)
 sfb=spl_qa(t0c)
@@ -42,15 +46,10 @@ energyini=m01*ccc1**2*(sqrt(1+p2ini)-1)/1.6022e-12
 logger.info('+++++++  start  +++++++++')
 
 logger.info(f'rini= {run_cfg.r}, thetini={run_cfg.thet}, fiini={run_cfg.fi}, pparini= {run_cfg.ppar}, energyini= {energyini}')
-#exit()
 
-num_it= 10
-nrange= 20000
-delt=200000
-logger.info(f"num_it= {num_it}, nrange= {nrange}")
 logger.info(f"------------------------------------------------------------")
 # Open the HDF5 file for writing (this will overwrite the old file)
-start_time_full = time.time()
+calculation_start_time = time.time()
 file_name ='results/full_trajectory.h5'
 with pd.HDFStore(file_name, mode='w') as store:
     logger.info(f"Open the HDF5 file :  {file_name}")
@@ -63,7 +62,7 @@ with pd.HDFStore(file_name, mode='w') as store:
     for it in range(num_it):
         logger.info(f"Iteration {it}. Start")
         log_memory_usage()
-        start_time = time.time()
+        iteration_start_time = time.time()
         t0c=t_start
         sf0=spl_q0(t0c)
         sfb=spl_qa(t0c)
@@ -88,8 +87,8 @@ with pd.HDFStore(file_name, mode='w') as store:
                     rtol= 1e-7,
                     atol= 1e-10) 
         logger.info(f"Number of function evaluations {sol.nfev}")
-        eval_time = time.time() - start_time
-        logger.info(f"Number of function evaluations per sec {(sol.nfev/eval_time):0.2f}")
+        iteration_time = time.time() - iteration_start_time
+        logger.info(f"Number of function evaluations per sec {(sol.nfev/iteration_time):0.2f}")
 
         t_steps = np.linspace(t_start, t_end, nrange)
         all_data = sol.sol(t_steps) # Получаем все данные разом!
@@ -116,10 +115,10 @@ with pd.HDFStore(file_name, mode='w') as store:
         del sol
         del all_data
         gc.collect()
-        logger.info(f"Iteration {it}. Execution time: {eval_time:0.2f} sec")
+        logger.info(f"Iteration {it}. calculation time: {iteration_time:0.2f} sec")
         logger.info(f"------------------------------------------------------------")
 
-logger.info(f"Full execution time: {time.time() - start_time_full:0.2f} sec")        
+logger.info(f"Full calculationtime: {time.time() - calculation_start_time:0.2f} sec")        
 
 #LSODA
 #DOP853
