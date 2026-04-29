@@ -6,6 +6,7 @@ from config import load_configs
 from physical_constants import *
 
 run_cfg = load_configs('discharges/base_shot.toml')
+#run_cfg = load_configs('discharges/test_shot.toml')
 
 params = run_cfg.params
 ccc_R0= ccc/params.R0
