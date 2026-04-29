@@ -12,7 +12,7 @@ import parameters
 if len(sys.argv) > 1:
     shot_file=sys.argv[1]
 else:
-    shot_file = 'base_shot.toml'
+    shot_file = 'test_shot.toml'
 
 logger.info(f"shot file: {shot_file}")
     
@@ -90,6 +90,7 @@ with pd.HDFStore(file_name, mode='w') as store:
                     method='DOP853', 
                     dense_output=True, 
                     args=(params, muini),
+                    events=hit_wall,
                     rtol= 1e-7,
                     atol= 1e-10) 
         logger.info(f"Number of function evaluations {sol.nfev}")
@@ -122,9 +123,9 @@ with pd.HDFStore(file_name, mode='w') as store:
         logger.info(f"------------------------------------------------------------")
         
         if sol.status == 1:
-            logger.info(f"Событие зафиксировано: частица коснулась стенки.")
+            logger.info(f"The event was recorded: the particle touched the wall.")
             tau_collision = sol.t_events[0][0]
-            logger.info(f"tau collision = {tau_collision:.2e} сек.")
+            logger.info(f"tau collision = {tau_collision} ")
             
             # Можно также узнать координаты точки столкновения
             #R_collision = sol.y_events[0][0][0]
