@@ -1,28 +1,33 @@
 import numpy as np
 import pandas as pd
 from numpy import cos,sin
+import matplotlib.pyplot as plt    
+from config import load_configs
+from physical_constants import *
 
-#df = pd.read_pickle('old_calculation/result_11_equations_FT2_r_6_t_15_.pkl')
-df = pd.read_pickle('full_trajectory.pkl')
-#df = pd.read_pickle('result_11_equations_EXL_50U_13976_r_0.4_t_0.3_.pkl')
+run_cfg = load_configs('discharges/base_shot.toml')
+
+params = run_cfg.params
+ccc_R0= ccc/params.R0
+a = params.a
+R0 = params.R0
+n = params.n
+
+df = pd.read_hdf('results/full_trajectory.h5', 'trajectory')
 df.head
 
-import matplotlib.pyplot as plt    
-#ax = df.plot(x= 'rini', y='thetini', kind='line', title='My Line Plot'
-#plt.show()
+print(f"size= {len(df)}")
 
-from parameters import *
-#from parameters_EXL_50U_13976 import *
+ax = df.plot(x= 'r', y='thet', kind='line', title='My Line Plot')
+plt.show()
+
 df['time']=df['time']/ccc_R0*tau_norm
-print(len(df['time'])) #,'df[t_ini[0]]=',df['t_ini[0]']   #,'t_ini[len(t_ini)-1]=',t_ini[len(t_ini)-1])
-
-import matplotlib.pyplot as plt
 
 rpr=df['r']/a
 thetpr=df['thet']
 
 mmn=0
-mmx=9999
+mmx= 10000
 mmn1=100000
 mmx1=109999
 mmn2=200000
@@ -48,16 +53,17 @@ fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
 #ax.plot(df['thetini'], df['rini']/a )
 #ax.plot(thetpr0, rpr0)
 #ax.plot(thetpr1, rpr1)
-ax.plot(thetpr3, rpr3)
-ax.plot(thetpr2, rpr2)
-ax.plot(thetpr1, rpr1)
-ax.plot(thetpr0, rpr0)
+#ax.plot(thetpr3, rpr3, alpha=0.5)
+#ax.plot(thetpr2, rpr2, alpha=0.5)
+#ax.plot(thetpr1, rpr1, alpha=0.5)
+#ax.plot(thetpr0, rpr0, alpha=0.5)
+ax.scatter(thetpr, rpr, alpha=0.05, color='blue', edgecolors='none', s=10)
 ax.set_rmax(1)
 #ax.set_rticks([0.2, 0.4, 0.6, 0.8])  # Less radial ticks
 ax.set_rlabel_position(-22.5)  # Move radial labels away from plotted line
 ax.grid(True)
 #ax.set_title("Electron trajectory in poloidal crossection", va='bottom')
-plt.savefig('FT2_r_0.01_t_15_p_m0.1_segment_4_cross_sect.svg')
+plt.savefig('pictures/FT2_r_0.01_t_15_p_m0.1_segment_4_cross_sect.svg')
 plt.show()
 
 #print('rini=',sol[nrange-1,1])
@@ -83,7 +89,7 @@ plt.xlabel('t(ms)')
 plt.ylim(0.,1.0)
 #plt.xlim(0.348,0.349)
 #plt.xlim(0.328,0.331)
-plt.savefig('FT2_r_0.01_t_15_p_m0.025_segment_4_rto_a.svg')
+plt.savefig('pictures/FT2_r_0.01_t_15_p_m0.025_segment_4_rto_a.svg')
 plt.grid()
 plt.show()
 #print('final t(ms)=',tinipr[mmx-1:mmx])
@@ -142,7 +148,7 @@ plt.ylim(0.e7,1.e7)
 #plt.xlim(55.2,55.3)
 #plt.xlim(0.0198,0.02)
 #plt.ylim(7.5e6,7.7e6)
-plt.savefig('FT2_r_0.01_t_15_p_m0.025_segment_4_Wkin.svg')
+plt.savefig('pictures/FT2_r_0.01_t_15_p_m0.025_segment_4_Wkin.svg')
 plt.grid()
 plt.show()
 
