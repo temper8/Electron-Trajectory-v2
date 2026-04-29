@@ -1,3 +1,5 @@
+import sys
+
 import numpy as np
 import pandas as pd
 from numpy import cos,sin
@@ -15,21 +17,27 @@ R0 = params.R0
 n = params.n
 
 df = pd.read_hdf('results/EXL-50U_13976.h5', 'trajectory')
-df.head
+print(df.head().to_string())
 
 print(f"size= {len(df)}")
 
+df['R'] = R0+ df['r']*cos(df['theta'])
+df['Z'] = df['r']*sin(df['theta'])
+df['time']=df['tau']/ccc_R0*tau_norm
+
 plt.ion() # Включаем интерактивный режим
 
-plt.figure()
-ax = df.plot(x= 'r', y='thet', kind='line', title='My Line Plot')
+#plt.figure()
+ax = df.plot(x= 'R', y='Z', kind='scatter', title='Scatter plot')
+ax.axis('equal')
 plt.draw() # Принудительная отрисовка
 plt.pause(0.1)
 
-df['time']=df['tau']/ccc_R0*tau_norm
+
+
 
 rpr=df['r']/a
-thetpr=df['thet']
+thetpr=df['theta']
 
 mmn=0
 mmx= 10000
@@ -72,6 +80,10 @@ plt.savefig('pictures/FT2_r_0.01_t_15_p_m0.1_segment_4_cross_sect.png')
 plt.draw() # Принудительная отрисовка
 plt.pause(0.1)
 
+plt.ioff() # Выключаем интерактивный режим
+plt.show() # Блокируем выход, пока вы сами не закроете окна
+
+sys.exit(0)
 #print('rini=',sol[nrange-1,1])
 #plt.plot(sol.t, sol.y[1]/a, 'g', label='r(t)/a')
 #rpr=df['rini']/a
