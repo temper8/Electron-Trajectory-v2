@@ -84,7 +84,7 @@ with pd.HDFStore(file_name, mode='w') as store:
         logger.info(f't_start(s)= {tau_start*params.R0/ccc*tau_norm}, del_t_calculation(s)= {(tau_end-tau_start)*params.R0/ccc*tau_norm}, time(s)={tau_end*params.R0/ccc*tau_norm}')
         #logger.info(f'solve_ivp: method= DOP853, t_eval={nrange}')
         logger.info(f'solve_ivp: method= DOP853, dense_output=True')
-        sol= solve_ivp(fin_fun,
+        sol= solve_ivp(guiding_center_dynamics,
                     [tau_start, tau_end], 
                     y0, 
                     method='DOP853', 
@@ -117,12 +117,17 @@ with pd.HDFStore(file_name, mode='w') as store:
         logger.info(f"df size= {len(df)}")
         # Инкрементная запись в HDF5 
         store.append('trajectory', df, index=False)
+        logger.info(f"Iteration {it}. calculation time: {iteration_time:0.2f} sec")
+        logger.info(f"------------------------------------------------------------")
+        
+        if sol.status == 1:
+            logger.info(f"Событие зафиксировано: частица коснулась стенки.")
+
         del df
         del sol
         del all_data
         gc.collect()
-        logger.info(f"Iteration {it}. calculation time: {iteration_time:0.2f} sec")
-        logger.info(f"------------------------------------------------------------")
+
 
 logger.info(f"Full calculationtime: {time.time() - calculation_start_time:0.2f} sec")        
 

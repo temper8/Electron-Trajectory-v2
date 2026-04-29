@@ -290,8 +290,17 @@ def eq_mot(t, R0,pperp,ppar,r,thet,fi,R,Uloop,brtr,brtt,brtfi,gbr,gbt,gbfi, \
 
     return [y1, y2, y3, y4] #,y5,y6,y7,y8,y9,y10,y11,y12] 
 
+# --- Функция события: пересечение границы ---
+def hit_wall(t, y):
+    #R, phi, Z, v_p = y
+    ppar, r, thet, fi = y
+    # 
+    return r - 0.6
+# Настройка события: остановить интеграцию при достижении 0
+hit_wall.terminal = True 
+hit_wall.direction = 1  # Срабатывает только при вылете наружу
 
-def fin_fun(t, y, params:RunParams, muini):
+def guiding_center_dynamics(t, y, params:RunParams, muini):
     #a,R0,delr,delfi,nfi,n,pparini,pperpini
     ppar, r, thet, fi = y
     
