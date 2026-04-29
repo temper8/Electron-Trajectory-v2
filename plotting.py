@@ -13,7 +13,7 @@ a = params.a
 R0 = params.R0
 n = params.n
 
-df = pd.read_hdf('results/full_trajectory.h5', 'trajectory')
+df = pd.read_hdf('results/EXL-50U_13976.h5', 'trajectory')
 df.head
 
 print(f"size= {len(df)}")
@@ -21,7 +21,7 @@ print(f"size= {len(df)}")
 ax = df.plot(x= 'r', y='thet', kind='line', title='My Line Plot')
 plt.show()
 
-df['time']=df['time']/ccc_R0*tau_norm
+df['time']=df['tau']/ccc_R0*tau_norm
 
 rpr=df['r']/a
 thetpr=df['thet']
