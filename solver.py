@@ -42,7 +42,7 @@ B0=spl_B(t0c)
 sf=saf_fact(sf0,sfb,params.r,a,Uloop)
 R,Btotini,Btorini,Bpolini,Bpol1,Bradini,brad,btor,bpol,bpol1,dBpoldr,dBtordfi,dBraddr,dBtordr,dBpoldfi,dBraddfi,  \
 dBpoldthet,dBtordthet,dBraddthet,dBpoldthet1,dBtordthet1,dBraddthet1,psitorini,dpsidr,dpsidfi,sf \
-=Mag_field(params.r, params.thet, params.fi, B0, sf0, sfb, Uloop, params)
+=Mag_field(params.r, params.theta, params.phi, B0, sf0, sfb, Uloop, params)
 pperp2ini=params.pperp**2    
 muini=pperp2ini/Btotini
 p2ini=params.ppar**2+pperp2ini
@@ -51,7 +51,7 @@ energyini=m01*ccc1**2*(sqrt(1+p2ini)-1)/1.6022e-12
 
 logger.info('+++++++  start  +++++++++')
 
-logger.info(f'rini= {params.r}, thetini={params.thet}, fiini={params.fi}, pparini= {params.ppar}, energyini= {energyini}')
+logger.info(f'rini= {params.r}, thetini={params.theta}, fiini={params.phi}, pparini= {params.ppar}, energyini= {energyini}')
 
 logger.info(f"------------------------------------------------------------")
 # Open the HDF5 file for writing (this will overwrite the old file)
@@ -61,8 +61,8 @@ with pd.HDFStore(file_name, mode='w') as store:
     logger.info(f"Open the HDF5 file :  {file_name}")
     tau_start = t_ini
     rini = params.r
-    thetini = params.thet
-    fiini = params.fi
+    thetini = params.theta
+    fiini = params.phi
     pparini = params.ppar
     logger.info(f"num_it= {run_cfg.num_it}, nrange= {run_cfg.nrange}")
     for it in range(run_cfg.num_it):
@@ -111,7 +111,7 @@ with pd.HDFStore(file_name, mode='w') as store:
         thetini=thetini-int(theta_revolutions)*2*pi
         fiini=fiini-int(fi_revolutions)*2*pi
         
-        df = pd.DataFrame(sol.y.T, columns=['ppar','r','thet','fi'])
+        df = pd.DataFrame(sol.y.T, columns=['ppar','r','theta','phi'])
         df['tau'] =  sol.t
 
         logger.debug("\n" + df.head().to_string())

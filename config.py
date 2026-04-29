@@ -10,8 +10,8 @@ class RunParams(NamedTuple):
     nfi: int
     n: int
     r: float
-    thet: float
-    fi: float
+    theta: float
+    phi: float
     ppar: float
     pperp: float
 
@@ -38,8 +38,8 @@ def load_configs(discharge_path):
         nfi=   cfg['discharge']['perturbations']['nfi'],
         n=     cfg['discharge']['perturbations']['n'],
         r=     cfg['initial_conditions']['r'],
-        thet=  cfg['initial_conditions']['thet'],
-        fi=    cfg['initial_conditions']['fi'],
+        theta=  cfg['initial_conditions']['theta'],
+        phi=    cfg['initial_conditions']['phi'],
         ppar=  cfg['initial_conditions']['ppar'],
         pperp= cfg['initial_conditions']['pperp'],
     )
