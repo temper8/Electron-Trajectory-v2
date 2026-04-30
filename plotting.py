@@ -1,15 +1,15 @@
-from cmath import pi
 import sys
 
 import numpy as np
 import pandas as pd
-from numpy import cos,sin
+from numpy import cos, sin, pi
 import matplotlib.pyplot as plt    
 from config import load_configs
 from physical_constants import *
 
-run_cfg = load_configs('discharges/base_shot.toml')
-#run_cfg = load_configs('discharges/test_shot.toml')
+#run_cfg = load_configs('discharges/base_shot.toml')
+run_cfg = load_configs('discharges/test_shot.toml')
+run_cfg = load_configs('discharges/shot_1.toml')
 
 params = run_cfg.params
 ccc_R0= ccc/params.R0
@@ -18,26 +18,28 @@ R0 = params.R0
 n = params.n
 
 df = pd.read_hdf('results/EXL-50U_13976.h5', 'trajectory')
-
-
 df['R'] = R0+ df['r']*cos(df['theta'])
 df['Z'] = df['r']*sin(df['theta'])
 df['time']=df['tau']/ccc_R0*tau_norm
 df['floor_phi'] =  np.floor(df['phi']/(2*pi)).astype(int)
 
-# Оставляем только те строки, где текущее значение не равно предыдущему
-df_Poincare  = df[df['floor_phi'] != df['floor_phi'].shift()]
+pp_df = pd.read_hdf('results/EXL-50U_13976.h5', 'poincare_points')
+pp_df['time']=pp_df['tau']/ccc_R0*tau_norm
+pp_df['R'] = R0+ pp_df['r']*cos(pp_df['theta'])
+pp_df['Z'] = pp_df['r']*sin(pp_df['theta'])
 
-print(df.head(20).to_string())
-print(f"size= {len(df)}")
+#print(df.head(5).to_string())
+print(f"trajectory size = {len(df)}")
+print(f"poincare size   = {len(pp_df)}")
 
-print(df_Poincare.head(20).to_string())
-print(f"size= {len(df_Poincare)}")
+
 plt.ion() # Включаем интерактивный режим
 
 #plt.figure()
-ax = df_Poincare.plot(x= 'R', y='Z', alpha=0.05, edgecolors='none', s=10, kind='scatter', title='Scatter plot')
-ax.axis('equal')
+ax1 = df.plot(x= 'R', y='Z', alpha=0.05, edgecolors='none', s=10, kind='scatter', title='Scatter plot')
+ax1.axis('equal')
+ax2 = pp_df.plot(x= 'R', y='Z', alpha=0.05, edgecolors='none', s=10, kind='scatter', title='Scatter plot')
+ax2.axis('equal')
 plt.draw() # Принудительная отрисовка
 plt.pause(0.1)
 
@@ -56,6 +58,7 @@ plt.pause(0.1)
 
 plt.figure()
 plt.plot(df['time'], df['r']/a, 'b')
+plt.scatter(pp_df['time'], pp_df['r']/a, 10, color='r')
 plt.title("r(t)/a plot")
 plt.xlabel('t(ms)')
 plt.ylim(0.,1.0)
@@ -65,15 +68,27 @@ plt.draw()
 plt.pause(0.1)
 
 plt.figure()
-plt.plot(df['time'], df['phi'], 'b')
-plt.title("phi(t) plot")
+plt.scatter(df['time'], sin(df['phi']), 10, color='b')
+plt.scatter(pp_df['time'], sin(pp_df['phi']), 10, color='r')
+plt.title("sin(phi(t)) plot")
 plt.xlabel('t(ms)')
 #plt.ylim(0.,1.0)
 #plt.savefig('pictures/FT2_r_0.01_t_15_p_m0.025_segment_4_rto_a.svg')
 plt.grid()
 plt.draw() 
-
 plt.pause(0.1)
+
+plt.figure()
+#plt.plot(df['time'], sin(df['phi']), marker='o', linestyle='-', color='b')
+plt.plot(pp_df['time'], sin(pp_df['phi']), marker='o', linestyle='-', color='r')
+plt.title("phi(t) poincare points")
+plt.xlabel('t(ms)')
+#plt.ylim(0.,1.0)
+#plt.savefig('pictures/FT2_r_0.01_t_15_p_m0.025_segment_4_rto_a.svg')
+plt.grid()
+plt.draw() 
+plt.pause(0.1)
+
 
 plt.ioff() # Выключаем интерактивный режим
 plt.show() # Блокируем выход, пока вы сами не закроете окна

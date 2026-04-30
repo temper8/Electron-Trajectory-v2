@@ -8,11 +8,12 @@ from scipy.integrate import odeint,solve_ivp
 
 from physical_constants import *
 import parameters
+from poincare import find_poincare_points
 
 if len(sys.argv) > 1:
     shot_file=sys.argv[1]
 else:
-    shot_file = 'test_shot.toml'
+    shot_file = 'shot_1.toml'
 
 logger.info(f"shot file: {shot_file}")
     
@@ -81,12 +82,12 @@ with pd.HDFStore(file_name, mode='w') as store:
 
         logger.info(f'r= {rini}, thet= {thetini}, fi= {fiini}, ppar= {pparini}')
         logger.info(f't_start(s)= {tau_start*params.R0/ccc*tau_norm}, del_t_calculation(s)= {(tau_end-tau_start)*params.R0/ccc*tau_norm}, time(s)={tau_end*params.R0/ccc*tau_norm}')
-        #logger.info(f'solve_ivp: method= DOP853, t_eval={nrange}')
-        logger.info(f'solve_ivp: method= DOP853, dense_output=True')
+        solve_method = 'Radau' #'DOP853'
+        logger.info(f'solve_ivp: method= {solve_method}, dense_output=True')
         sol= solve_ivp(guiding_center_dynamics,
                     [tau_start, tau_end], 
                     y0, 
-                    method='DOP853', 
+                    method= solve_method, 
                     dense_output=True, 
                     args=(params, muini),
                     events=hit_wall,
@@ -116,8 +117,11 @@ with pd.HDFStore(file_name, mode='w') as store:
 
         logger.debug("\n" + df.head().to_string())
         logger.info(f"df size= {len(df)}, {get_memory_usage()}.")
+
         # Инкрементная запись в HDF5 
         store.append('trajectory', df, index=False)
+        store.append('poincare_points', find_poincare_points(sol), index=False)
+
         logger.info(f"Iteration {it}. calculation time: {iteration_time:0.2f} sec")
         logger.info(f"------------------------------------------------------------")
         
