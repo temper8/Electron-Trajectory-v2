@@ -274,8 +274,7 @@ def eq_mot(t, R0,pperp,ppar,r,thet,fi,R,Uloop,brtr,brtt,brtfi,gbr,gbt,gbfi, \
     y = np.array([dppardt, dRdtr, dRdtt/r, dRdtfi/R])
 
     if np.any(np.isnan(y)) or np.any(np.isinf(y)):
-        print(y)
-        raise ValueError("Обнаружены NaN или Inf в векторе состояния!")
+        raise ValueError(f"Обнаружены NaN или Inf в векторе состояния! y = {y}")
     return y
     # dpperp2dt=muini*(gbr*y2+gbt*y3*r+gbfi*y4*R)
 
