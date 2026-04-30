@@ -13,7 +13,7 @@ from poincare import find_poincare_points
 if len(sys.argv) > 1:
     shot_file=sys.argv[1]
 else:
-    shot_file = 'shot_1.toml'
+    shot_file = 'test_shot.toml'
 
 logger.info(f"shot file: {shot_file}")
     
@@ -82,7 +82,7 @@ with pd.HDFStore(file_name, mode='w') as store:
 
         logger.info(f'r= {rini}, thet= {thetini}, fi= {fiini}, ppar= {pparini}')
         logger.info(f't_start(s)= {tau_start*params.R0/ccc*tau_norm}, del_t_calculation(s)= {(tau_end-tau_start)*params.R0/ccc*tau_norm}, time(s)={tau_end*params.R0/ccc*tau_norm}')
-        solve_method = 'Radau' #'DOP853'
+        solve_method = 'LSODA' #'Radau' #'DOP853'
         logger.info(f'solve_ivp: method= {solve_method}, dense_output=True')
         sol= solve_ivp(guiding_center_dynamics,
                     [tau_start, tau_end], 
@@ -91,8 +91,8 @@ with pd.HDFStore(file_name, mode='w') as store:
                     dense_output=True, 
                     args=(params, muini),
                     events=hit_wall,
-                    rtol= 1e-7,
-                    atol= 1e-10) 
+                    rtol= 1e-8,
+                    atol= 1e-9) 
         logger.info(f"Number of function evaluations {sol.nfev}")
         iteration_time = time.time() - iteration_start_time
         logger.info(f"Number of function evaluations per sec {(sol.nfev/iteration_time):0.2f}")
@@ -106,11 +106,9 @@ with pd.HDFStore(file_name, mode='w') as store:
         #pparini, rini, thetini, fiini , pperp2ini, Bpolini, Btotini, Bradini, Btorini, psipolini, psitorini, energyini = y_last
         pparini, rini, thetini, fiini = y_last
 
-        theta_revolutions = thetini/(2*pi)
-        fi_revolutions = fiini/(2*pi)
-        logger.info(f'theta_revolutions= {theta_revolutions:0.2f}, fi_revolutions= {fi_revolutions:0.2f}')
-        thetini=thetini-int(theta_revolutions)*2*pi
-        fiini=fiini-int(fi_revolutions)*2*pi
+        logger.info(f'theta_revolutions= {thetini/(2*pi):0.2f}, fi_revolutions= {fiini/(2*pi):0.2f}')
+        thetini=thetini%(2*pi)
+        fiini=fiini%(2*pi)
         
         df = pd.DataFrame(sol.y.T, columns=['ppar','r','theta','phi'])
         df['tau'] =  sol.t
@@ -135,8 +133,8 @@ with pd.HDFStore(file_name, mode='w') as store:
             #Z_collision = sol.y_events[0][0][2]
             #print(f"Координаты столкновения: R={R_collision:.3f}, Z={Z_collision:.3f}")
             break
-        del df
-        del sol
+        #del df
+        #del sol
         #del all_data
         gc.collect()
 
