@@ -1,3 +1,5 @@
+import sys
+
 from line_profiler import profile
 from loguru import logger
 import numpy as np
@@ -269,10 +271,12 @@ def eq_mot(t, R0,pperp,ppar,r,thet,fi,R,Uloop,brtr,brtt,brtfi,gbr,gbt,gbfi, \
     dRdtr=M1*brad+M2*bgrr+M3*bbrtr+M4*(Epol*btor-Etor*bpol)
     dRdtt=M1*bpol+M2*bgrt+M3*bbrtt+M4*(Etor*brad-Erad*btor)
     dRdtfi=M1*btor+M2*bgrfi+M3*bbrtfi+M4*(Erad*bpol-Epol*brad)
-    y1=dppardt
-    y2=dRdtr
-    y3=dRdtt/r
-    y4=dRdtfi/R
+    y = [dppardt, dRdtr, dRdtt/r, dRdtfi/R]
+
+    if np.any(np.isnan(y)) or np.any(np.isinf(y)):
+        print(y)
+        sys.exit(1)
+    return y
     # dpperp2dt=muini*(gbr*y2+gbt*y3*r+gbfi*y4*R)
 
     # y5=dpperp2dt
@@ -288,7 +292,7 @@ def eq_mot(t, R0,pperp,ppar,r,thet,fi,R,Uloop,brtr,brtt,brtfi,gbr,gbt,gbfi, \
     # y11=(y4*dpsidfi+y2*dpsidr)
     # y12=-Etor*dRdtfi
 
-    return [y1, y2, y3, y4] #,y5,y6,y7,y8,y9,y10,y11,y12] 
+    #return [y1, y2, y3, y4] #,y5,y6,y7,y8,y9,y10,y11,y12] 
 
 # --- Функция события: пересечение границы ---
 def hit_wall(t, y, params:RunParams, muini):
