@@ -37,13 +37,13 @@ plt.ion() # Включаем интерактивный режим
 
 #plt.figure()
 
-ax2 = pp_df.plot(x= 'R', y='Z', alpha=0.05, edgecolors='none', s=10, kind='scatter', title='Scatter plot')
+ax2 = pp_df.plot(x= 'R', y='Z', c= 'time', cmap='plasma', alpha=0.05, edgecolors='none', s=10, kind='scatter', title='Scatter plot')
 ax2.axis('equal')
 plt.draw() # Принудительная отрисовка
 plt.pause(0.1)
 
 fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
-ax.scatter(pp_df['theta'],pp_df['r']/a, alpha=0.05, color='blue', edgecolors='none', s=10)
+ax.scatter(pp_df['theta'],pp_df['r']/a, c= pp_df['time'], cmap='plasma', alpha=0.05, edgecolors='none', s=5)
 ax.set_rmax(1)
 #ax.set_rticks([0.2, 0.4, 0.6, 0.8])  # Less radial ticks
 ax.set_rlabel_position(-22.5)  # Move radial labels away from plotted line
@@ -56,7 +56,7 @@ plt.pause(0.1)
 
 
 plt.figure()
-plt.scatter(pp_df['time'], pp_df['r']/a, 10, color='r')
+plt.scatter(pp_df['time'], pp_df['r']/a, c= pp_df['time'], cmap='plasma', s=5)
 plt.title("r(t)/a plot")
 plt.xlabel('t(ms)')
 plt.ylim(0.,1.0)
