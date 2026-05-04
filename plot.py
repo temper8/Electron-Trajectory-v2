@@ -6,6 +6,7 @@ from numpy import cos, sin, pi
 import matplotlib.pyplot as plt    
 from config import RunParams, SolverParams, load_configs
 from physical_constants import *
+from plotting.plot_r_phi import plot_r_phi_segments
 from plotting.plot_trajectory import plot_traj, polar_plot_traj
 def read_dict(store, name):
     df = store[name]
@@ -53,13 +54,15 @@ print(f"poincare size   = {len(pp_df)}")
 
 plt.ion() # Включаем интерактивный режим
 
-plot_traj(df, pp_df)
+plot_r_phi_segments(df, 30)
+plt.draw() # Принудительная отрисовка
+plt.pause(0.1)
 
+plot_traj(df, pp_df)
 plt.draw() # Принудительная отрисовка
 plt.pause(0.1)
 
 polar_plot_traj(df, a)
-
 plt.draw() 
 plt.pause(0.1)
 
