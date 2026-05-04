@@ -77,7 +77,7 @@ def read_dict_hdf5(store, name):
     return meta_dict
 
 def read_config_hdf5(file):
-    with pd.HDFStore(file) as store:
+    with pd.HDFStore(file, mode='r') as store:
         meta_dict = read_dict_hdf5(store, 'params')
         params = RunParams(**meta_dict)
         df_solver = store['solver']

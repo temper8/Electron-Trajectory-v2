@@ -8,11 +8,14 @@ from src.config import RunParams, SolverParams, load_configs, read_config_hdf5
 from src.physical_constants import *
 from plotting.plot_r_phi import plot_r_phi_segments
 from plotting.plot_trajectory import plot_traj, polar_plot_traj
+from src.utils import select_h5_file
 
+#race_file = 'race/EXL-50U_13976/2026_05_04_22_20_06.h5'
+race_file = select_h5_file() 
+if race_file is None:
+    sys.exit()
 
-race_file = 'race/EXL-50U_13976/2026_05_04_21_50_36.h5'
 solver, params = read_config_hdf5(race_file)
-
 print(solver)
 print(params)
 
@@ -21,13 +24,13 @@ a = params.a
 R0 = params.R0
 n = params.n
 
-df = pd.read_hdf(race_file, 'trajectory')
+df = pd.read_hdf(race_file, 'trajectory', mode='r')
 df['R'] = R0+ df['r']*cos(df['theta'])
 df['Z'] = df['r']*sin(df['theta'])
 df['time']=df['tau']/ccc_R0*tau_norm
 df['floor_phi'] =  np.floor(df['phi']/(2*pi)).astype(int)
 
-pp_df = pd.read_hdf(race_file, 'poincare_points')
+pp_df = pd.read_hdf(race_file, 'poincare_points', mode='r')
 pp_df['time']=pp_df['tau']/ccc_R0*tau_norm
 pp_df['R'] = R0+ pp_df['r']*cos(pp_df['theta'])
 pp_df['Z'] = pp_df['r']*sin(pp_df['theta'])
@@ -39,7 +42,7 @@ print(f"poincare size   = {len(pp_df)}")
 
 plt.ion() # Включаем интерактивный режим
 
-plot_r_phi_segments(df)
+plot_r_phi_segments(df, len(df))
 plt.draw() # Принудительная отрисовка
 plt.pause(0.1)
 
