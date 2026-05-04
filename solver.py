@@ -4,7 +4,7 @@ from pathlib import Path
 import sys
 import pandas as pd
 import src.config as config 
-from logger_config import get_memory_usage, logger
+from src.logger_config import get_memory_usage, logger
 import time
 from scipy.integrate import odeint,solve_ivp  
 
