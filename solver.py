@@ -19,16 +19,15 @@ else:
 
 logger.info(f"shot file: {shot_file}")
     
-run_cfg = config.load_configs(f'discharges/{shot_file}')
+run_cfg, solver, params = config.load_configs(f'discharges/{shot_file}')
 
 logger.info(f"Tokamak: {run_cfg.tokamak_name} Shot number: {run_cfg.shot_number}")
-logger.info(config.param_string(run_cfg.params))
+logger.info(config.param_string(params))
 
 race_folder = Path(f"race/{run_cfg.tokamak_name}_{run_cfg.shot_number}")
 race_folder.mkdir(parents=True, exist_ok=True)
 race_file = Path(f"{datetime.now().strftime('%Y_%m_%d_%H_%M_%S')}.h5")
 # eval const
-params = run_cfg.params
 ccc_R0 = ccc/params.R0
 parameters.ccc_R0 = ccc_R0
 parameters.a = params.a
@@ -64,8 +63,12 @@ calculation_start_time = time.time()
 file = race_folder/race_file
 logger.debug(file)
 params_df = pd.DataFrame(list(params._asdict().items()), columns=['param', 'value'])
+solver_df = pd.DataFrame(list(solver._asdict().items()), columns=['param', 'value'])
+config_df = pd.DataFrame(list(run_cfg._asdict().items()), columns=['param', 'value'])
 with pd.HDFStore(race_folder/race_file, mode='w') as store:
     store.put('params', params_df)
+    store.put('solver', solver_df)
+    store.put('config', config_df)
     logger.info(f"Open the HDF5 file :  {file.name}")
     tau_start = t_ini
     rini = params.r
@@ -89,17 +92,17 @@ with pd.HDFStore(race_folder/race_file, mode='w') as store:
 
         logger.info(f'r= {rini}, thet= {thetini}, fi= {fiini}, ppar= {pparini}')
         logger.info(f't_start(s)= {tau_start*params.R0/ccc*tau_norm}, del_t_calculation(s)= {(tau_end-tau_start)*params.R0/ccc*tau_norm}, time(s)={tau_end*params.R0/ccc*tau_norm}')
-        logger.info(f'solve_ivp: method= {run_cfg.method}, dense_output=True')
-        logger.info(f'solve_ivp: rtol= {run_cfg.rtol}, atol= {run_cfg.atol}')
+        logger.info(f'solve_ivp: method= {solver.method}, dense_output=True')
+        logger.info(f'solve_ivp: rtol= {solver.rtol}, atol= {solver.atol}')
         sol= solve_ivp(guiding_center_dynamics,
                     [tau_start, tau_end], 
                     y0, 
-                    method= run_cfg.method, 
+                    method= solver.method, 
                     dense_output=True, 
                     args=(params, muini),
                     events=hit_wall,
-                    rtol= run_cfg.rtol,
-                    atol= run_cfg.atol) 
+                    rtol= solver.rtol,
+                    atol= solver.atol) 
         logger.info(f"Number of function evaluations {sol.nfev}")
         iteration_time = time.time() - iteration_start_time
         logger.info(f"Number of function evaluations per sec {(sol.nfev/iteration_time):0.2f}")

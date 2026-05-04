@@ -22,10 +22,12 @@ class RunConfig(NamedTuple):
     num_it: int
     nrange: int
     delta_tau: float
+
+
+class SolverParams(NamedTuple):
     method: str
     rtol: float
     atol: float    
-    params: RunParams
 
 
 
@@ -46,18 +48,20 @@ def load_configs(discharge_path):
         ppar=  cfg['initial_conditions']['ppar'],
         pperp= cfg['initial_conditions']['pperp'],
     )
-    return RunConfig(
+    solver = SolverParams(        
+        method       = cfg['solver']['method'],
+        rtol         = cfg['solver']['rtol'],
+        atol         = cfg['solver']['atol']
+    )
+    run_config = RunConfig(
         tokamak_name = cfg['tokamak']['name'],
         shot_number  = cfg['discharge']['main']['shot_number'],
         time_start   = cfg['initial_conditions']['time_start'],
         num_it       = cfg['initial_conditions']['num_it'],
         nrange       = cfg['initial_conditions']['nrange'],
         delta_tau    = cfg['initial_conditions']['delta_tau'],
-        method       = cfg['solver']['method'],
-        rtol         = cfg['solver']['rtol'],
-        atol         = cfg['solver']['atol'],
-        params       = params
     )
+    return run_config, solver, params
 
 def param_string(p:RunParams):
     info = f"R0 = {p.R0}, a = {p.a}, "

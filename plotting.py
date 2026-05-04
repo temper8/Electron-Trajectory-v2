@@ -4,16 +4,31 @@ import numpy as np
 import pandas as pd
 from numpy import cos, sin, pi
 import matplotlib.pyplot as plt    
-from config import RunParams, load_configs
+from config import RunParams, SolverParams, load_configs
 from physical_constants import *
+def read_dict(store, name):
+    df = store[name]
+    meta_dict = df.set_index('param')['value'].to_dict()
+    return meta_dict
 
-race_file = 'race/EXL-50U_13976/2026_05_04_19_51_31.h5'
-with pd.HDFStore(race_file) as store:
-    df_params = store['params']
-    meta_dict = df_params.set_index('param')['value'].to_dict()
-    params = RunParams(**meta_dict)
+def read_config(file):
+    with pd.HDFStore(race_file) as store:
+        meta_dict = read_dict(store, 'params')
+        params = RunParams(**meta_dict)
+        df_solver = store['solver']
+        meta_dict = read_dict(store, 'solver')
+        solver = SolverParams(**meta_dict)
+        return solver, params
 
+
+
+
+race_file = 'race/EXL-50U_13976/2026_05_04_20_15_10.h5'
+solver, params = read_config(race_file)
+
+print(solver)
 print(params)
+
 ccc_R0= ccc/params.R0
 a = params.a
 R0 = params.R0
