@@ -197,7 +197,7 @@ def Mag_field(r, thet, fi, B0, sf0, sfb, Uloop, params :RunParams):
     dBraddthet1=Gpr2*(1/R0)*Fpr+Gpr31*dFndthet
     dBraddthet=dBraddthet1*r
 
-    return R,Btot,Btor,Bpol,Bpol1,Brad,brad,btor,bpol,bpol1,dBpoldr,dBtordfi,dBraddr,dBtordr,dBpoldfi,dBraddfi,  \
+    return R,Btot,Btor,Bpol, Bpol1,Brad,brad,btor,bpol,bpol1,dBpoldr,dBtordfi,dBraddr,dBtordr,dBpoldfi,dBraddfi,  \
     dBpoldthet,dBtordthet,dBraddthet,dBpoldthet1,dBtordthet1,dBraddthet1,psitor,dpsidr,dpsidfi,sf
 
 @njit
@@ -271,9 +271,7 @@ def eq_mot(t, R0,pperp,ppar,r,thet,fi,R,Uloop,brtr,brtt,brtfi,gbr,gbt,gbfi, \
     dRdtr=M1*brad+M2*bgrr+M3*bbrtr+M4*(Epol*btor-Etor*bpol)
     dRdtt=M1*bpol+M2*bgrt+M3*bbrtt+M4*(Etor*brad-Erad*btor)
     dRdtfi=M1*btor+M2*bgrfi+M3*bbrtfi+M4*(Erad*bpol-Epol*brad)
-    y = np.array([dppardt, dRdtr, dRdtt/r, dRdtfi/R])
-
-    return y
+    return [dppardt, dRdtr, dRdtt/r, dRdtfi/R]
     # dpperp2dt=muini*(gbr*y2+gbt*y3*r+gbfi*y4*R)
 
     # y5=dpperp2dt

@@ -13,7 +13,7 @@ from poincare import find_poincare_points
 if len(sys.argv) > 1:
     shot_file=sys.argv[1]
 else:
-    shot_file = 'test_shot.toml'
+    shot_file = 'short_shot.toml'
 
 logger.info(f"shot file: {shot_file}")
     
@@ -58,7 +58,9 @@ logger.info(f"------------------------------------------------------------")
 # Open the HDF5 file for writing (this will overwrite the old file)
 calculation_start_time = time.time()
 file_name = f'results/{result_file}'
+params_df = pd.DataFrame(list(params._asdict().items()), columns=['param', 'value'])
 with pd.HDFStore(file_name, mode='w') as store:
+    store.put('params', params_df)
     logger.info(f"Open the HDF5 file :  {file_name}")
     tau_start = t_ini
     rini = params.r
@@ -82,17 +84,17 @@ with pd.HDFStore(file_name, mode='w') as store:
 
         logger.info(f'r= {rini}, thet= {thetini}, fi= {fiini}, ppar= {pparini}')
         logger.info(f't_start(s)= {tau_start*params.R0/ccc*tau_norm}, del_t_calculation(s)= {(tau_end-tau_start)*params.R0/ccc*tau_norm}, time(s)={tau_end*params.R0/ccc*tau_norm}')
-        solve_method = 'LSODA' #'Radau' #'DOP853'
-        logger.info(f'solve_ivp: method= {solve_method}, dense_output=True')
+        logger.info(f'solve_ivp: method= {run_cfg.method}, dense_output=True')
+        logger.info(f'solve_ivp: rtol= {run_cfg.rtol}, atol= {run_cfg.atol}')
         sol= solve_ivp(guiding_center_dynamics,
                     [tau_start, tau_end], 
                     y0, 
-                    method= solve_method, 
+                    method= run_cfg.method, 
                     dense_output=True, 
                     args=(params, muini),
                     events=hit_wall,
-                    rtol= 1e-8,
-                    atol= 1e-9) 
+                    rtol= run_cfg.rtol,
+                    atol= run_cfg.atol) 
         logger.info(f"Number of function evaluations {sol.nfev}")
         iteration_time = time.time() - iteration_start_time
         logger.info(f"Number of function evaluations per sec {(sol.nfev/iteration_time):0.2f}")
