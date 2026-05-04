@@ -7,8 +7,8 @@ import matplotlib.pyplot as plt
 from config import RunParams, load_configs
 from physical_constants import *
 
-result_file = 'results/EXL-50U_13976.h5'
-with pd.HDFStore(result_file) as store:
+race_file = 'race/EXL-50U_13976/2026_05_04_19_51_31.h5'
+with pd.HDFStore(race_file) as store:
     df_params = store['params']
     meta_dict = df_params.set_index('param')['value'].to_dict()
     params = RunParams(**meta_dict)
@@ -19,13 +19,13 @@ a = params.a
 R0 = params.R0
 n = params.n
 
-df = pd.read_hdf('results/EXL-50U_13976.h5', 'trajectory')
+df = pd.read_hdf(race_file, 'trajectory')
 df['R'] = R0+ df['r']*cos(df['theta'])
 df['Z'] = df['r']*sin(df['theta'])
 df['time']=df['tau']/ccc_R0*tau_norm
 df['floor_phi'] =  np.floor(df['phi']/(2*pi)).astype(int)
 
-pp_df = pd.read_hdf('results/EXL-50U_13976.h5', 'poincare_points')
+pp_df = pd.read_hdf(race_file, 'poincare_points')
 pp_df['time']=pp_df['tau']/ccc_R0*tau_norm
 pp_df['R'] = R0+ pp_df['r']*cos(pp_df['theta'])
 pp_df['Z'] = pp_df['r']*sin(pp_df['theta'])

@@ -1,4 +1,6 @@
+from datetime import datetime
 import gc
+from pathlib import Path
 import sys
 import pandas as pd
 import config 
@@ -22,7 +24,9 @@ run_cfg = config.load_configs(f'discharges/{shot_file}')
 logger.info(f"Tokamak: {run_cfg.tokamak_name} Shot number: {run_cfg.shot_number}")
 logger.info(config.param_string(run_cfg.params))
 
-result_file = f"{run_cfg.tokamak_name}_{run_cfg.shot_number}.h5"
+race_folder = Path(f"race/{run_cfg.tokamak_name}_{run_cfg.shot_number}")
+race_folder.mkdir(parents=True, exist_ok=True)
+race_file = Path(f"{datetime.now().strftime('%Y_%m_%d_%H_%M_%S')}.h5")
 # eval const
 params = run_cfg.params
 ccc_R0 = ccc/params.R0
@@ -57,11 +61,12 @@ logger.info(f'rini= {params.r}, thetini={params.theta}, fiini={params.phi}, ppar
 logger.info(f"------------------------------------------------------------")
 # Open the HDF5 file for writing (this will overwrite the old file)
 calculation_start_time = time.time()
-file_name = f'results/{result_file}'
+file = race_folder/race_file
+logger.debug(file)
 params_df = pd.DataFrame(list(params._asdict().items()), columns=['param', 'value'])
-with pd.HDFStore(file_name, mode='w') as store:
+with pd.HDFStore(race_folder/race_file, mode='w') as store:
     store.put('params', params_df)
-    logger.info(f"Open the HDF5 file :  {file_name}")
+    logger.info(f"Open the HDF5 file :  {file.name}")
     tau_start = t_ini
     rini = params.r
     thetini = params.theta
