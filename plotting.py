@@ -4,14 +4,16 @@ import numpy as np
 import pandas as pd
 from numpy import cos, sin, pi
 import matplotlib.pyplot as plt    
-from config import load_configs
+from config import RunParams, load_configs
 from physical_constants import *
 
-#run_cfg = load_configs('discharges/base_shot.toml')
-run_cfg = load_configs('discharges/test_shot.toml')
-run_cfg = load_configs('discharges/shot_1.toml')
+result_file = 'results/EXL-50U_13976.h5'
+with pd.HDFStore(result_file) as store:
+    df_params = store['params']
+    meta_dict = df_params.set_index('param')['value'].to_dict()
+    params = RunParams(**meta_dict)
 
-params = run_cfg.params
+print(params)
 ccc_R0= ccc/params.R0
 a = params.a
 R0 = params.R0
@@ -35,11 +37,23 @@ print(f"poincare size   = {len(pp_df)}")
 
 plt.ion() # Включаем интерактивный режим
 
-#plt.figure()
-ax1 = df.plot(x= 'R', y='Z', alpha=0.05, edgecolors='none', s=10, kind='scatter', title='Scatter plot')
+fig = plt.figure(figsize=(10,5))
+ax0, ax1 = fig.subplots(1, 2)
+ax0.scatter(df['R'], df['Z'], c= df['time'], cmap='plasma', alpha=0.05, edgecolors='none', s=8)
+ax0.set_title(f'Trayectory {len(df)} points')
+ax0.set_xlabel('R')
+ax0.set_ylabel('Z')
+ax0.grid(True)
+ax0.axis('equal')
+
+ax1.scatter(pp_df['R'], pp_df['Z'], c= pp_df['time'], cmap='plasma', alpha=0.05, edgecolors='none', s=8)
+ax1.set_title(f'Poincare ({len(pp_df)}) points')
+ax1.set_xlabel('R')
+#ax1.set_ylabel('Z')
+ax1.grid(True)
 ax1.axis('equal')
-ax2 = pp_df.plot(x= 'R', y='Z', alpha=0.05, edgecolors='none', s=10, kind='scatter', title='Scatter plot')
-ax2.axis('equal')
+
+
 plt.draw() # Принудительная отрисовка
 plt.pause(0.1)
 
@@ -56,23 +70,22 @@ plt.draw()
 plt.pause(0.1)
 
 
-plt.figure()
-plt.plot(df['time'], df['r']/a, 'b')
-plt.scatter(pp_df['time'], pp_df['r']/a, 10, color='r')
-plt.title("r(t)/a plot")
-plt.xlabel('t(ms)')
-plt.ylim(0.,1.0)
-#plt.savefig('pictures/FT2_r_0.01_t_15_p_m0.025_segment_4_rto_a.svg')
-plt.grid()
-plt.draw() 
-plt.pause(0.1)
+fig = plt.figure(figsize=(10,8), layout='constrained')
+ax0, ax1 = fig.subplots(2, 1, sharex=True)
+ax0.plot(df['time'], df['r']/a)
+ax0.scatter(pp_df['time'], pp_df['r']/a, c= 'r', s=8)
+ax0.set_title(f'r(t)/a and sin(phi(t))')
+#ax0.set_xlabel('R')
+ax0.set_ylabel('r(t)/a')
+ax0.set_ylim(0.0, 1.0)
+ax0.grid(True)
 
-plt.figure()
-plt.scatter(df['time'], sin(df['phi']), 10, color='b')
-plt.scatter(pp_df['time'], sin(pp_df['phi']), 10, color='r')
-plt.title("sin(phi(t)) plot")
-plt.xlabel('t(ms)')
-#plt.ylim(0.,1.0)
+ax1.plot(df['time'],  sin(df['phi']))
+ax1.scatter(pp_df['time'],  sin(pp_df['phi']), c= 'r', s=8)
+#ax1.set_title(f'Trayectory {len(df)} points')
+ax1.set_xlabel('time (ms)')
+ax1.set_ylabel('sin(phi(t))')
+ax1.grid(True)
 #plt.savefig('pictures/FT2_r_0.01_t_15_p_m0.025_segment_4_rto_a.svg')
 plt.grid()
 plt.draw() 
