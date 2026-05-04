@@ -19,7 +19,7 @@ def plot_traj(df, pp_df):
     ax1.axis('equal')
 
 
-def polar_plot_traj(df):
+def polar_plot_traj(df, a):
     fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
     ax.scatter( df['theta'], df['r']/a, alpha=0.05, color='blue', edgecolors='none', s=10)
     ax.set_rmax(1)

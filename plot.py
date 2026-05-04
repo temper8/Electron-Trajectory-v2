@@ -58,7 +58,7 @@ plot_traj(df, pp_df)
 plt.draw() # Принудительная отрисовка
 plt.pause(0.1)
 
-polar_plot_traj(df)
+polar_plot_traj(df, a)
 
 plt.draw() 
 plt.pause(0.1)
