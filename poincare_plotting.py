@@ -4,14 +4,17 @@ import numpy as np
 import pandas as pd
 from numpy import cos, sin, pi
 import matplotlib.pyplot as plt    
-from config import load_configs
+from config import RunParams, load_configs
 from physical_constants import *
 
-#run_cfg = load_configs('discharges/base_shot.toml')
-run_cfg = load_configs('discharges/test_shot.toml')
-run_cfg = load_configs('discharges/shot_1.toml')
+result_file = 'results/EXL-50U_13976.h5'
+with pd.HDFStore(result_file) as store:
+    df_params = store['params']
+    meta_dict = df_params.set_index('param')['value'].to_dict()
+    params = RunParams(**meta_dict)
 
-params = run_cfg.params
+print(params)
+
 ccc_R0= ccc/params.R0
 a = params.a
 R0 = params.R0
