@@ -80,7 +80,7 @@ ax0.set_ylabel('r(t)/a')
 ax0.set_ylim(0.0, 1.0)
 ax0.grid(True)
 
-ax1.plot(df['time'],  sin(df['phi']))
+ax1.plot(df['time'], sin(df['phi']))
 ax1.scatter(pp_df['time'],  sin(pp_df['phi']), c= 'r', s=8)
 #ax1.set_title(f'Trayectory {len(df)} points')
 ax1.set_xlabel('time (ms)')
@@ -111,7 +111,10 @@ trend_line = np.poly1d(coeffs)
 df['trend_phi'] = trend_line(df['theta'])
 plt.figure()
 
-plt.scatter(df['theta']%(2*pi), df['phi']-df['trend_phi'], alpha=0.05, color='blue', edgecolors='none', s=10)
+plt.scatter(df['theta']%(2*pi), 
+            df['phi']-df['trend_phi'], 
+            c= df['time'], cmap='plasma', 
+            alpha=0.05, edgecolors='none', s=12)
 #plt.plot(df['theta'], df['phi']- df['trend_phi'], color='red')
 
 plt.title("theta-phi plot")
