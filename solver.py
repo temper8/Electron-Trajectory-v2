@@ -3,7 +3,7 @@ import gc
 from pathlib import Path
 import sys
 import pandas as pd
-import config 
+import src.config as config 
 from logger_config import get_memory_usage, logger
 import time
 from scipy.integrate import odeint,solve_ivp  

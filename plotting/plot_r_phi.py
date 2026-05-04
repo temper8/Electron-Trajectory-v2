@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-def plot_r_phi_segments(df, max_segments=15, step=1):
+def plot_r_phi_segments(df, max_segments=15, step=1, k = 1):
     """
     Рисует наложение участков траектории r(phi) друг на друга.
     
@@ -11,6 +11,7 @@ def plot_r_phi_segments(df, max_segments=15, step=1):
     max_segments: сколько первых сегментов (оборотов) рисовать
     step: шаг отрисовки (например, рисовать каждый 10-й оборот)
     """
+
     # 1. Извлекаем данные
     phi_raw = df['phi']
      
@@ -23,7 +24,7 @@ def plot_r_phi_segments(df, max_segments=15, step=1):
     # 2. Находим границы оборотов (учитываем рост и убывание)
     # Считаем накопленное количество полных оборотов
     phi_dist = np.abs(phi_cont - phi_cont[0])
-    n_turns = phi_dist // (2 * np.pi)
+    n_turns = phi_dist // (2 * np.pi * k)
     
     # Индексы, где меняется номер оборота
     turn_indices = np.where(np.diff(n_turns) != 0)[0]
@@ -50,7 +51,7 @@ def plot_r_phi_segments(df, max_segments=15, step=1):
         r_seg = r[start_idx:end_idx]
         
         # Приводим к [0, 2pi]
-        phi_wrapped = phi_seg + (2 * np.pi)*i
+        phi_wrapped = phi_seg + (2 * np.pi * k)*i
         
         # Сортируем для плавной линии
         #sort_mask = np.argsort(phi_wrapped)

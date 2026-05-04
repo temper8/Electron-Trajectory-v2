@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 from numpy import cos, sin, pi
 import matplotlib.pyplot as plt    
-from config import RunParams, SolverParams, load_configs
+from src.config import RunParams, SolverParams, load_configs
 from physical_constants import *
 from plotting.plot_r_phi import plot_r_phi_segments
 from plotting.plot_trajectory import plot_traj, polar_plot_traj
@@ -22,10 +22,7 @@ def read_config(file):
         solver = SolverParams(**meta_dict)
         return solver, params
 
-
-
-
-race_file = 'race/EXL-50U_13976/2026_05_04_20_15_10.h5'
+race_file = 'race/EXL-50U_13976/2026_05_04_21_31_05.h5'
 solver, params = read_config(race_file)
 
 print(solver)
@@ -54,7 +51,7 @@ print(f"poincare size   = {len(pp_df)}")
 
 plt.ion() # Включаем интерактивный режим
 
-plot_r_phi_segments(df, 30)
+plot_r_phi_segments(df)
 plt.draw() # Принудительная отрисовка
 plt.pause(0.1)
 
