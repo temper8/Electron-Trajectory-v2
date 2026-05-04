@@ -17,7 +17,7 @@ def find_poincare_points(sol:OdeResult):
     start_k = np.ceil(phi_min / (2 * np.pi))
     end_k = np.floor(phi_max / (2 * np.pi))
     
-    phi_targets = np.arange(start_k, end_k + 1) * (2 * np.pi)
+    phi_targets = np.arange(start_k, end_k + 1) * (2 * np.pi) # 2*pi*n
     # Оставляем только те, что внутри (исключая границы, если нужно)
     phi_targets = phi_targets[(phi_targets > phi_min) & (phi_targets < phi_max)]
 
