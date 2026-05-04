@@ -1,6 +1,8 @@
 import tomllib
 from typing import NamedTuple
 
+import pandas as pd
+
 
 class RunParams(NamedTuple):
     R0: float
@@ -69,3 +71,16 @@ def param_string(p:RunParams):
     info += f"nfi = {p.nfi}"
     return info
 
+def read_dict_hdf5(store, name):
+    df = store[name]
+    meta_dict = df.set_index('param')['value'].to_dict()
+    return meta_dict
+
+def read_config_hdf5(file):
+    with pd.HDFStore(file) as store:
+        meta_dict = read_dict_hdf5(store, 'params')
+        params = RunParams(**meta_dict)
+        df_solver = store['solver']
+        meta_dict = read_dict_hdf5(store, 'solver')
+        solver = SolverParams(**meta_dict)
+        return solver, params

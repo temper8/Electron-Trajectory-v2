@@ -6,7 +6,7 @@ import numpy as np
 import numba 
 from numba import njit
 numba.config.DISABLE_JIT = False # type: ignore
-from hyp2f import create_fast_hyp, create_pade_hyp, fast_hyp2f1_specific, fast_hyp_part
+from src.hyp2f import create_fast_hyp, create_pade_hyp, fast_hyp2f1_specific, fast_hyp_part
 
 from scipy.integrate import odeint 
 from scipy.integrate import quad
@@ -16,10 +16,10 @@ from scipy.interpolate import CubicSpline
 from math import pi, sin, cos, sqrt, log, tan, atan
 
 from src.config import RunConfig, RunParams
-from field_EXL import *
+from src.field_EXL import *
 
-from physical_constants import eqq, ccc, m0
-from parameters import n
+from src.physical_constants import eqq, ccc, m0
+from src.parameters import n
 
 logger.info(f"Disable numba: {numba.config.DISABLE_JIT}") # type: ignore
 

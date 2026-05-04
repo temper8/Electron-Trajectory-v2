@@ -5,7 +5,7 @@ import pandas as pd
 from numpy import cos, sin, pi
 import matplotlib.pyplot as plt    
 from src.config import RunParams, load_configs
-from physical_constants import *
+from src.physical_constants import *
 
 result_file = 'results/EXL-50U_13976.h5'
 with pd.HDFStore(result_file) as store:

@@ -8,9 +8,9 @@ from src.logger_config import get_memory_usage, logger
 import time
 from scipy.integrate import odeint,solve_ivp  
 
-from physical_constants import *
-import parameters
-from poincare import find_poincare_points
+from src.physical_constants import *
+import src.parameters as parameters
+from src.poincare import find_poincare_points
 
 if len(sys.argv) > 1:
     shot_file=sys.argv[1]
@@ -33,7 +33,7 @@ parameters.ccc_R0 = ccc_R0
 parameters.a = params.a
 parameters.R0 = params.R0
 parameters.n = params.n
-from eqations import *
+from src.eqations import *
 
 t_ini = run_cfg.time_start*ccc_R0/tau_norm
 

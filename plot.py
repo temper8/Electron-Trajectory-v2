@@ -4,26 +4,14 @@ import numpy as np
 import pandas as pd
 from numpy import cos, sin, pi
 import matplotlib.pyplot as plt    
-from src.config import RunParams, SolverParams, load_configs
-from physical_constants import *
+from src.config import RunParams, SolverParams, load_configs, read_config_hdf5
+from src.physical_constants import *
 from plotting.plot_r_phi import plot_r_phi_segments
 from plotting.plot_trajectory import plot_traj, polar_plot_traj
-def read_dict(store, name):
-    df = store[name]
-    meta_dict = df.set_index('param')['value'].to_dict()
-    return meta_dict
 
-def read_config(file):
-    with pd.HDFStore(race_file) as store:
-        meta_dict = read_dict(store, 'params')
-        params = RunParams(**meta_dict)
-        df_solver = store['solver']
-        meta_dict = read_dict(store, 'solver')
-        solver = SolverParams(**meta_dict)
-        return solver, params
 
-race_file = 'race/EXL-50U_13976/2026_05_04_21_31_05.h5'
-solver, params = read_config(race_file)
+race_file = 'race/EXL-50U_13976/2026_05_04_21_50_36.h5'
+solver, params = read_config_hdf5(race_file)
 
 print(solver)
 print(params)
