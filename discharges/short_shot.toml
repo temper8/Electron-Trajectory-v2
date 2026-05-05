@@ -7,16 +7,17 @@ a  = 0.6           # [m] Minor radius
 #wall_material = "Be"
 
 [solver]
-method = 'LSODA' #'Radau' #'DOP853'
+method = 'LSODA' 
+#method = 'Radau' 
 #method = 'DOP853'
 rtol= 1e-8
 atol= 1e-9
 
 [initial_conditions]
 time_start = 0.5 # [sec]
-num_it = 1
+num_it = 10
 nrange = 20000
-delta_tau = 900000 # 
+delta_tau = 100000 # 
 
 ppar = -0.1
 pperp = 0.025
