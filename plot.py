@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from src.config import RunParams, SolverParams, load_configs, read_config_hdf5
 from src.physical_constants import *
 from plotting.plot_r_phi import plot_r_phi_segments
-from plotting.plot_trajectory import plot_12, plot_123, plot_poincare, plot_traj, polar_plot_traj
+from plotting.plot_trajectory import analysis_through_extremes, plot_12, plot_123, plot_hilbert, plot_poincare, plot_traj, polar_plot_traj
 from src.utils import get_dataset_sizes, select_h5_file
 
 #race_file = 'race/EXL-50U_13976/2026_05_04_22_20_06.h5'
@@ -44,7 +44,7 @@ print(f"poincare size   = {len(pp_df)}")
 
 plt.ion() # Включаем интерактивный режим
 
-plot_r_phi_segments(df, len(df))
+plot_r_phi_segments(df, 43)
 plt.draw() # Принудительная отрисовка
 plt.pause(0.1)
 
@@ -63,6 +63,15 @@ plt.pause(0.1)
 plot_poincare(df, pp_df)
 plt.draw() 
 plt.pause(0.1)
+
+analysis_through_extremes(df,a)
+plt.draw() 
+plt.pause(0.1)
+
+
+plt.ioff() # Выключаем интерактивный режим
+plt.show() # Блокируем выход, пока вы сами не закроете окна
+sys.exit(0)
 
 from scipy import stats
 slope, intercept, r_value, p_value, std_err = stats.linregress(df['theta'] , df['phi'])
