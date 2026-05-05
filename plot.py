@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from src.config import RunParams, SolverParams, load_configs, read_config_hdf5
 from src.physical_constants import *
 from plotting.plot_r_phi import plot_r_phi_segments
-from plotting.plot_trajectory import plot_12, plot_poincare, plot_traj, polar_plot_traj
+from plotting.plot_trajectory import plot_12, plot_123, plot_poincare, plot_traj, polar_plot_traj
 from src.utils import get_dataset_sizes, select_h5_file
 
 #race_file = 'race/EXL-50U_13976/2026_05_04_22_20_06.h5'
@@ -56,13 +56,11 @@ polar_plot_traj(df, a)
 plt.draw() 
 plt.pause(0.1)
 
-plot_12(df, pp_df, a)
-
+plot_123(df, pp_df, a)
 plt.draw() 
 plt.pause(0.1)
 
 plot_poincare(df, pp_df)
-
 plt.draw() 
 plt.pause(0.1)
 
