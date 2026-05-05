@@ -35,16 +35,17 @@ def select_h5_file(directory="race"):
     console.print(f"\n[bold cyan]Последние сессии в {directory}:[/bold cyan]\n")
     
     for i, file in enumerate(files, 1):
-        mtime = datetime.fromtimestamp(file.stat().st_mtime).strftime('.%m.%d %H:%M')
+        mtime = datetime.fromtimestamp(file.stat().st_mtime).strftime('%m.%d %H:%M')
         
         # Печатаем заголовок файла
         console.print(f"[bold green]{i}[/bold green]) [bold white]{file.name}[/bold white] [dim]({mtime})[/dim]")
         
         # Читаем и выводим параметры файла
         try:
-            solver, params = read_config_hdf5(str(file))
+            solver, params, config = read_config_hdf5(str(file))
             console.print(f"   [bold blue]Solver:[/bold blue] {solver}")
             console.print(f"   [bold blue]Params:[/bold blue] {params}")
+            console.print(f"   [bold blue]Config:[/bold blue] {config}")
             sizes = get_dataset_sizes(file, ['trajectory', 'poincare_points'])
             console.print(f"   [bold blue]Sizes:[/bold blue] {sizes}")
         except Exception as e:

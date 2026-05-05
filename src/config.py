@@ -83,4 +83,6 @@ def read_config_hdf5(file):
         df_solver = store['solver']
         meta_dict = read_dict_hdf5(store, 'solver')
         solver = SolverParams(**meta_dict)
-        return solver, params
+        meta_dict = read_dict_hdf5(store, 'config')
+        config = RunConfig(**meta_dict)
+        return solver, params, config

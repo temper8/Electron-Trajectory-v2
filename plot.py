@@ -15,7 +15,7 @@ race_file = select_h5_file()
 if race_file is None:
     sys.exit()
 
-solver, params = read_config_hdf5(race_file)
+solver, params, cfg = read_config_hdf5(race_file)
 sizes = get_dataset_sizes(race_file, ['trajectory', 'poincare_points'])
 print(sizes)
 print(solver)
