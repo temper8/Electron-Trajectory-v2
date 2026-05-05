@@ -48,4 +48,33 @@ def plot_12(df, pp_df, a):
     ax1.set_ylabel('sin(phi(t))')
     ax1.grid(True)
     #plt.savefig('pictures/FT2_r_0.01_t_15_p_m0.025_segment_4_rto_a.svg')
+
+
+def plot_123(df, pp_df, a):
+    fig = plt.figure(figsize=(10,8), layout='constrained')
+    ax0, ax1 = fig.subplots(2, 1, sharex=True)
+    ax0.plot(df['time'], df['r']/a)
+    ax0.scatter(pp_df['time'], pp_df['r']/a, c= 'r', s=8)
+    ax0.set_title(f'r(t)/a and sin(phi(t))')
+    #ax0.set_xlabel('R')
+    ax0.set_ylabel('r(t)/a')
+    ax0.set_ylim(0.0, 1.0)
+    ax0.grid(True)
+
+    ax1.plot(df['time'], sin(df['phi']))
+    ax1.scatter(pp_df['time'],  sin(pp_df['phi']), c= 'r', s=8)
+    #ax1.set_title(f'Trayectory {len(df)} points')
+    ax1.set_xlabel('time (ms)')
+    ax1.set_ylabel('sin(phi(t))')
+    ax1.grid(True)
+    #plt.savefig('pictures/FT2_r_0.01_t_15_p_m0.025_segment_4_rto_a.svg')
+   
+def plot_poincare(df, pp_df):
+    plt.figure()
+    #plt.plot(df['time'], sin(df['phi']), marker='o', linestyle='-', color='b')
+    plt.plot(pp_df['time'], sin(pp_df['phi']), marker='o', linestyle='-', color='r')
+    plt.title("phi(t) poincare points")
+    plt.xlabel('t(ms)')
+    #plt.ylim(0.,1.0)
+    #plt.savefig('pictures/FT2_r_0.01_t_15_p_m0.025_segment_4_rto_a.svg')
     plt.grid()

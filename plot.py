@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from src.config import RunParams, SolverParams, load_configs, read_config_hdf5
 from src.physical_constants import *
 from plotting.plot_r_phi import plot_r_phi_segments
-from plotting.plot_trajectory import plot_12, plot_traj, polar_plot_traj
+from plotting.plot_trajectory import plot_12, plot_poincare, plot_traj, polar_plot_traj
 from src.utils import get_dataset_sizes, select_h5_file
 
 #race_file = 'race/EXL-50U_13976/2026_05_04_22_20_06.h5'
@@ -61,14 +61,8 @@ plot_12(df, pp_df, a)
 plt.draw() 
 plt.pause(0.1)
 
-plt.figure()
-#plt.plot(df['time'], sin(df['phi']), marker='o', linestyle='-', color='b')
-plt.plot(pp_df['time'], sin(pp_df['phi']), marker='o', linestyle='-', color='r')
-plt.title("phi(t) poincare points")
-plt.xlabel('t(ms)')
-#plt.ylim(0.,1.0)
-#plt.savefig('pictures/FT2_r_0.01_t_15_p_m0.025_segment_4_rto_a.svg')
-plt.grid()
+plot_poincare(df, pp_df)
+
 plt.draw() 
 plt.pause(0.1)
 
