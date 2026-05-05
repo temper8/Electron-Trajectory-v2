@@ -112,7 +112,7 @@ def plot_hilbert(df, a):
 from scipy.signal import find_peaks
 from scipy.interpolate import interp1d
 
-def analysis_through_extremes(df, a):
+def analysis_through_extremes(df, a, title):
 
     # t_raw, x_raw — ваши данные ОДУ (допустим, с неравномерным шагом)
 
@@ -163,14 +163,14 @@ def analysis_through_extremes(df, a):
     #ax1.fill_between(t_raw, lower_env, upper_env, color='yellow', alpha=0.1)
     ax1.set_ylabel('x(t)')
     ax1.legend()
-    ax1.set_title("Анализ по экстремумам")
+    ax1.set_title(title)
 
     # Нижний график: Две частоты
     ax2.plot(t_raw, w_t, 'r.-', label='w(t) по максимумам', alpha=0.7)
     #ax2.plot(t_w_upper, w_upper, 'r.-', label='w(t) по максимумам', alpha=0.7)
     #ax2.plot(t_w_lower, w_lower, 'b.-', label='w(t) по минимумам', alpha=0.7)
     ax2.set_ylabel('Частота w')
-    ax2.set_xlabel('Время t')
+    ax2.set_xlabel('time (s)')
     ax2.grid(True, which='both', alpha=0.2)
     ax2.legend()
 

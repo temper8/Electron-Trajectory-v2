@@ -64,7 +64,8 @@ plot_poincare(df, pp_df)
 plt.draw() 
 plt.pause(0.1)
 
-analysis_through_extremes(df,a)
+title = f"solver={solver.method}, rtol={solver.rtol}, atol={solver.atol}"
+analysis_through_extremes(df,a, title)
 plt.draw() 
 plt.pause(0.1)
 
