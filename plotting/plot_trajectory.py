@@ -1,4 +1,5 @@
 from matplotlib import pyplot as plt
+from numpy import sin
 
 
 def plot_traj(df, pp_df):
@@ -28,3 +29,23 @@ def polar_plot_traj(df, a):
     ax.grid(True)
     #ax.set_title("Electron trajectory in poloidal crossection", va='bottom')
     #plt.savefig('pictures/FT2_r_0.01_t_15_p_m0.1_segment_4_cross_sect.png')
+
+def plot_12(df, pp_df, a):
+    fig = plt.figure(figsize=(10,8), layout='constrained')
+    ax0, ax1 = fig.subplots(2, 1, sharex=True)
+    ax0.plot(df['time'], df['r']/a)
+    ax0.scatter(pp_df['time'], pp_df['r']/a, c= 'r', s=8)
+    ax0.set_title(f'r(t)/a and sin(phi(t))')
+    #ax0.set_xlabel('R')
+    ax0.set_ylabel('r(t)/a')
+    ax0.set_ylim(0.0, 1.0)
+    ax0.grid(True)
+
+    ax1.plot(df['time'], sin(df['phi']))
+    ax1.scatter(pp_df['time'],  sin(pp_df['phi']), c= 'r', s=8)
+    #ax1.set_title(f'Trayectory {len(df)} points')
+    ax1.set_xlabel('time (ms)')
+    ax1.set_ylabel('sin(phi(t))')
+    ax1.grid(True)
+    #plt.savefig('pictures/FT2_r_0.01_t_15_p_m0.025_segment_4_rto_a.svg')
+    plt.grid()

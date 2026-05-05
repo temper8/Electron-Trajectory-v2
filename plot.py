@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from src.config import RunParams, SolverParams, load_configs, read_config_hdf5
 from src.physical_constants import *
 from plotting.plot_r_phi import plot_r_phi_segments
-from plotting.plot_trajectory import plot_traj, polar_plot_traj
+from plotting.plot_trajectory import plot_12, plot_traj, polar_plot_traj
 from src.utils import get_dataset_sizes, select_h5_file
 
 #race_file = 'race/EXL-50U_13976/2026_05_04_22_20_06.h5'
@@ -56,25 +56,8 @@ polar_plot_traj(df, a)
 plt.draw() 
 plt.pause(0.1)
 
+plot_12(df, pp_df, a)
 
-fig = plt.figure(figsize=(10,8), layout='constrained')
-ax0, ax1 = fig.subplots(2, 1, sharex=True)
-ax0.plot(df['time'], df['r']/a)
-ax0.scatter(pp_df['time'], pp_df['r']/a, c= 'r', s=8)
-ax0.set_title(f'r(t)/a and sin(phi(t))')
-#ax0.set_xlabel('R')
-ax0.set_ylabel('r(t)/a')
-ax0.set_ylim(0.0, 1.0)
-ax0.grid(True)
-
-ax1.plot(df['time'], sin(df['phi']))
-ax1.scatter(pp_df['time'],  sin(pp_df['phi']), c= 'r', s=8)
-#ax1.set_title(f'Trayectory {len(df)} points')
-ax1.set_xlabel('time (ms)')
-ax1.set_ylabel('sin(phi(t))')
-ax1.grid(True)
-#plt.savefig('pictures/FT2_r_0.01_t_15_p_m0.025_segment_4_rto_a.svg')
-plt.grid()
 plt.draw() 
 plt.pause(0.1)
 
