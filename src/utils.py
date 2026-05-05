@@ -1,6 +1,8 @@
 import os
 from pathlib import Path
 
+import pandas as pd
+
 from src.config import read_config_hdf5
 
 import os
@@ -43,6 +45,8 @@ def select_h5_file(directory="race"):
             solver, params = read_config_hdf5(str(file))
             console.print(f"   [bold blue]Solver:[/bold blue] {solver}")
             console.print(f"   [bold blue]Params:[/bold blue] {params}")
+            sizes = get_dataset_sizes(file, ['trajectory', 'poincare_points'])
+            console.print(f"   [bold blue]Sizes:[/bold blue] {sizes}")
         except Exception as e:
             console.print(f"   [red]Ошибка чтения параметров: {e}[/red]")
         
@@ -61,6 +65,17 @@ def select_h5_file(directory="race"):
     console.print(f"\n[bold green]✔ Выбрано:[/bold green] {selected.name}")
     
     return selected
+
+
+def get_dataset_sizes(file_path, data_sets):
+    sizes = {}
+    with pd.HDFStore(file_path, mode='r') as store:
+        for key in data_sets:
+            # get_storer возвращает объект с метаданными без загрузки самих данных
+            storer = store.get_storer(key)
+            if storer is not None:
+                sizes[key] = int(storer.nrows)  # Количество строк
+    return sizes
 
 if __name__ == "__main__":
     selected_path = select_h5_file()
