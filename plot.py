@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from src.config import RunParams, SolverParams, load_configs, read_config_hdf5
 from src.physical_constants import *
 from plotting.plot_r_phi import plot_r_phi_segments
-from plotting.plot_trajectory import analysis_through_extremes, plot_12, plot_123, plot_hilbert, plot_poincare, plot_traj, polar_plot_traj
+from plotting.plot_trajectory import plot_12, plot_123, plot_envelope_fit, plot_hilbert, plot_poincare, plot_traj, polar_plot_traj
 from src.utils import get_dataset_sizes, select_h5_file
 
 #race_file = 'race/EXL-50U_13976/2026_05_04_22_20_06.h5'
@@ -48,11 +48,11 @@ plot_r_phi_segments(df, 43)
 plt.draw() # Принудительная отрисовка
 plt.pause(0.1)
 
-plot_traj(df, pp_df)
+plot_traj(df, pp_df, race_file.stem)
 plt.draw() # Принудительная отрисовка
 plt.pause(0.1)
 
-polar_plot_traj(df, a)
+polar_plot_traj(df, a, race_file.stem)
 plt.draw() 
 plt.pause(0.1)
 
@@ -60,12 +60,12 @@ plot_123(df, pp_df, a)
 plt.draw() 
 plt.pause(0.1)
 
-plot_poincare(df, pp_df)
+plot_poincare(df, pp_df, race_file.stem)
 plt.draw() 
 plt.pause(0.1)
 
 title = f"solver={solver.method}, rtol={solver.rtol}, atol={solver.atol}"
-analysis_through_extremes(df,a, title)
+plot_envelope_fit(df,a, title, race_file.stem)
 plt.draw() 
 plt.pause(0.1)
 

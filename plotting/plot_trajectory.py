@@ -4,8 +4,8 @@ from numpy import sin
 
 
 
-def plot_traj(df, pp_df):
-    fig = plt.figure(figsize=(10,5))
+def plot_traj(df, pp_df, race_name):
+    fig = plt.figure(figsize=(10,5), num=f"{race_name}_trajctory")
     ax0, ax1 = fig.subplots(1, 2)
     ax0.scatter(df['R'], df['Z'], c= df['time'], cmap='plasma', alpha=0.05, edgecolors='none', s=8)
     ax0.set_title(f'Trayectory {len(df)} points')
@@ -22,8 +22,8 @@ def plot_traj(df, pp_df):
     ax1.axis('equal')
 
 
-def polar_plot_traj(df, a):
-    fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
+def polar_plot_traj(df, a, race_name):
+    fig, ax = plt.subplots(subplot_kw={'projection': 'polar'}, num=f"{race_name}_polar_traj")
     ax.scatter( df['theta'], df['r']/a, alpha=0.05, color='blue', edgecolors='none', s=10)
     ax.set_rmax(1)
     #ax.set_rticks([0.2, 0.4, 0.6, 0.8])  # Less radial ticks
@@ -75,8 +75,8 @@ def plot_123(df, pp_df, a):
     ax2.grid(True)
     #plt.savefig('pictures/FT2_r_0.01_t_15_p_m0.025_segment_4_rto_a.svg')
    
-def plot_poincare(df, pp_df):
-    plt.figure()
+def plot_poincare(df, pp_df, race_name):
+    plt.figure(num=f"{race_name}_poincare")
     #plt.plot(df['time'], sin(df['phi']), marker='o', linestyle='-', color='b')
     plt.plot(pp_df['time'], sin(pp_df['phi']), marker='o', linestyle='-', color='r')
     plt.title("phi(t) poincare points")
@@ -112,7 +112,7 @@ def plot_hilbert(df, a):
 from scipy.signal import find_peaks
 from scipy.interpolate import interp1d
 
-def analysis_through_extremes(df, a, title):
+def plot_envelope_fit(df, a, title, race_name):
 
     # t_raw, x_raw — ваши данные ОДУ (допустим, с неравномерным шагом)
 
@@ -152,10 +152,10 @@ def analysis_through_extremes(df, a, title):
     w_t = w_interp(t_raw)
 
     # 3. Визуализация
-    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8), sharex=True)
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8), sharex=True, num=f"{race_name}_envelope_fit")
 
     # Верхний график: Сигнал и Огибающие
-    ax1.plot(t_raw, x_raw, color='gray', alpha=0.3, label='Сигнал x(t)')
+    ax1.plot(t_raw, x_raw, color='gray', alpha=0.3, label='r(t)')
     # Для огибающих используем линейную интерполяцию по найденным точкам
     ax1.plot(t_p, x_p, 'r--', label='Верхняя огибающая')
     ax1.plot(t_t, x_t, 'b--', label='Нижняя огибающая')
