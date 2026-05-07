@@ -299,15 +299,20 @@ def hit_wall(t, y, params:RunParams, muini):
 hit_wall.terminal = True 
 hit_wall.direction = 1  # Срабатывает только при вылете наружу
 
-def guiding_center_dynamics(t, y, params:RunParams, muini):
-    #a,R0,delr,delfi,nfi,n,pparini,pperpini
-    ppar, r, thet, fi = y
-    
+def get_field_environment(t):
     sf0=spl_q0(t)
     sfb=spl_qa(t)
 #    sfb=Splines.spl_qa(t)
     Uloop=spl_U(t)
     B0=spl_B(t)
+    return sf0, sfb, Uloop, B0
+
+def guiding_center_dynamics(t, y, params:RunParams, muini):
+    #a,R0,delr,delfi,nfi,n,pparini,pperpini
+    ppar, r, thet, fi = y
+    
+    sf0, sfb, Uloop, B0 = get_field_environment(t)
+
     sf=saf_fact(sf0,sfb,r,params.a,Uloop)
 
     R,Btot,Btor,Bpol,Bpol1,Brad,brad,btor,bpol,bpol1,dBpoldr,dBtordfi,dBraddr,dBtordr,dBpoldfi,dBraddfi,  \
