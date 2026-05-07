@@ -1,10 +1,12 @@
+import sys
+
 from line_profiler import profile
 from loguru import logger
 import numpy as np
 import numba 
 from numba import njit
 numba.config.DISABLE_JIT = False # type: ignore
-from hyp2f import create_fast_hyp, create_pade_hyp, fast_hyp2f1_specific, fast_hyp_part
+from src.hyp2f import create_fast_hyp, create_pade_hyp, fast_hyp2f1_specific, fast_hyp_part
 
 from scipy.integrate import odeint 
 from scipy.integrate import quad
@@ -13,11 +15,11 @@ from scipy.interpolate import CubicSpline
 #from numpy import pi, sin, cos, sqrt, log, tan, atan
 from math import pi, sin, cos, sqrt, log, tan, atan
 
-from config import RunConfig, RunParams
-from field_EXL import *
+from src.config import RunConfig, RunParams
+from src.field_EXL import *
 
-from physical_constants import eqq, ccc, m0
-from parameters import n
+from src.physical_constants import eqq, ccc, m0
+from src.parameters import n
 
 logger.info(f"Disable numba: {numba.config.DISABLE_JIT}") # type: ignore
 
@@ -195,7 +197,7 @@ def Mag_field(r, thet, fi, B0, sf0, sfb, Uloop, params :RunParams):
     dBraddthet1=Gpr2*(1/R0)*Fpr+Gpr31*dFndthet
     dBraddthet=dBraddthet1*r
 
-    return R,Btot,Btor,Bpol,Bpol1,Brad,brad,btor,bpol,bpol1,dBpoldr,dBtordfi,dBraddr,dBtordr,dBpoldfi,dBraddfi,  \
+    return R,Btot,Btor,Bpol, Bpol1,Brad,brad,btor,bpol,bpol1,dBpoldr,dBtordfi,dBraddr,dBtordr,dBpoldfi,dBraddfi,  \
     dBpoldthet,dBtordthet,dBraddthet,dBpoldthet1,dBtordthet1,dBraddthet1,psitor,dpsidr,dpsidfi,sf
 
 @njit
@@ -269,10 +271,7 @@ def eq_mot(t, R0,pperp,ppar,r,thet,fi,R,Uloop,brtr,brtt,brtfi,gbr,gbt,gbfi, \
     dRdtr=M1*brad+M2*bgrr+M3*bbrtr+M4*(Epol*btor-Etor*bpol)
     dRdtt=M1*bpol+M2*bgrt+M3*bbrtt+M4*(Etor*brad-Erad*btor)
     dRdtfi=M1*btor+M2*bgrfi+M3*bbrtfi+M4*(Erad*bpol-Epol*brad)
-    y1=dppardt
-    y2=dRdtr
-    y3=dRdtt/r
-    y4=dRdtfi/R
+    return [dppardt, dRdtr, dRdtt/r, dRdtfi/R]
     # dpperp2dt=muini*(gbr*y2+gbt*y3*r+gbfi*y4*R)
 
     # y5=dpperp2dt
@@ -288,7 +287,7 @@ def eq_mot(t, R0,pperp,ppar,r,thet,fi,R,Uloop,brtr,brtt,brtfi,gbr,gbt,gbfi, \
     # y11=(y4*dpsidfi+y2*dpsidr)
     # y12=-Etor*dRdtfi
 
-    return [y1, y2, y3, y4] #,y5,y6,y7,y8,y9,y10,y11,y12] 
+    #return [y1, y2, y3, y4] #,y5,y6,y7,y8,y9,y10,y11,y12] 
 
 # --- Функция события: пересечение границы ---
 def hit_wall(t, y, params:RunParams, muini):
@@ -300,15 +299,20 @@ def hit_wall(t, y, params:RunParams, muini):
 hit_wall.terminal = True 
 hit_wall.direction = 1  # Срабатывает только при вылете наружу
 
-def guiding_center_dynamics(t, y, params:RunParams, muini):
-    #a,R0,delr,delfi,nfi,n,pparini,pperpini
-    ppar, r, thet, fi = y
-    
+def get_field_environment(t):
     sf0=spl_q0(t)
     sfb=spl_qa(t)
 #    sfb=Splines.spl_qa(t)
     Uloop=spl_U(t)
     B0=spl_B(t)
+    return sf0, sfb, Uloop, B0
+
+def guiding_center_dynamics(t, y, params:RunParams, muini):
+    #a,R0,delr,delfi,nfi,n,pparini,pperpini
+    ppar, r, thet, fi = y
+    
+    sf0, sfb, Uloop, B0 = get_field_environment(t)
+
     sf=saf_fact(sf0,sfb,r,params.a,Uloop)
 
     R,Btot,Btor,Bpol,Bpol1,Brad,brad,btor,bpol,bpol1,dBpoldr,dBtordfi,dBraddr,dBtordr,dBpoldfi,dBraddfi,  \

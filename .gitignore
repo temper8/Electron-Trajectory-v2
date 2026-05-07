@@ -185,3 +185,4 @@ uv.lock
 *.lprof
 *.h5
 *.svg
+.DS_Store

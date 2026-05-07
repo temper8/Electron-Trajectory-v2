@@ -1,48 +1,52 @@
-from cmath import pi
 import sys
 
 import numpy as np
 import pandas as pd
-from numpy import cos,sin
+from numpy import cos, sin, pi
 import matplotlib.pyplot as plt    
-from config import load_configs
-from physical_constants import *
+from src.config import RunParams, load_configs
+from src.physical_constants import *
 
-run_cfg = load_configs('discharges/base_shot.toml')
-#run_cfg = load_configs('discharges/test_shot.toml')
+result_file = 'results/EXL-50U_13976.h5'
+with pd.HDFStore(result_file) as store:
+    df_params = store['params']
+    meta_dict = df_params.set_index('param')['value'].to_dict()
+    params = RunParams(**meta_dict)
 
-params = run_cfg.params
+print(params)
+
 ccc_R0= ccc/params.R0
 a = params.a
 R0 = params.R0
 n = params.n
 
-df = pd.read_hdf('results/EXL-50U_13976.h5', 'trajectory')
+#df = pd.read_hdf('results/EXL-50U_13976.h5', 'trajectory')
+#df['R'] = R0+ df['r']*cos(df['theta'])
+#df['Z'] = df['r']*sin(df['theta'])
+#df['time']=df['tau']/ccc_R0*tau_norm
+#df['floor_phi'] =  np.floor(df['phi']/(2*pi)).astype(int)
+
+pp_df = pd.read_hdf('results/EXL-50U_13976.h5', 'poincare_points')
+pp_df['time']=pp_df['tau']/ccc_R0*tau_norm
+pp_df['R'] = R0+ pp_df['r']*cos(pp_df['theta'])
+pp_df['Z'] = pp_df['r']*sin(pp_df['theta'])
+
+#print(df.head(5).to_string())
+#print(f"trajectory size = {len(df)}")
+print(f"poincare size   = {len(pp_df)}")
 
 
-df['R'] = R0+ df['r']*cos(df['theta'])
-df['Z'] = df['r']*sin(df['theta'])
-df['time']=df['tau']/ccc_R0*tau_norm
-df['floor_phi'] =  np.floor(df['phi']/(2*pi)).astype(int)
-
-# Оставляем только те строки, где текущее значение не равно предыдущему
-df_Poincare  = df[df['floor_phi'] != df['floor_phi'].shift()]
-
-print(df.head(20).to_string())
-print(f"size= {len(df)}")
-
-print(df_Poincare.head(20).to_string())
-print(f"size= {len(df_Poincare)}")
 plt.ion() # Включаем интерактивный режим
 
 #plt.figure()
-ax = df_Poincare.plot(x= 'R', y='Z', alpha=0.05, edgecolors='none', s=10, kind='scatter', title='Scatter plot')
-ax.axis('equal')
+
+ax2 = pp_df.plot(x= 'R', y='Z', c= 'time', cmap='plasma', alpha=0.05, edgecolors='none', s=10, kind='scatter', title='Scatter plot')
+ax2.axis('equal')
 plt.draw() # Принудительная отрисовка
 plt.pause(0.1)
 
 fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
-ax.scatter( df['theta'], df['r']/a, alpha=0.05, color='blue', edgecolors='none', s=10)
+ax.scatter(pp_df['theta'],pp_df['r']/a, c= pp_df['time'], cmap='plasma', alpha=0.05, edgecolors='none', s=5)
 ax.set_rmax(1)
 #ax.set_rticks([0.2, 0.4, 0.6, 0.8])  # Less radial ticks
 ax.set_rlabel_position(-22.5)  # Move radial labels away from plotted line
@@ -55,7 +59,7 @@ plt.pause(0.1)
 
 
 plt.figure()
-plt.plot(df['time'], df['r']/a, 'b')
+plt.scatter(pp_df['time'], pp_df['r']/a, c= pp_df['time'], cmap='plasma', s=5)
 plt.title("r(t)/a plot")
 plt.xlabel('t(ms)')
 plt.ylim(0.,1.0)
@@ -65,21 +69,32 @@ plt.draw()
 plt.pause(0.1)
 
 plt.figure()
-plt.plot(df['time'], df['phi'], 'b')
-plt.title("phi(t) plot")
+plt.scatter(pp_df['time'], sin(pp_df['phi']), 10, color='r')
+plt.title("sin(phi(t)) plot")
 plt.xlabel('t(ms)')
 #plt.ylim(0.,1.0)
 #plt.savefig('pictures/FT2_r_0.01_t_15_p_m0.025_segment_4_rto_a.svg')
 plt.grid()
 plt.draw() 
-
 plt.pause(0.1)
+
+plt.figure()
+#plt.plot(df['time'], sin(df['phi']), marker='o', linestyle='-', color='b')
+plt.plot(pp_df['time'], sin(pp_df['phi']), marker='o', linestyle='-', color='r')
+plt.title("phi(t) poincare points")
+plt.xlabel('t(ms)')
+#plt.ylim(0.,1.0)
+#plt.savefig('pictures/FT2_r_0.01_t_15_p_m0.025_segment_4_rto_a.svg')
+plt.grid()
+plt.draw() 
+plt.pause(0.1)
+
 
 plt.ioff() # Выключаем интерактивный режим
 plt.show() # Блокируем выход, пока вы сами не закроете окна
 
 
-
+sys.exit(0)
 
 rpr=df['r']/a
 thetpr=df['theta']
@@ -109,7 +124,7 @@ thetpr3=thetpr[mmn3:mmx3]
 
 
 
-sys.exit(0)
+
 #print('rini=',sol[nrange-1,1])
 #plt.plot(sol.t, sol.y[1]/a, 'g', label='r(t)/a')
 #rpr=df['rini']/a
@@ -138,23 +153,16 @@ plt.savefig('pictures/FT2_r_0.01_t_15_p_m0.025_segment_4_rto_a.svg')
 plt.grid()
 plt.draw() # Принудительная отрисовка
 plt.pause(0.1)
-#print('final t(ms)=',tinipr[mmx-1:mmx])
-#print('final tinipr[mmx]=')
+
 
 plt.figure()
-#print('r[nrange-1]=',sol[nrange-1,1])
-#plt.plot(sol.t, sol.y[1], 'g', label='r(t)')
+
 plt.plot(df['time'], df['r'], 'g', label='r(t)')
 plt.legend(loc='best')
 plt.xlabel('t')
 plt.xlim(15,47)
-#plt.xlim(0.32,0.3351)
-#plt.xlim(0,0.0215)
-#plt.xlim(0.02,0.022)
+
 plt.ylim(0.0,0.601)
-#plt.xlim(47.75,48.1)
-#plt.xlim(46.9,46.95)
-#plt.xlim(0.52,0.53)
 plt.grid()
 plt.figure()
 plt.draw() # Принудительная отрисовка
@@ -178,28 +186,8 @@ plt.plot(tinipr2,enrg2, 'b', label='Energy(eV)')
 #plt.plot(df['t_ini'], df['energyini'], 'g', label='energy(eV)')
 plt.legend(loc='best')
 plt.xlabel('t(s)')
-#plt.xlim(0.508,0.51)
-#plt.xlim(0.31,0.32)
-#plt.xlim(0.629,0.631)
-#plt.xlim(0.221,0.227)
-#plt.xlim(0.3490,0.350)
-#plt.xlim(0.629,0.630)
-#plt.xlim(0.43,0.44)
-#plt.xlim(0.436,0.437)
-#plt.xlim(0.348,0.349)
-#plt.xlim(0.2250,0.2256)
-#plt.xlim(0.02,0.022)
-#plt.xlim(37.71,37.73)
-#plt.ylim(5.7e6,5.8e6)
-#plt.xlim(46.5,46.6)
+
 plt.ylim(0.e7,1.e7)
-#plt.xlim(52.1,52.15)
-#plt.xlim(47.7,48.0)
-#plt.xlim(59.8,59.825)
-#plt.xlim(63.05,63.1)
-#plt.xlim(55.2,55.3)
-#plt.xlim(0.0198,0.02)
-#plt.ylim(7.5e6,7.7e6)
 plt.savefig('pictures/FT2_r_0.01_t_15_p_m0.025_segment_4_Wkin.svg')
 plt.grid()
 plt.show()

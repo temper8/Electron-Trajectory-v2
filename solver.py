@@ -1,35 +1,39 @@
+from datetime import datetime
 import gc
+from pathlib import Path
 import sys
 import pandas as pd
-import config 
-from logger_config import get_memory_usage, logger
+import src.config as config 
+from src.logger_config import get_memory_usage, logger
 import time
 from scipy.integrate import odeint,solve_ivp  
 
-from physical_constants import *
-import parameters
+from src.physical_constants import *
+import src.parameters as parameters
+from src.poincare import find_poincare_points
 
 if len(sys.argv) > 1:
     shot_file=sys.argv[1]
 else:
-    shot_file = 'test_shot.toml'
+    shot_file = 'short_shot.toml'
 
 logger.info(f"shot file: {shot_file}")
     
-run_cfg = config.load_configs(f'discharges/{shot_file}')
+run_cfg, solver, params = config.load_configs(f'discharges/{shot_file}')
 
 logger.info(f"Tokamak: {run_cfg.tokamak_name} Shot number: {run_cfg.shot_number}")
-logger.info(config.param_string(run_cfg.params))
+logger.info(config.param_string(params))
 
-result_file = f"{run_cfg.tokamak_name}_{run_cfg.shot_number}.h5"
+race_folder = Path(f"race/{run_cfg.tokamak_name}_{run_cfg.shot_number}")
+race_folder.mkdir(parents=True, exist_ok=True)
+race_file = Path(f"{datetime.now().strftime('%Y_%m_%d_%H_%M_%S')}.h5")
 # eval const
-params = run_cfg.params
 ccc_R0 = ccc/params.R0
 parameters.ccc_R0 = ccc_R0
 parameters.a = params.a
 parameters.R0 = params.R0
 parameters.n = params.n
-from eqations import *
+from src.eqations import *
 
 t_ini = run_cfg.time_start*ccc_R0/tau_norm
 
@@ -56,9 +60,16 @@ logger.info(f'rini= {params.r}, thetini={params.theta}, fiini={params.phi}, ppar
 logger.info(f"------------------------------------------------------------")
 # Open the HDF5 file for writing (this will overwrite the old file)
 calculation_start_time = time.time()
-file_name = f'results/{result_file}'
-with pd.HDFStore(file_name, mode='w') as store:
-    logger.info(f"Open the HDF5 file :  {file_name}")
+file = race_folder/race_file
+logger.debug(file)
+params_df = pd.DataFrame(list(params._asdict().items()), columns=['param', 'value'])
+solver_df = pd.DataFrame(list(solver._asdict().items()), columns=['param', 'value'])
+config_df = pd.DataFrame(list(run_cfg._asdict().items()), columns=['param', 'value'])
+with pd.HDFStore(race_folder/race_file, mode='w') as store:
+    store.put('params', params_df)
+    store.put('solver', solver_df)
+    store.put('config', config_df)
+    logger.info(f"Open the HDF5 file :  {file.name}")
     tau_start = t_ini
     rini = params.r
     thetini = params.theta
@@ -81,17 +92,17 @@ with pd.HDFStore(file_name, mode='w') as store:
 
         logger.info(f'r= {rini}, thet= {thetini}, fi= {fiini}, ppar= {pparini}')
         logger.info(f't_start(s)= {tau_start*params.R0/ccc*tau_norm}, del_t_calculation(s)= {(tau_end-tau_start)*params.R0/ccc*tau_norm}, time(s)={tau_end*params.R0/ccc*tau_norm}')
-        #logger.info(f'solve_ivp: method= DOP853, t_eval={nrange}')
-        logger.info(f'solve_ivp: method= DOP853, dense_output=True')
+        logger.info(f'solve_ivp: method= {solver.method}, dense_output=True')
+        logger.info(f'solve_ivp: rtol= {solver.rtol}, atol= {solver.atol}')
         sol= solve_ivp(guiding_center_dynamics,
                     [tau_start, tau_end], 
                     y0, 
-                    method='DOP853', 
+                    method= solver.method, 
                     dense_output=True, 
                     args=(params, muini),
                     events=hit_wall,
-                    rtol= 1e-7,
-                    atol= 1e-10) 
+                    rtol= solver.rtol,
+                    atol= solver.atol) 
         logger.info(f"Number of function evaluations {sol.nfev}")
         iteration_time = time.time() - iteration_start_time
         logger.info(f"Number of function evaluations per sec {(sol.nfev/iteration_time):0.2f}")
@@ -105,19 +116,20 @@ with pd.HDFStore(file_name, mode='w') as store:
         #pparini, rini, thetini, fiini , pperp2ini, Bpolini, Btotini, Bradini, Btorini, psipolini, psitorini, energyini = y_last
         pparini, rini, thetini, fiini = y_last
 
-        theta_revolutions = thetini/(2*pi)
-        fi_revolutions = fiini/(2*pi)
-        logger.info(f'theta_revolutions= {theta_revolutions:0.2f}, fi_revolutions= {fi_revolutions:0.2f}')
-        thetini=thetini-int(theta_revolutions)*2*pi
-        fiini=fiini-int(fi_revolutions)*2*pi
+        logger.info(f'theta_revolutions= {thetini/(2*pi):0.2f}, fi_revolutions= {fiini/(2*pi):0.2f}')
+        thetini=thetini%(2*pi)
+        fiini=fiini%(2*pi)
         
         df = pd.DataFrame(sol.y.T, columns=['ppar','r','theta','phi'])
         df['tau'] =  sol.t
 
         logger.debug("\n" + df.head().to_string())
         logger.info(f"df size= {len(df)}, {get_memory_usage()}.")
+
         # Инкрементная запись в HDF5 
         store.append('trajectory', df, index=False)
+        store.append('poincare_points', find_poincare_points(sol), index=False)
+
         logger.info(f"Iteration {it}. calculation time: {iteration_time:0.2f} sec")
         logger.info(f"------------------------------------------------------------")
         
@@ -131,8 +143,8 @@ with pd.HDFStore(file_name, mode='w') as store:
             #Z_collision = sol.y_events[0][0][2]
             #print(f"Координаты столкновения: R={R_collision:.3f}, Z={Z_collision:.3f}")
             break
-        del df
-        del sol
+        #del df
+        #del sol
         #del all_data
         gc.collect()
 

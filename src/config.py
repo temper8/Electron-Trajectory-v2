@@ -1,6 +1,8 @@
 import tomllib
 from typing import NamedTuple
 
+import pandas as pd
+
 
 class RunParams(NamedTuple):
     R0: float
@@ -22,7 +24,12 @@ class RunConfig(NamedTuple):
     num_it: int
     nrange: int
     delta_tau: float
-    params: RunParams
+
+
+class SolverParams(NamedTuple):
+    method: str
+    rtol: float
+    atol: float    
 
 
 
@@ -43,15 +50,20 @@ def load_configs(discharge_path):
         ppar=  cfg['initial_conditions']['ppar'],
         pperp= cfg['initial_conditions']['pperp'],
     )
-    return RunConfig(
-        tokamak_name = cfg['tokamak']['name'],
-        shot_number = cfg['discharge']['main']['shot_number'],
-        time_start=  cfg['initial_conditions']['time_start'],
-        num_it=      cfg['initial_conditions']['num_it'],
-        nrange=      cfg['initial_conditions']['nrange'],
-        delta_tau=   cfg['initial_conditions']['delta_tau'],
-        params= params
+    solver = SolverParams(        
+        method       = cfg['solver']['method'],
+        rtol         = cfg['solver']['rtol'],
+        atol         = cfg['solver']['atol']
     )
+    run_config = RunConfig(
+        tokamak_name = cfg['tokamak']['name'],
+        shot_number  = cfg['discharge']['main']['shot_number'],
+        time_start   = cfg['initial_conditions']['time_start'],
+        num_it       = cfg['initial_conditions']['num_it'],
+        nrange       = cfg['initial_conditions']['nrange'],
+        delta_tau    = cfg['initial_conditions']['delta_tau'],
+    )
+    return run_config, solver, params
 
 def param_string(p:RunParams):
     info = f"R0 = {p.R0}, a = {p.a}, "
@@ -59,3 +71,18 @@ def param_string(p:RunParams):
     info += f"nfi = {p.nfi}"
     return info
 
+def read_dict_hdf5(store, name):
+    df = store[name]
+    meta_dict = df.set_index('param')['value'].to_dict()
+    return meta_dict
+
+def read_config_hdf5(file):
+    with pd.HDFStore(file, mode='r') as store:
+        meta_dict = read_dict_hdf5(store, 'params')
+        params = RunParams(**meta_dict)
+        df_solver = store['solver']
+        meta_dict = read_dict_hdf5(store, 'solver')
+        solver = SolverParams(**meta_dict)
+        meta_dict = read_dict_hdf5(store, 'config')
+        config = RunConfig(**meta_dict)
+        return solver, params, config
