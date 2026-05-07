@@ -6,9 +6,16 @@ a  = 0.6           # [m] Minor radius
 #b = 3.3           # [m] Vertical minor radius (for elongation)
 #wall_material = "Be"
 
+[solver]
+method = 'LSODA' 
+#method = 'Radau' 
+#method = 'DOP853'
+rtol= 1e-8
+atol= 1e-9
+
 [initial_conditions]
 time_start = 0.5 # [sec]
-num_it = 2000
+num_it = 200
 nrange = 20000
 delta_tau = 200000 # 
 
