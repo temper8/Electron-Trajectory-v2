@@ -69,9 +69,9 @@ def plot_envelope_fit(df, a, title, race_name, show_trend_line= True):
         xy, slope = trend_line(t_all ,upper_env)
         ax1.axline(xy, slope= slope, color='r', linestyle='--', label= f'slope = {slope:.3f}', alpha=0.5)
 
-    ax1.plot(t_all, lower_env, 'b--', label='Нижняя огибающая')
+    ax1.plot(t_all, lower_env, 'b:', label='Нижняя огибающая')
     ax1.plot(t_all, offset_t, 'k', label='Средняя линия (offset)', alpha=0.5)
-    #ax1.fill_between(t_raw, lower_env, upper_env, color='yellow', alpha=0.1)
+
     ax1.set_ylabel('r(t)/a')
     ax1.legend(bbox_to_anchor=(1.02, 1), loc='upper left', borderaxespad=0.)
     ax1.set_title(title)

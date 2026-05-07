@@ -4,11 +4,11 @@ import numpy as np
 import pandas as pd
 from numpy import cos, sin, pi
 import matplotlib.pyplot as plt    
-from plotting.envelope_fit import plot_envelope_fit
+from src.envelope_fit import plot_envelope_fit
 from src.config import RunParams, SolverParams, load_configs, read_config_hdf5
 from src.physical_constants import *
-from plotting.plot_r_phi import plot_r_phi_segments
-from plotting.plot_trajectory import plot_12, plot_123, plot_hilbert, plot_poincare, plot_traj, polar_plot_traj
+from src.plot_r_phi import plot_r_phi_segments
+from src.plot_trajectory import plot_12, plot_123, plot_hilbert, plot_poincare, plot_traj, polar_plot_traj
 from src.utils import get_dataset_sizes, select_h5_file
 
 #race_file = 'race/EXL-50U_13976/2026_05_04_22_20_06.h5'
