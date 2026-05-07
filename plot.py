@@ -4,10 +4,11 @@ import numpy as np
 import pandas as pd
 from numpy import cos, sin, pi
 import matplotlib.pyplot as plt    
+from plotting.envelope_fit import plot_envelope_fit
 from src.config import RunParams, SolverParams, load_configs, read_config_hdf5
 from src.physical_constants import *
 from plotting.plot_r_phi import plot_r_phi_segments
-from plotting.plot_trajectory import plot_12, plot_123, plot_envelope_fit, plot_hilbert, plot_poincare, plot_traj, polar_plot_traj
+from plotting.plot_trajectory import plot_12, plot_123, plot_hilbert, plot_poincare, plot_traj, polar_plot_traj
 from src.utils import get_dataset_sizes, select_h5_file
 
 #race_file = 'race/EXL-50U_13976/2026_05_04_22_20_06.h5'
@@ -27,14 +28,14 @@ R0 = params.R0
 n = params.n
 
 df = pd.read_hdf(race_file, 'trajectory', mode='r')
-df['R'] = R0+ df['r']*cos(df['theta'])
+df['R'] = R0 + df['r']*cos(df['theta'])
 df['Z'] = df['r']*sin(df['theta'])
 df['time']=df['tau']/ccc_R0*tau_norm
 df['floor_phi'] =  np.floor(df['phi']/(2*pi)).astype(int)
 
 pp_df = pd.read_hdf(race_file, 'poincare_points', mode='r')
 pp_df['time']=pp_df['tau']/ccc_R0*tau_norm
-pp_df['R'] = R0+ pp_df['r']*cos(pp_df['theta'])
+pp_df['R'] = R0 + pp_df['r']*cos(pp_df['theta'])
 pp_df['Z'] = pp_df['r']*sin(pp_df['theta'])
 
 #print(df.head(5).to_string())
