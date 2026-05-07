@@ -5,6 +5,7 @@ import pandas as pd
 from numpy import cos, sin, pi
 import matplotlib.pyplot as plt    
 
+
 from src.config import RunParams, SolverParams, load_configs, read_config_hdf5
 from src.physical_constants import *
 from src.utils import get_dataset_sizes, select_h5_file
@@ -25,16 +26,14 @@ a = params.a
 R0 = params.R0
 n = params.n
 
-import src.parameters as parameters
-parameters.ccc_R0 = ccc_R0
-parameters.a = params.a
-parameters.R0 = params.R0
-parameters.n = params.n
+from src.env import init_env
+init_env(tau_norm*ccc_R0, R0, a)
 
 from src.plot_environment import plot_field_environment
 from src.envelope_fit import plot_envelope_fit
 from src.plot_r_phi import plot_r_phi_segments
 from src.plot_trajectory import plot_12, plot_123, plot_hilbert, plot_poincare, plot_traj, polar_plot_traj
+
 
 df = pd.read_hdf(race_file, 'trajectory', mode='r')
 df['R'] = R0 + df['r']*cos(df['theta'])

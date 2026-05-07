@@ -47,3 +47,20 @@ def create_env_function(tau_factor, R0, a):
         return q_0
     
     return uloop_t, B0_t, q0_t, q_anp
+
+
+u_loop = None
+B0_tau = None
+q0_tau = None
+qa_tau = None
+
+def init_env(tau_factor, R0, a):
+    global u_loop, B0_tau, q0_tau, qa_tau
+    u_loop, B0_tau, q0_tau, qa_tau = create_env_function(tau_factor, R0, a)# (tau_norm*ccc_R0, R0, a)
+
+def get_field_environment(tau):
+    sf0=q0_tau(tau)
+    sfb=qa_tau(tau)
+    Uloop=u_loop(tau)
+    B0 = B0_tau(tau)
+    return sf0, sfb, Uloop, B0

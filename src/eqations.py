@@ -16,7 +16,7 @@ from scipy.interpolate import CubicSpline
 from math import pi, sin, cos, sqrt, log, tan, atan
 
 from src.config import RunConfig, RunParams
-from src.field_EXL import *
+from src.env import get_field_environment
 
 from src.physical_constants import eqq, ccc, m0
 from src.parameters import n

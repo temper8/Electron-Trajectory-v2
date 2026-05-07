@@ -26,13 +26,10 @@ a = params.a
 R0 = params.R0
 n = params.n
 
-import src.parameters as parameters
-parameters.ccc_R0 = ccc_R0
-parameters.a = params.a
-parameters.R0 = params.R0
-parameters.n = params.n
-
 from src.plot_environment import plot_field_environment
+from src.env import init_env
+
+init_env(tau_norm*ccc_R0, R0, a)
 
 plt.ion() # Включаем интерактивный режим
 

@@ -29,10 +29,10 @@ race_folder.mkdir(parents=True, exist_ok=True)
 race_file = Path(f"{datetime.now().strftime('%Y_%m_%d_%H_%M_%S')}.h5")
 # eval const
 ccc_R0 = ccc/params.R0
-parameters.ccc_R0 = ccc_R0
-parameters.a = params.a
-parameters.R0 = params.R0
-parameters.n = params.n
+
+from src.env import init_env, get_field_environment
+init_env(tau_norm*ccc_R0, params.R0, params.a)
+
 from src.eqations import *
 
 t_ini = run_cfg.time_start*ccc_R0/tau_norm
@@ -40,7 +40,7 @@ t_ini = run_cfg.time_start*ccc_R0/tau_norm
 t0c=t_ini
 sf0, sfb, Uloop, B0 = get_field_environment(t_ini)
 #print('t_ini=',t0c,'sf0=',sf0,'sfb=',sfb,'B0=',B0,'Uloop=',Uloop)
-sf=saf_fact(sf0,sfb,params.r,a,Uloop)
+sf=saf_fact(sf0,sfb,params.r,params.a,Uloop)
 R,Btotini,Btorini,Bpolini,Bpol1,Bradini,brad,btor,bpol,bpol1,dBpoldr,dBtordfi,dBraddr,dBtordr,dBpoldfi,dBraddfi,  \
 dBpoldthet,dBtordthet,dBraddthet,dBpoldthet1,dBtordthet1,dBraddthet1,psitorini,dpsidr,dpsidfi,sf \
 =Mag_field(params.r, params.theta, params.phi, B0, sf0, sfb, Uloop, params)
