@@ -147,3 +147,12 @@ if __name__ == "__main__":
     plt.xlabel('t')
     plt.grid()
     plt.show()
+
+
+def get_field_environment(t):
+    sf0=spl_q0(t)
+    sfb=spl_qa(t)
+#    sfb=Splines.spl_qa(t)
+    Uloop=spl_U(t)
+    B0=spl_B(t)
+    return sf0, sfb, Uloop, B0

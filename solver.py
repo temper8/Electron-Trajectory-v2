@@ -38,10 +38,7 @@ from src.eqations import *
 t_ini = run_cfg.time_start*ccc_R0/tau_norm
 
 t0c=t_ini
-sf0=spl_q0(t0c)
-sfb=spl_qa(t0c)
-Uloop=spl_U(t0c)
-B0=spl_B(t0c)
+sf0, sfb, Uloop, B0 = get_field_environment(t)
 #print('t_ini=',t0c,'sf0=',sf0,'sfb=',sfb,'B0=',B0,'Uloop=',Uloop)
 sf=saf_fact(sf0,sfb,params.r,a,Uloop)
 R,Btotini,Btorini,Bpolini,Bpol1,Bradini,brad,btor,bpol,bpol1,dBpoldr,dBtordfi,dBraddr,dBtordr,dBpoldfi,dBraddfi,  \
@@ -80,10 +77,7 @@ with pd.HDFStore(race_folder/race_file, mode='w') as store:
         logger.info(f"Iteration {it}. Start")
         iteration_start_time = time.time()
         t0c=tau_start
-        sf0=spl_q0(t0c)
-        sfb=spl_qa(t0c)
-        Uloop=spl_U(t0c)
-        B0=spl_B(t0c)
+        sf0, sfb, Uloop, B0 = get_field_environment(t)
         logger.info(f'tau_start= {t0c}, sf0= {sf0}, sfb={sfb}, B0= {B0}, Uloop= {Uloop}')
         sf=saf_fact(sf0,sfb,rini,params.a,Uloop)
         

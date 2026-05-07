@@ -4,11 +4,9 @@ import numpy as np
 import pandas as pd
 from numpy import cos, sin, pi
 import matplotlib.pyplot as plt    
-from src.envelope_fit import plot_envelope_fit
+
 from src.config import RunParams, SolverParams, load_configs, read_config_hdf5
 from src.physical_constants import *
-from src.plot_r_phi import plot_r_phi_segments
-from src.plot_trajectory import plot_12, plot_123, plot_hilbert, plot_poincare, plot_traj, polar_plot_traj
 from src.utils import get_dataset_sizes, select_h5_file
 
 #race_file = 'race/EXL-50U_13976/2026_05_04_22_20_06.h5'
@@ -27,6 +25,17 @@ a = params.a
 R0 = params.R0
 n = params.n
 
+import src.parameters as parameters
+parameters.ccc_R0 = ccc_R0
+parameters.a = params.a
+parameters.R0 = params.R0
+parameters.n = params.n
+
+from src.plot_environment import plot_field_environment
+from src.envelope_fit import plot_envelope_fit
+from src.plot_r_phi import plot_r_phi_segments
+from src.plot_trajectory import plot_12, plot_123, plot_hilbert, plot_poincare, plot_traj, polar_plot_traj
+
 df = pd.read_hdf(race_file, 'trajectory', mode='r')
 df['R'] = R0 + df['r']*cos(df['theta'])
 df['Z'] = df['r']*sin(df['theta'])
@@ -44,6 +53,10 @@ print(f"poincare size   = {len(pp_df)}")
 
 
 plt.ion() # Включаем интерактивный режим
+
+plot_field_environment(pp_df['time'], race_file.stem)
+plt.draw() # Принудительная отрисовка
+plt.pause(0.1)
 
 plot_r_phi_segments(df, 43)
 plt.draw() # Принудительная отрисовка
