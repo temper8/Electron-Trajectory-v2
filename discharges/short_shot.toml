@@ -17,7 +17,7 @@ atol= 1e-9
 time_start = 0.5 # [sec]
 num_it = 1
 nrange = 20000
-delta_tau = 1000000 # 
+delta_tau = 200000 # 
 
 ppar = -0.1
 pperp = 0.025
