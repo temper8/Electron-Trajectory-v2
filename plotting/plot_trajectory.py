@@ -112,14 +112,12 @@ def plot_hilbert(df, a):
 from scipy.signal import find_peaks
 from scipy.interpolate import interp1d
 
-def plot_envelope_fit(df, a, title, race_name):
-
+def get_envelope_fit(t_raw, x_raw):
     # t_raw, x_raw — ваши данные ОДУ (допустим, с неравномерным шагом)
 
     # 1. Поиск экстремумов
     # Максимумы
-    x_raw = np.array(df['r']/a)
-    t_raw = np.array(df['time'])
+
     peaks_idx, _ = find_peaks(x_raw)
     # Минимумы (ищем максимумы инвертированного сигнала)
     troughs_idx, _ = find_peaks(-x_raw)
@@ -129,8 +127,8 @@ def plot_envelope_fit(df, a, title, race_name):
 
     # 2. Интерполяция огибающих (сплайнами)
     # Кубический сплайн дает плавность, но на краях может "гулять"
-    upper_env_func = interp1d(t_p, x_p, kind='cubic', fill_value="extrapolate")
-    lower_env_func = interp1d(t_t, x_t, kind='cubic', fill_value="extrapolate")
+    upper_env_func = interp1d(t_p, x_p, kind='linear', fill_value="extrapolate")
+    lower_env_func = interp1d(t_t, x_t, kind='linear', fill_value="extrapolate")
 
     upper_env = upper_env_func(t_raw)
     lower_env = lower_env_func(t_raw)
@@ -140,7 +138,7 @@ def plot_envelope_fit(df, a, title, race_name):
     A_t = (upper_env - lower_env) / 2
 
     # Средняя линия (offset) — если центр колебаний смещен
-    offset_t = (upper_env + lower_env) / 2
+    offset_t = (upper_env + lower_env) / 2    
 
     # Частота w(t) — используем и пики, и впадины для лучшего разрешения
     t_all = np.sort(np.concatenate([t_p, t_t]))
@@ -150,6 +148,13 @@ def plot_envelope_fit(df, a, title, race_name):
     t_w = t_all[:-1] + half_periods / 2
     w_interp = interp1d(t_w, w_vals, kind='linear', fill_value="extrapolate")
     w_t = w_interp(t_raw)
+    return lower_env, upper_env, offset_t, w_t
+
+def plot_envelope_fit(df, a, title, race_name):
+    x_raw = np.array(df['r'])/a
+    t_raw = np.array(df['time'])
+
+    lower_env, upper_env, offset_t, w_t = get_envelope_fit(t_raw, x_raw)
 
     # 3. Визуализация
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8), sharex=True, num=f"{race_name}_envelope_fit")
@@ -157,8 +162,8 @@ def plot_envelope_fit(df, a, title, race_name):
     # Верхний график: Сигнал и Огибающие
     ax1.plot(t_raw, x_raw, color='gray', alpha=0.3, label='r(t)/a')
     # Для огибающих используем линейную интерполяцию по найденным точкам
-    ax1.plot(t_p, x_p, 'r--', label='Верхняя огибающая')
-    ax1.plot(t_t, x_t, 'b--', label='Нижняя огибающая')
+    ax1.plot(t_raw, upper_env, 'r--', label='Верхняя огибающая')
+    ax1.plot(t_raw, lower_env, 'b--', label='Нижняя огибающая')
     ax1.plot(t_raw, offset_t, 'k', label='Средняя линия (offset)', alpha=0.5)
     #ax1.fill_between(t_raw, lower_env, upper_env, color='yellow', alpha=0.1)
     ax1.set_ylabel('r(t)/a')
