@@ -2,26 +2,19 @@
 name = "EXL-50U"
 R0 = 0.80          # [m] Major radius
 a  = 0.6           # [m] Minor radius
-
+# параметры выше уже используються
 #b = 3.3           # [m] Vertical minor radius (for elongation)
 #wall_material = "Be"
 
-[solver]
-method = 'LSODA' 
-#method = 'Radau' 
-#method = 'DOP853'
-rtol= 1e-8
-atol= 1e-9
-
 [initial_conditions]
-time_start = 0.5 # [sec]
-num_it = 1
+time_start = 0.2 # [sec]
+num_it = 10
 nrange = 20000
-delta_tau = 200000 # 
+delta_tau = 200000
 
 ppar = -0.1
 pperp = 0.025
-r =  0.5 
+r =  0.2
 theta = 0
 phi = 0
 
