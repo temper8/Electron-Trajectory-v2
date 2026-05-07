@@ -24,8 +24,8 @@ def plot_field_environment(time_array, race_name):
     u_loop = np.array([r[2] for r in results])
     b0 = np.array([r[3] for r in results])
 
-    fig, (ax_q, ax_u, ax_b) = plt.subplots(3, 1, figsize=(10, 7), sharex=True)
-    fig.suptitle(f'Field Environment: {race_name}', fontsize=14)
+    fig, (ax_q, ax_u, ax_b) = plt.subplots(3, 1, figsize=(10, 7), sharex=True, num=f"{race_name}_field_environment")
+    fig.suptitle(f'{race_name}', fontsize=12)
 
     # 1. Safety Factor
     ax_q.plot(time_array, q0, label='$q_0$ (axis)', lw=2)
