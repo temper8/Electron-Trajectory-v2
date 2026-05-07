@@ -41,8 +41,8 @@ def plot_field_environment(time_array, race_name):
 
     # Добавляем текст с min и max значениями U_loop
     u_min, u_max = u_loop.min(), u_loop.max()
-    text_info = f"min: {u_min:.7f} V\nmax: {u_max:.7f} V"
-    
+    #text_info = f"min: {u_min:.7f} V\nmax: {u_max:.7f} V"
+    text_info = f"min: {u_min} V\nmax: {u_max} V"
     # Размещаем текст в левом верхнем углу подзаголовка (координаты 0.02, 0.95 от осей)
     ax_u.text(0.02, 0.95, text_info, transform=ax_u.transAxes, 
               verticalalignment='top', fontsize=10, 
