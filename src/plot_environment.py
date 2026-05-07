@@ -39,6 +39,15 @@ def plot_field_environment(time_array, race_name):
     ax_u.set_ylabel('$U_{loop}$ [V]')
     ax_u.grid(True, which='both', alpha=0.2)
 
+    # Добавляем текст с min и max значениями U_loop
+    u_min, u_max = u_loop.min(), u_loop.max()
+    text_info = f"min: {u_min:.7f} V\nmax: {u_max:.7f} V"
+    
+    # Размещаем текст в левом верхнем углу подзаголовка (координаты 0.02, 0.95 от осей)
+    ax_u.text(0.02, 0.95, text_info, transform=ax_u.transAxes, 
+              verticalalignment='top', fontsize=10, 
+              bbox=dict(boxstyle='round', facecolor='white', alpha=0.7))
+
     # 3. Magnetic Field
     ax_b.plot(time_array, b0, color='forestgreen', lw=2)
     ax_b.set_ylabel('$B_0$ [T]')
