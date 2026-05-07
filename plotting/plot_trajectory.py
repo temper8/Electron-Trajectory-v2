@@ -119,7 +119,7 @@ def plot_envelope_fit(df, a, title, race_name):
     # 1. Поиск экстремумов
     # Максимумы
     x_raw = np.array(df['r']/a)
-    t_raw = np.array(df['time']/a)
+    t_raw = np.array(df['time'])
     peaks_idx, _ = find_peaks(x_raw)
     # Минимумы (ищем максимумы инвертированного сигнала)
     troughs_idx, _ = find_peaks(-x_raw)
@@ -155,13 +155,13 @@ def plot_envelope_fit(df, a, title, race_name):
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8), sharex=True, num=f"{race_name}_envelope_fit")
 
     # Верхний график: Сигнал и Огибающие
-    ax1.plot(t_raw, x_raw, color='gray', alpha=0.3, label='r(t)')
+    ax1.plot(t_raw, x_raw, color='gray', alpha=0.3, label='r(t)/a')
     # Для огибающих используем линейную интерполяцию по найденным точкам
     ax1.plot(t_p, x_p, 'r--', label='Верхняя огибающая')
     ax1.plot(t_t, x_t, 'b--', label='Нижняя огибающая')
     ax1.plot(t_raw, offset_t, 'k', label='Средняя линия (offset)', alpha=0.5)
     #ax1.fill_between(t_raw, lower_env, upper_env, color='yellow', alpha=0.1)
-    ax1.set_ylabel('x(t)')
+    ax1.set_ylabel('r(t)/a')
     ax1.legend()
     ax1.set_title(title)
 
