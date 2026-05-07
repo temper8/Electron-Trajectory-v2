@@ -54,7 +54,7 @@ print(f"poincare size   = {len(pp_df)}")
 
 plt.ion() # Включаем интерактивный режим
 
-plot_field_environment(pp_df['time'], race_file.stem)
+plot_field_environment(pp_df['tau'], ccc_R0*tau_norm, race_file.stem)
 plt.draw() # Принудительная отрисовка
 plt.pause(0.1)
 
