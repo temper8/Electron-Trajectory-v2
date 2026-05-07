@@ -148,11 +148,15 @@ if __name__ == "__main__":
     plt.grid()
     plt.show()
 
+import src.env as env
 
-def get_field_environment(t):
-    sf0=spl_q0(t)
-    sfb=spl_qa(t)
+u_loop, B0_tau, q0_tau, qa_tau = env.create_env_function(tau_norm*ccc_R0, R0, a)
+
+def get_field_environment(tau):
+    sf0=q0_tau(tau)
+    sfb=qa_tau(tau)
 #    sfb=Splines.spl_qa(t)
-    Uloop=spl_U(t)
-    B0=spl_B(t)
+    #Uloop=spl_U(t)
+    Uloop=u_loop(tau)
+    B0 = B0_tau(tau)
     return sf0, sfb, Uloop, B0
