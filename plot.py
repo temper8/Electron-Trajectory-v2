@@ -50,41 +50,44 @@ pp_df['Z'] = pp_df['r']*sin(pp_df['theta'])
 print(f"trajectory size = {len(df)}")
 print(f"poincare size   = {len(pp_df)}")
 
+ion = False
+def show():
+    if ion:
+        plt.draw() # Принудительная отрисовка
+        plt.pause(0.1)
+    else:
+        plt.show()
 
-plt.ion() # Включаем интерактивный режим
+
+if ion:
+    plt.ion() # Включаем интерактивный режим
 
 plot_field_environment(pp_df['tau'], ccc_R0*tau_norm, race_file.stem)
-plt.draw() # Принудительная отрисовка
-plt.pause(0.1)
+show()
 
 plot_r_phi_segments(df, 43)
-plt.draw() # Принудительная отрисовка
-plt.pause(0.1)
+show()
 
 plot_traj(df, pp_df, race_file.stem)
-plt.draw() # Принудительная отрисовка
-plt.pause(0.1)
+show()
 
 polar_plot_traj(df, a, race_file.stem)
-plt.draw() 
-plt.pause(0.1)
+show()
 
 plot_123(df, pp_df, a)
-plt.draw() 
-plt.pause(0.1)
+show()
 
 plot_poincare(df, pp_df, race_file.stem)
-plt.draw() 
-plt.pause(0.1)
+show()
 
 title = f"solver={solver.method}, rtol={solver.rtol}, atol={solver.atol}"
 plot_envelope_fit(df,a, title, race_file.stem)
-plt.draw() 
-plt.pause(0.1)
+show()
 
+if ion:
+    plt.ioff() # Выключаем интерактивный режим
+    plt.show() # Блокируем выход, пока вы сами не закроете окна
 
-plt.ioff() # Выключаем интерактивный режим
-plt.show() # Блокируем выход, пока вы сами не закроете окна
 sys.exit(0)
 
 from scipy import stats
