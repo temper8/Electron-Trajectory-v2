@@ -52,8 +52,8 @@ def plot_12(df, pp_df, a):
     #plt.savefig('pictures/FT2_r_0.01_t_15_p_m0.025_segment_4_rto_a.svg')
 
 
-def plot_123(df, pp_df, a):
-    fig = plt.figure(figsize=(10,8), layout='constrained')
+def plot_timeline_r_phi_poincare(df, pp_df, a, race_name):
+    fig = plt.figure(figsize=(10,8), layout='constrained', num=f"{race_name}_timeline")
     ax0, ax1, ax2 = fig.subplots(3, 1, sharex=True)
     ax0.plot(df['time'], df['r']/a)
     ax0.scatter(pp_df['time'], pp_df['r']/a, c= 'r', s=8)

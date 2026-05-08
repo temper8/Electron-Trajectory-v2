@@ -32,7 +32,7 @@ init_env(tau_norm*ccc_R0, R0, a)
 from src.plot_environment import plot_field_environment
 from src.envelope_fit import plot_envelope_fit
 from src.plot_r_phi import plot_r_phi_segments
-from src.plot_trajectory import plot_12, plot_123, plot_hilbert, plot_poincare, plot_traj, polar_plot_traj
+from src.plot_trajectory import plot_poincare, plot_timeline_r_phi_poincare, plot_traj, polar_plot_traj
 
 
 df = pd.read_hdf(race_file, 'trajectory', mode='r')
@@ -74,7 +74,7 @@ show()
 polar_plot_traj(df, a, race_file.stem)
 show()
 
-plot_123(df, pp_df, a)
+plot_timeline_r_phi_poincare(df, pp_df, a)
 show()
 
 plot_poincare(df, pp_df, race_file.stem)
