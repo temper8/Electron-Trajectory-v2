@@ -75,7 +75,7 @@ def plot_r_phi_segments(df, max_segments=15, step=1, k = 1):
         start_idx = end_idx
         plotted_count += 1
 
-    plt.xlabel('Тороидальный угол $\phi $\mod{2\pi}$ (рад)')
+    plt.xlabel(r'Toroidal angle $\phi \mathrm{mod} 2\pi$ (rad)')
     plt.ylabel('Малый радиус $r$ (м)')
     plt.title(f'Наложение траекторий (первые {plotted_count} участков)')
     plt.grid(True, linestyle=':', alpha=0.6)
