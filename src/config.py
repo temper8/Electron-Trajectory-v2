@@ -76,13 +76,23 @@ def read_dict_hdf5(store, name):
     meta_dict = df.set_index('param')['value'].to_dict()
     return meta_dict
 
+def load_namedtuple(store, key, nt_class):
+    attrs = store.get_storer(key).attrs
+    # Выбираем только те атрибуты, которые есть в NamedTuple
+    data = {field: attrs[field] for field in nt_class._fields}
+    return nt_class(**data)
+
+def save_namedtuple(store, key, nt):
+    # Создаем пустой объект для привязки атрибутов
+    store.put(key, pd.DataFrame()) 
+    storer = store.get_storer(key)
+    for field, value in nt._asdict().items():
+        storer.attrs[field] = value
+
+
 def read_config_hdf5(file):
     with pd.HDFStore(file, mode='r') as store:
-        meta_dict = read_dict_hdf5(store, 'params')
-        params = RunParams(**meta_dict)
-        df_solver = store['solver']
-        meta_dict = read_dict_hdf5(store, 'solver')
-        solver = SolverParams(**meta_dict)
-        meta_dict = read_dict_hdf5(store, 'config')
-        config = RunConfig(**meta_dict)
+        params = load_namedtuple(store, 'params', RunParams)
+        solver = load_namedtuple(store, 'solver', SolverParams)
+        config = load_namedtuple(store, 'config', RunConfig)
         return solver, params, config

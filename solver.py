@@ -12,6 +12,7 @@ from scipy.integrate import odeint,solve_ivp
 from src.physical_constants import *
 import src.parameters as parameters
 from src.poincare import find_poincare_points
+from src.config import save_namedtuple
 
 if len(sys.argv) > 1:
     shot_file=sys.argv[1]
@@ -60,13 +61,14 @@ logger.info(f"------------------------------------------------------------")
 calculation_start_time = time.time()
 file = race_folder/race_file
 logger.debug(file)
-params_df = pd.DataFrame(list(params._asdict().items()), columns=['param', 'value'])
-solver_df = pd.DataFrame(list(solver._asdict().items()), columns=['param', 'value'])
-config_df = pd.DataFrame(list(run_cfg._asdict().items()), columns=['param', 'value'])
+
 with pd.HDFStore(race_folder/race_file, mode='w') as store:
-    store.put('params', params_df)
-    store.put('solver', solver_df)
-    store.put('config', config_df)
+    save_namedtuple(store, 'params', params)
+    save_namedtuple(store, 'solver', solver)
+    save_namedtuple(store, 'config', run_cfg)
+    #store.put('params', pd.DataFrame([params]))
+    #store.put('solver', pd.DataFrame([solver]))
+    #store.put('config', pd.DataFrame([run_cfg]))
     logger.info(f"Open the HDF5 file :  {file.name}")
     tau_start = t_ini
     rini = params.r
@@ -127,6 +129,7 @@ with pd.HDFStore(race_folder/race_file, mode='w') as store:
 
         # Инкрементная запись в HDF5 
         store.append('trajectory', get_extremums(df), index=False)
+        #store.append('trajectory', df, index=False)
         store.append('poincare_points', find_poincare_points(sol), index=False)
 
         logger.info(f"Iteration {it}. calculation time: {iteration_time:0.2f} sec")
