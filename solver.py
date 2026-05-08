@@ -52,12 +52,9 @@ p2ini=params.ppar**2+pperp2ini
 psipolini=pi*B0*params.a**2/(sfb-sf0)*log((sf0+(sfb-sf0)*(params.r/params.a)**2)/sf0)
 energyini=m01*ccc1**2*(sqrt(1+p2ini)-1)/1.6022e-12
 
-logger.info('+++++++  start  +++++++++')
-
 logger.info(f'rini= {params.r}, thetini={params.theta}, fiini={params.phi}, pparini= {params.ppar}, energyini= {energyini}')
+logger.info(f"---------------------- start -------------------------------")
 
-logger.info(f"------------------------------------------------------------")
-# Open the HDF5 file for writing (this will overwrite the old file)
 calculation_start_time = time.time()
 file = race_folder/race_file
 logger.debug(file)
@@ -66,9 +63,6 @@ with pd.HDFStore(race_folder/race_file, mode='w') as store:
     save_namedtuple(store, 'params', params)
     save_namedtuple(store, 'solver', solver)
     save_namedtuple(store, 'config', run_cfg)
-    #store.put('params', pd.DataFrame([params]))
-    #store.put('solver', pd.DataFrame([solver]))
-    #store.put('config', pd.DataFrame([run_cfg]))
     logger.info(f"Open the HDF5 file :  {file.name}")
     tau_start = t_ini
     rini = params.r
@@ -108,16 +102,12 @@ with pd.HDFStore(race_folder/race_file, mode='w') as store:
         iteration_time = time.time() - iteration_start_time
         logger.info(f"Number of function evaluations per sec {(sol.nfev/iteration_time):0.2f}")
 
-        #t_steps = np.linspace(tau_start, tau_end, run_cfg.nrange)
-        #all_data = sol.sol(t_steps) # Получаем все данные разом!
-        #tau_start= t_steps[-1]
-        #y_last = all_data[:, -1]
         tau_start= sol.t[-1]
         y_last = sol.y[:, -1]
         #pparini, rini, thetini, fiini , pperp2ini, Bpolini, Btotini, Bradini, Btorini, psipolini, psitorini, energyini = y_last
         pparini, rini, thetini, fiini = y_last
 
-        logger.info(f'theta_revolutions= {thetini/(2*pi):0.2f}, fi_revolutions= {fiini/(2*pi):0.2f}')
+        logger.info(f'theta revolutions= {thetini/(2*pi):0.2f}, phi revolutions= {fiini/(2*pi):0.2f}')
         thetini=thetini%(2*pi)
         fiini=fiini%(2*pi)
         
