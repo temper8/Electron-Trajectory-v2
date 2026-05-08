@@ -20,17 +20,26 @@ def plot_traj(df, pp_df, race_name):
     #ax1.set_ylabel('Z')
     ax1.grid(True)
     ax1.axis('equal')
+    fig.tight_layout()
 
-
-def polar_plot_traj(df, a, race_name):
-    fig, ax = plt.subplots(subplot_kw={'projection': 'polar'}, num=f"{race_name}_polar_traj")
-    ax.scatter( df['theta'], df['r']/a, alpha=0.05, color='blue', edgecolors='none', s=10)
-    ax.set_rmax(1)
+def polar_plot_traj(df, pp_df, a, race_name):
+    fig = plt.figure(figsize=(10,5), num=f"{race_name}_polar_projection_trajctory")
+    #fig.set_title("Electron trajectory in poloidal crossection", va='bottom')
+    #fig, ax = plt.subplots(subplot_kw={'projection': 'polar'}, num=f"{race_name}_polar_traj")
+    ax0, ax1 = fig.subplots(1, 2, subplot_kw={'projection': 'polar'})
+    ax0.scatter( df['theta'], df['r']/a, c= df['time'], cmap='plasma', alpha=0.05, edgecolors='none', s=8)
+    ax0.set_rmax(1)
     #ax.set_rticks([0.2, 0.4, 0.6, 0.8])  # Less radial ticks
-    ax.set_rlabel_position(-22.5)  # Move radial labels away from plotted line
-    ax.grid(True)
+    ax0.set_rlabel_position(-22.5)  # Move radial labels away from plotted line
+    ax0.grid(True)
     #ax.set_title("Electron trajectory in poloidal crossection", va='bottom')
-    #plt.savefig('pictures/FT2_r_0.01_t_15_p_m0.1_segment_4_cross_sect.png')
+    
+    ax1.scatter( pp_df['theta'], pp_df['r']/a, c= pp_df['time'], cmap='plasma', alpha=0.05, edgecolors='none', s=8)
+    ax1.set_rmax(1)
+    #ax.set_rticks([0.2, 0.4, 0.6, 0.8])  # Less radial ticks
+    ax1.set_rlabel_position(-22.5)  # Move radial labels away from plotted line
+    ax1.grid(True)    
+    fig.tight_layout()
 
 def plot_12(df, pp_df, a):
     fig = plt.figure(figsize=(10,8), layout='constrained')
@@ -50,7 +59,7 @@ def plot_12(df, pp_df, a):
     ax1.set_ylabel('sin(phi(t))')
     ax1.grid(True)
     #plt.savefig('pictures/FT2_r_0.01_t_15_p_m0.025_segment_4_rto_a.svg')
-
+    fig.tight_layout()
 
 def plot_timeline_r_phi_poincare(df, pp_df, a, race_name):
     fig = plt.figure(figsize=(10,8), layout='constrained', num=f"{race_name}_timeline")
@@ -74,7 +83,8 @@ def plot_timeline_r_phi_poincare(df, pp_df, a, race_name):
     ax2.set_ylabel('phi(t) poincare points')
     ax2.grid(True)
     #plt.savefig('pictures/FT2_r_0.01_t_15_p_m0.025_segment_4_rto_a.svg')
-   
+    fig.tight_layout()
+
 def plot_poincare(df, pp_df, race_name):
     plt.figure(num=f"{race_name}_poincare")
     #plt.plot(df['time'], sin(df['phi']), marker='o', linestyle='-', color='b')

@@ -72,7 +72,7 @@ show()
 plot_traj(df, pp_df, race_file.stem)
 show()
 
-polar_plot_traj(df, a, race_file.stem)
+polar_plot_traj(df, pp_df, a, race_file.stem)
 show()
 
 plot_timeline_r_phi_poincare(df, pp_df, a, race_file.stem)
@@ -85,10 +85,10 @@ title = f"solver={solver.method}, rtol={solver.rtol}, atol={solver.atol}"
 plot_envelope_fit(df, a, title, race_file.stem)
 show()
 
-ex_df = get_extremums(df)
-title = f"extremums solver={solver.method}, rtol={solver.rtol}, atol={solver.atol}"
-plot_envelope_fit(ex_df, a, title, race_file.stem + "_ext")
-show()
+#ex_df = get_extremums(df)
+#title = f"extremums solver={solver.method}, rtol={solver.rtol}, atol={solver.atol}"
+#plot_envelope_fit(ex_df, a, title, race_file.stem + "_ext")
+#show()
 
 if ion:
     plt.ioff() # Выключаем интерактивный режим
