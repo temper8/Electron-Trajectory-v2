@@ -22,7 +22,7 @@ class RunConfig(NamedTuple):
     shot_number: int
     time_start: float # [sec]
     num_it: int
-    nrange: int
+    max_tau_step: float
     delta_tau: float
 
 
@@ -60,7 +60,7 @@ def load_configs(discharge_path):
         shot_number  = cfg['discharge']['main']['shot_number'],
         time_start   = cfg['initial_conditions']['time_start'],
         num_it       = cfg['initial_conditions']['num_it'],
-        nrange       = cfg['initial_conditions']['nrange'],
+        max_tau_step = cfg['initial_conditions']['max_tau_step'],
         delta_tau    = cfg['initial_conditions']['delta_tau'],
     )
     return run_config, solver, params

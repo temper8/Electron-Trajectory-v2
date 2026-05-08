@@ -73,7 +73,10 @@ with pd.HDFStore(race_folder/race_file, mode='w') as store:
     thetini = params.theta
     fiini = params.phi
     pparini = params.ppar
-    logger.info(f"num_it= {run_cfg.num_it}, nrange= {run_cfg.nrange}")
+    logger.info(f"num_it= {run_cfg.num_it}, max_tau_step= {run_cfg.max_tau_step}, delta_tau= {run_cfg.delta_tau}")
+    
+    max_step = run_cfg.max_tau_step if run_cfg.max_tau_step>0 else np.inf
+    
     for it in range(run_cfg.num_it):
         logger.info(f"Iteration {it}. Start")
         iteration_start_time = time.time()
@@ -97,7 +100,8 @@ with pd.HDFStore(race_folder/race_file, mode='w') as store:
                     args=(params, muini),
                     events=hit_wall,
                     rtol= solver.rtol,
-                    atol= solver.atol) 
+                    atol= solver.atol,
+                    max_step= max_step) 
         logger.info(f"Number of function evaluations {sol.nfev}")
         iteration_time = time.time() - iteration_start_time
         logger.info(f"Number of function evaluations per sec {(sol.nfev/iteration_time):0.2f}")

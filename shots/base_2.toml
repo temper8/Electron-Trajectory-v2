@@ -9,7 +9,7 @@ a  = 0.6           # [m] Minor radius
 [initial_conditions]
 time_start = 0.2 # [sec]
 num_it = 10
-nrange = 20000
+max_tau_step = -1
 delta_tau = 200000
 
 ppar = -0.1
