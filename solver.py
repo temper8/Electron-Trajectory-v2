@@ -19,7 +19,7 @@ else:
 
 logger.info(f"shot file: {shot_file}")
     
-run_cfg, solver, params = config.load_configs(f'discharges/{shot_file}')
+run_cfg, solver, params = config.load_configs(f'shots/{shot_file}')
 
 logger.info(f"Tokamak: {run_cfg.tokamak_name} Shot number: {run_cfg.shot_number}")
 logger.info(config.param_string(params))
