@@ -3,6 +3,7 @@ import gc
 from pathlib import Path
 import sys
 import pandas as pd
+from  src.envelope_fit import get_extremums
 import src.config as config 
 from src.logger_config import get_memory_usage, logger
 import time
@@ -121,7 +122,7 @@ with pd.HDFStore(race_folder/race_file, mode='w') as store:
         logger.info(f"df size= {len(df)}, {get_memory_usage()}.")
 
         # Инкрементная запись в HDF5 
-        store.append('trajectory', df, index=False)
+        store.append('trajectory', get_extremums(df), index=False)
         store.append('poincare_points', find_poincare_points(sol), index=False)
 
         logger.info(f"Iteration {it}. calculation time: {iteration_time:0.2f} sec")

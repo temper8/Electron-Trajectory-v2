@@ -30,7 +30,7 @@ from src.env import init_env
 init_env(tau_norm*ccc_R0, R0, a)
 
 from src.plot_environment import plot_field_environment
-from src.envelope_fit import plot_envelope_fit
+from src.envelope_fit import get_extremums, plot_envelope_fit
 from src.plot_r_phi import plot_r_phi_segments
 from src.plotting import plot_poincare, plot_timeline_r_phi_poincare, plot_traj, polar_plot_traj
 
@@ -51,7 +51,7 @@ pp_df['Z'] = pp_df['r']*sin(pp_df['theta'])
 print(f"trajectory size = {len(df)}")
 print(f"poincare size   = {len(pp_df)}")
 
-ion = False
+ion = True
 def show():
     if ion:
         plt.draw() # Принудительная отрисовка
@@ -82,7 +82,12 @@ plot_poincare(df, pp_df, race_file.stem)
 show()
 
 title = f"solver={solver.method}, rtol={solver.rtol}, atol={solver.atol}"
-plot_envelope_fit(df,a, title, race_file.stem)
+plot_envelope_fit(df, a, title, race_file.stem)
+show()
+
+ex_df = get_extremums(df)
+title = f"extremums solver={solver.method}, rtol={solver.rtol}, atol={solver.atol}"
+plot_envelope_fit(ex_df, a, title, race_file.stem + "_ext")
 show()
 
 if ion:

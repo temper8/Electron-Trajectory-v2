@@ -3,6 +3,28 @@ import numpy as np
 from scipy.signal import find_peaks
 from scipy.interpolate import interp1d
 
+
+def get_extremums(df, column='r', distance=None, prominence=None):
+    """
+    Находит максимумы и минимумы в указанной колонке.
+    
+    :param df: Исходный DataFrame
+    :param column: Название колонки для поиска экстремумов
+    :param distance: Минимальное количество строк между пиками
+    :param prominence: Минимальная "выраженность" пика (отсеивает шум)
+    :return: DataFrame только с точками экстремумов
+    """
+    # Поиск индексов максимумов
+    max_idx, _ = find_peaks(df[column], distance=distance, prominence=prominence)
+    
+    # Поиск индексов минимумов (инвертируем значения колонки)
+    min_idx, _ = find_peaks(-df[column], distance=distance, prominence=prominence)
+    
+    # Собираем все индексы вместе, сортируем их и выбираем строки
+    all_idx = sorted(list(max_idx) + list(min_idx))
+    
+    return df.iloc[all_idx].copy()
+
 def get_envelope_fit(t_raw, x_raw):
     # t_raw, x_raw — ваши данные ОДУ (допустим, с неравномерным шагом)
 
