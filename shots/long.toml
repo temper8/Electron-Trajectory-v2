@@ -15,9 +15,9 @@ atol= 1e-9
 
 [initial_conditions]
 time_start = 0.5 # [sec]
-num_it = 2000
+num_it = 200
 max_tau_step = -1
-delta_tau = 200000 # 
+delta_tau = 1000000 # 
 
 ppar = -0.1
 pperp = 0.025
