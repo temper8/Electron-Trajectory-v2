@@ -80,3 +80,10 @@ def get_field_environment(tau):
 def saf_fact(sf0,sfb,r,a):
     sf=sf0+(sfb-sf0)*(r/a)**2
     return sf
+
+@njit
+def safety_factor(tau, ro):
+    sf0=q0_tau(tau)
+    sfa=qa_tau(tau)
+    sf=sf0+(sfa-sf0)*ro*ro
+    return sf0, sfa, sf

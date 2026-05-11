@@ -16,7 +16,7 @@ from scipy.interpolate import CubicSpline
 from math import pi, sin, cos, sqrt, log, tan, atan
 
 from src.config import RunConfig, RunParams
-from src.env import get_field_environment, saf_fact
+from src.env import get_field_environment, saf_fact, safety_factor
 
 from src.physical_constants import eqq, ccc, m0
 from src.parameters import n
@@ -85,7 +85,7 @@ def fn(x,n):
 hyp_fast = create_pade_hyp(a = 0.5, b = (2.0 + n) / 2.0, c = (4.0 + n) / 2.0)
 #@profile
 @njit
-def Mag_field(r, thet, fi, B0, sf0, sfb, Uloop, params :RunParams):
+def Mag_field(r, thet, fi, B0, tau, params :RunParams):
     #R0, a, delr, delfi, nfi, n, r, thet, fi, ppar, pperp
     R0, a, delr, delfi, nfi, n, _, _, _, _, _ = params
     x=r/R0
@@ -139,7 +139,8 @@ def Mag_field(r, thet, fi, B0, sf0, sfb, Uloop, params :RunParams):
 
     A1=psitor
     rpsi=(R0/abs(psi0))*sqrt((2*psi0-A1)*A1)
-    sf=saf_fact(sf0,sfb,rpsi,a)
+    sf0, sfa, sf = safety_factor(tau, r/a)
+    #sf=saf_fact(sf0,sfb,rpsi,a)
     #sf1=saf_fact(sf0,sfb,r,a,Uloop)
 
     dpsidA1=1.
@@ -150,7 +151,7 @@ def Mag_field(r, thet, fi, B0, sf0, sfb, Uloop, params :RunParams):
 
     dAn1dr=psi0n*integrandn1(x,n)
     dpsidr=dpsidA1*dA1dr+dpsidAn*dAndr+dpsidAn1*dAn1dr
-    dsfdpsi=2.*(sfb-sf0)*(psi0-psitor)*(R0/a)**2/psi0**2*np.sign(B0)
+    dsfdpsi=2.*(sfa-sf0)*(psi0-psitor)*(R0/a)**2/psi0**2*np.sign(B0)
     dsfdr=dsfdpsi*dpsidr
     Bpol=dpsidr/sf/(R*2.*pi)*np.sign(B0)
 
@@ -193,7 +194,7 @@ def Mag_field(r, thet, fi, B0, sf0, sfb, Uloop, params :RunParams):
     dBraddthet=dBraddthet1*r
 
     return R,Btot,Btor,Bpol, Bpol1,Brad,brad,btor,bpol,bpol1,dBpoldr,dBtordfi,dBraddr,dBtordr,dBpoldfi,dBraddfi,  \
-    dBpoldthet,dBtordthet,dBraddthet,dBpoldthet1,dBtordthet1,dBraddthet1,psitor,dpsidr,dpsidfi,sf
+    dBpoldthet,dBtordthet,dBraddthet,dBpoldthet1,dBtordthet1,dBraddthet1,psitor,dpsidr,dpsidfi
 
 @njit
 def rot_b(r,thet,fi,R,Btot,Btor,Bpol,Bpol1,Brad,brad,btor,bpol,bpol1,dBpoldr,dBtordfi,dBraddr,dBtordr,dBpoldfi,dBraddfi,  \
@@ -300,11 +301,10 @@ def guiding_center_dynamics(t, y, params:RunParams, muini):
     
     sf0, sfb, Uloop, B0 = get_field_environment(t)
 
-    sf=saf_fact(sf0, sfb, r, params.a)
 
     R,Btot,Btor,Bpol,Bpol1,Brad,brad,btor,bpol,bpol1,dBpoldr,dBtordfi,dBraddr,dBtordr,dBpoldfi,dBraddfi,  \
-    dBpoldthet,dBtordthet,dBraddthet,dBpoldthet1,dBtordthet1,dBraddthet1,psitor,dpsidr,dpsidfi,sf \
-    =Mag_field(r, thet, fi, B0, sf0, sfb, Uloop, params)
+    dBpoldthet,dBtordthet,dBraddthet,dBpoldthet1,dBtordthet1,dBraddthet1,psitor,dpsidr,dpsidfi \
+    =Mag_field(r, thet, fi, B0, t, params)
 
     rtbr,rtbpol,rtbfi,brtr,brtt,brtfi,gbr,gbt,gbfi,bgrr,bgrt,bgrfi,bbrtr,bbrtt,bbrtfi  \
     =rot_b(r,thet,fi,R,Btot,Btor,Bpol,Bpol1,Brad,brad,btor,bpol,bpol1,dBpoldr,   \
