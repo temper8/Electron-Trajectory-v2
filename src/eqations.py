@@ -276,6 +276,7 @@ def hit_wall(t, y, params:RunParams, muini):
 hit_wall.terminal = True 
 hit_wall.direction = 1  # Срабатывает только при вылете наружу
 
+@njit
 def guiding_center_dynamics(t, y, params:RunParams, muini):
     #a,R0,delr,delfi,nfi,n,pparini,pperpini
     ppar, r, thet, fi = y
