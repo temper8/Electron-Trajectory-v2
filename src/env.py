@@ -58,7 +58,8 @@ def create_env_function(tau_factor, R0, a):
 
     @njit    
     def E_field(r, theta, phi, tau):
-        E0tor = E0_field(r, theta, phi, tau)
+        #E0tor = E0_field(r, theta, phi, tau)
+        E0tor=uloop_t(tau)/(2*pi*R0)
         Etor=E0tor*R0/(R0+r*cos(theta))
         Erad=0.
         Epol=0.
