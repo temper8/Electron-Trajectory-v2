@@ -16,7 +16,7 @@ from scipy.interpolate import CubicSpline
 from math import pi, sin, cos, sqrt, log, tan, atan
 
 from src.config import RunConfig, RunParams
-from src.env import get_field_environment, saf_fact, safety_factor
+from src.env import B0_tau, get_field_environment, saf_fact, safety_factor, E_field_tau
 
 from src.physical_constants import eqq, ccc, m0
 from src.parameters import n
@@ -39,26 +39,8 @@ def integrandn1(x,n):
         y=-x**(n+2)*0.5*(1.+3.*x**2/4)
     return y
 
-@njit
-def E0_field(r,thet,fi,R0,Uloop):
-    E0tor=Uloop/(2*pi*R0)
-    return E0tor
 
-@njit    
-def E_field(r,thet,fi,R0,E0tor):
-    Etor=E0tor*R0/(R0+r*cos(thet))
-    Erad=0.
-    Epol=0.
-    Etot=sqrt(Etor**2+Erad**2+Epol**2)
-    if abs(Etot) >0.:
-        etor=Etor/Etot
-        erad=Erad/Etot
-        epol=Epol/Etot
-    else:
-        etor=0.
-        erad=0.
-        epol=0.
-    return Etot,Etor,etor,Erad,erad,Epol,epol
+
 
 #def Bpol_f(r,thet,sf,B0,R0):
 #    Bpol1=B0/(R0*sf)/(1+r/R0*cos(thet))
@@ -85,12 +67,13 @@ def fn(x,n):
 hyp_fast = create_pade_hyp(a = 0.5, b = (2.0 + n) / 2.0, c = (4.0 + n) / 2.0)
 #@profile
 @njit
-def Mag_field(r, thet, fi, B0, tau, params :RunParams):
+def Mag_field(r, thet, fi, tau, params :RunParams):
     #R0, a, delr, delfi, nfi, n, r, thet, fi, ppar, pperp
     R0, a, delr, delfi, nfi, n, _, _, _, _, _ = params
-    x=r/R0
-    R=R0+r*cos(thet)
-    xpr=r*cos(thet)/R0
+    B0 = B0_tau(tau)
+    x = r/R0
+    R = R0 + r*cos(thet)
+    xpr = r*cos(thet)/R0
     Fnpr=fn(xpr,n+1)
     Btor=B0*R0/R*(1.+delfi*cos(nfi*fi)*(1.+delr*cos(thet))*(r/a)**n)
     Gpr=B0*delfi*nfi*sin(nfi*fi)*(1.+delr*cos(thet))
@@ -193,7 +176,7 @@ def Mag_field(r, thet, fi, B0, tau, params :RunParams):
     dBraddthet1=Gpr2*(1/R0)*Fpr+Gpr31*dFndthet
     dBraddthet=dBraddthet1*r
 
-    return R,Btot,Btor,Bpol, Bpol1,Brad,brad,btor,bpol,bpol1,dBpoldr,dBtordfi,dBraddr,dBtordr,dBpoldfi,dBraddfi,  \
+    return Btot,Btor,Bpol, Bpol1,Brad,brad,btor,bpol,bpol1,dBpoldr,dBtordfi,dBraddr,dBtordr,dBpoldfi,dBraddfi,  \
     dBpoldthet,dBtordthet,dBraddthet,dBpoldthet1,dBtordthet1,dBraddthet1,psitor,dpsidr,dpsidfi
 
 @njit
@@ -246,12 +229,12 @@ def rot_b(r,thet,fi,R,Btot,Btor,Bpol,Bpol1,Brad,brad,btor,bpol,bpol1,dBpoldr,dBt
     return rtbr,rtbpol,rtbfi,brtr,brtt,brtfi,gbr,gbt,gbfi,bgrr,bgrt,bgrfi,bbrtr,bbrtt,bbrtfi
 
 @njit
-def eq_mot(t, R0,pperp,ppar,r,thet,fi,R,Uloop,brtr,brtt,brtfi,gbr,gbt,gbfi, \
+def eq_mot(tau, R0,pperp,ppar,r,thet,fi,R,Uloop,brtr,brtt,brtfi,gbr,gbt,gbfi, \
     bgrr,bgrt,bgrfi,bbrtr,bbrtt,bbrtfi,brad,btor,bpol,muini,Btot): #,dBpoldr,dBpoldthet,dBpoldfi, \
     # dBraddr,dBraddthet,dBraddfi,dBtordr,dBtordthet,dBtordfi,Bpol,Brad,Btor,psitor,dpsidr,dpsidfi,sf):
     
-    E0tor=E0_field(r,thet,fi,R0,Uloop)
-    Etot,Etor,etor,Erad,erad,Epol,epol=E_field(r,thet,fi,R0,E0tor)
+    #E0tor=E0_field(r,thet,fi,tau)
+    Etot, Etor, etor, Erad, erad, Epol, epol= E_field_tau(r, thet, fi, tau)
     ptot2=pperp**2+ppar**2
     gam=sqrt(1.+ptot2)
 
@@ -298,13 +281,13 @@ hit_wall.direction = 1  # Срабатывает только при вылет�
 def guiding_center_dynamics(t, y, params:RunParams, muini):
     #a,R0,delr,delfi,nfi,n,pparini,pperpini
     ppar, r, thet, fi = y
-    
-    sf0, sfb, Uloop, B0 = get_field_environment(t)
-
-
-    R,Btot,Btor,Bpol,Bpol1,Brad,brad,btor,bpol,bpol1,dBpoldr,dBtordfi,dBraddr,dBtordr,dBpoldfi,dBraddfi,  \
+ 
+    Btot,Btor,Bpol,Bpol1,Brad,brad,btor,bpol,bpol1,dBpoldr,dBtordfi,dBraddr,dBtordr,dBpoldfi,dBraddfi,  \
     dBpoldthet,dBtordthet,dBraddthet,dBpoldthet1,dBtordthet1,dBraddthet1,psitor,dpsidr,dpsidfi \
-    =Mag_field(r, thet, fi, B0, t, params)
+    =Mag_field(r, thet, fi, t, params)
+
+    R0 = params.R0
+    R = R0 + r*cos(thet)
 
     rtbr,rtbpol,rtbfi,brtr,brtt,brtfi,gbr,gbt,gbfi,bgrr,bgrt,bgrfi,bbrtr,bbrtt,bbrtfi  \
     =rot_b(r,thet,fi,R,Btot,Btor,Bpol,Bpol1,Brad,brad,btor,bpol,bpol1,dBpoldr,   \
@@ -313,11 +296,24 @@ def guiding_center_dynamics(t, y, params:RunParams, muini):
 
     pperp2=muini*Btot
     pperp=sqrt(pperp2)
+    
+    Etot, Etor, etor, Erad, erad, Epol, epol= E_field_tau(r, thet, fi, t)
+    ptot2=pperp**2+ppar**2
+    gam=sqrt(1.+ptot2)
 
-    dydt=eq_mot(t, params.R0,pperp,ppar,r,thet,fi,R,Uloop,brtr,brtt,brtfi,gbr,gbt,gbfi, \
-    bgrr,bgrt,bgrfi,bbrtr,bbrtt,bbrtfi,brad,btor,bpol,muini,Btot) #,dBpoldr,dBpoldthet,dBpoldfi,  \
-    #dBraddr,dBraddthet,dBraddfi,dBtordr,dBtordthet,dBtordfi,Bpol,Brad,Btor,psitor,dpsidr,dpsidfi,sf)
+    dppardt=eqq*R0/(m0*ccc**2)*(Erad*brad+Epol*bpol+Etor*btor)-R0*pperp**2/(2*Btot*gam)* \
+    (gbr*brad+gbt*bpol+gbfi*btor)
 
-    return dydt 
+    omce=eqq*Btot/(m0*ccc)
+    M1=ppar*R0/gam
+    M2=0.5*R0/(eqq/(m0*ccc)*gam)*muini   #correct
+    M3=R0/(omce*gam)*ppar**2
+ #   M4=R0/(ccc*Btot)
+    M4=0
+    dRdtr=M1*brad+M2*bgrr+M3*bbrtr+M4*(Epol*btor-Etor*bpol)
+    dRdtt=M1*bpol+M2*bgrt+M3*bbrtt+M4*(Etor*brad-Erad*btor)
+    dRdtfi=M1*btor+M2*bgrfi+M3*bbrtfi+M4*(Erad*bpol-Epol*brad)
+    return [dppardt, dRdtr, dRdtt/r, dRdtfi/R]
+
 
 

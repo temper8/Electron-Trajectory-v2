@@ -43,9 +43,9 @@ t0c=t_ini
 sf0, sfb, Uloop, B0 = get_field_environment(t_ini)
 #print('t_ini=',t0c,'sf0=',sf0,'sfb=',sfb,'B0=',B0,'Uloop=',Uloop)
 sf=saf_fact(sf0,sfb,params.r,params.a)
-R,Btotini,Btorini,Bpolini,Bpol1,Bradini,brad,btor,bpol,bpol1,dBpoldr,dBtordfi,dBraddr,dBtordr,dBpoldfi,dBraddfi,  \
+Btotini,Btorini,Bpolini,Bpol1,Bradini,brad,btor,bpol,bpol1,dBpoldr,dBtordfi,dBraddr,dBtordr,dBpoldfi,dBraddfi,  \
 dBpoldthet,dBtordthet,dBraddthet,dBpoldthet1,dBtordthet1,dBraddthet1,psitorini,dpsidr,dpsidfi \
-=Mag_field(params.r, params.theta, params.phi, B0, t_ini, params)
+=Mag_field(params.r, params.theta, params.phi, t_ini, params)
 pperp2ini=params.pperp**2    
 muini=pperp2ini/Btotini
 p2ini=params.ppar**2+pperp2ini
@@ -118,8 +118,8 @@ with pd.HDFStore(race_folder/race_file, mode='w') as store:
         logger.info(f"df size= {len(df)}, {get_memory_usage()}.")
 
         # Инкрементная запись в HDF5 
-        store.append('trajectory', get_extremums(df), index=False)
-        #store.append('trajectory', df, index=False)
+        #store.append('trajectory', get_extremums(df), index=False)
+        store.append('trajectory', df, index=False)
         store.append('poincare_points', find_poincare_points(sol), index=False)
 
         logger.info(f"Iteration {it}. calculation time: {iteration_time:0.2f} sec")

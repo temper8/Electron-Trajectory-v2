@@ -1,5 +1,6 @@
 import numpy as np
 from numba import njit
+from math import pi, sin, cos
 
 def create_env_function(tau_factor, R0, a):
     """
@@ -51,22 +52,45 @@ def create_env_function(tau_factor, R0, a):
     q_0_ini=(q_a(t_q0)-ctq0)/2
 
     @njit
+    def E0_field(r, theat, phi, tau):
+        E0tor=uloop_t(tau)/(2*pi*R0)
+        return E0tor
+
+    @njit    
+    def E_field(r, theta, phi, tau):
+        E0tor = E0_field(r, theta, phi, tau)
+        Etor=E0tor*R0/(R0+r*cos(theta))
+        Erad=0.
+        Epol=0.
+        Etot=np.sqrt(Etor**2+Erad**2+Epol**2)
+        if abs(Etot) >0.:
+            etor=Etor/Etot
+            erad=Erad/Etot
+            epol=Epol/Etot
+        else:
+            etor=0.
+            erad=0.
+            epol=0.
+        return Etot,Etor,etor,Erad,erad,Epol,epol
+
+    @njit
     def q0_t(t):
         """q-фактор в центре"""
         q_0=q_0_ini*(0.85*np.exp(-(t-t_q0)/tau_q0)+0.0*np.exp(-(t-t_q0)/tau_q10)) + ctq0
         return q_0
     
-    return uloop_t, B0_t, q0_t, q_a
+    return uloop_t, B0_t, q0_t, q_a, E_field
 
 
 u_loop = lambda x: 0
 B0_tau = lambda x: 0
 q0_tau = lambda x: 0
 qa_tau = lambda x: 0
+E_field_tau = lambda r, theta, phi, tau: 0
 
 def init_env(tau_factor, R0, a):
-    global u_loop, B0_tau, q0_tau, qa_tau
-    u_loop, B0_tau, q0_tau, qa_tau = create_env_function(tau_factor, R0, a)# (tau_norm*ccc_R0, R0, a)
+    global u_loop, B0_tau, q0_tau, qa_tau, E_field_tau
+    u_loop, B0_tau, q0_tau, qa_tau, E_field_tau = create_env_function(tau_factor, R0, a)# (tau_norm*ccc_R0, R0, a)
 
 def get_field_environment(tau):
     sf0=q0_tau(tau)
