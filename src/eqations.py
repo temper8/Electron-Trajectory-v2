@@ -16,7 +16,7 @@ from scipy.interpolate import CubicSpline
 from math import pi, sin, cos, sqrt, log, tan, atan
 
 from src.config import RunConfig, RunParams
-from src.env import get_field_environment
+from src.env import get_field_environment, saf_fact
 
 from src.physical_constants import eqq, ccc, m0
 from src.parameters import n
@@ -65,11 +65,6 @@ def E_field(r,thet,fi,R0,E0tor):
 #    Bpol=Bpol1*r
 #    return(Bpol,Bpol1)
 
-@njit
-def saf_fact(sf0,sfb,r,a,Uloop):
-    sf=sf0+(sfb-sf0)*(r/a)**2
-#    sf=sf*np.sign(Uloop)
-    return sf
 
 @njit
 def fn(x,n):
@@ -144,7 +139,7 @@ def Mag_field(r, thet, fi, B0, sf0, sfb, Uloop, params :RunParams):
 
     A1=psitor
     rpsi=(R0/abs(psi0))*sqrt((2*psi0-A1)*A1)
-    sf=saf_fact(sf0,sfb,rpsi,a,Uloop)
+    sf=saf_fact(sf0,sfb,rpsi,a)
     #sf1=saf_fact(sf0,sfb,r,a,Uloop)
 
     dpsidA1=1.
@@ -305,7 +300,7 @@ def guiding_center_dynamics(t, y, params:RunParams, muini):
     
     sf0, sfb, Uloop, B0 = get_field_environment(t)
 
-    sf=saf_fact(sf0, sfb,r, params.a,Uloop)
+    sf=saf_fact(sf0, sfb, r, params.a)
 
     R,Btot,Btor,Bpol,Bpol1,Brad,brad,btor,bpol,bpol1,dBpoldr,dBtordfi,dBraddr,dBtordr,dBpoldfi,dBraddfi,  \
     dBpoldthet,dBtordthet,dBraddthet,dBpoldthet1,dBtordthet1,dBraddthet1,psitor,dpsidr,dpsidfi,sf \

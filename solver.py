@@ -42,7 +42,7 @@ t_ini = run_cfg.time_start*ccc_R0/tau_norm
 t0c=t_ini
 sf0, sfb, Uloop, B0 = get_field_environment(t_ini)
 #print('t_ini=',t0c,'sf0=',sf0,'sfb=',sfb,'B0=',B0,'Uloop=',Uloop)
-sf=saf_fact(sf0,sfb,params.r,params.a,Uloop)
+sf=saf_fact(sf0,sfb,params.r,params.a)
 R,Btotini,Btorini,Bpolini,Bpol1,Bradini,brad,btor,bpol,bpol1,dBpoldr,dBtordfi,dBraddr,dBtordr,dBpoldfi,dBraddfi,  \
 dBpoldthet,dBtordthet,dBraddthet,dBpoldthet1,dBtordthet1,dBraddthet1,psitorini,dpsidr,dpsidfi,sf \
 =Mag_field(params.r, params.theta, params.phi, B0, sf0, sfb, Uloop, params)
@@ -79,7 +79,7 @@ with pd.HDFStore(race_folder/race_file, mode='w') as store:
         t0c=tau_start
         sf0, sfb, Uloop, B0 = get_field_environment(t0c)
         logger.info(f'tau_start= {t0c}, sf0= {sf0}, sfb={sfb}, B0= {B0}, Uloop= {Uloop}')
-        sf=saf_fact(sf0,sfb,rini,params.a,Uloop)
+        sf=saf_fact(sf0,sfb,rini,params.a)
         
         y0= [pparini, rini, thetini, fiini] #, pperp2ini, Bpolini, Btotini, Bradini, Btorini, psipolini, psitorini, energyini]
         tau_end= tau_start + run_cfg.delta_tau  #t1UL

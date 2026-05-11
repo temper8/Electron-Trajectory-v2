@@ -74,3 +74,9 @@ def get_field_environment(tau):
     Uloop=u_loop(tau)
     B0 = B0_tau(tau)
     return sf0, sfb, Uloop, B0
+
+
+@njit
+def saf_fact(sf0,sfb,r,a):
+    sf=sf0+(sfb-sf0)*(r/a)**2
+    return sf
