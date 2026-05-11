@@ -122,9 +122,7 @@ def Mag_field(r, thet, fi, tau, params :RunParams):
 
     A1=psitor
     rpsi=(R0/abs(psi0))*sqrt((2*psi0-A1)*A1)
-    sf0, sfa, sf = safety_factor(tau, r/a)
-    #sf=saf_fact(sf0,sfb,rpsi,a)
-    #sf1=saf_fact(sf0,sfb,r,a,Uloop)
+    sf0, sfa, sf = safety_factor(tau, rpsi/a)
 
     dpsidA1=1.
     dA1dr=(psi0/R0)*x/sqrt(1-x**2)
