@@ -13,10 +13,10 @@ from src.physical_constants import *
 if len(sys.argv) > 1:
     shot_file=sys.argv[1]
 else:
-    shot_file = 'short_shot.toml'
+    shot_file = 'short.toml'
 
    
-run_cfg, solver, params = config.load_configs(f'discharges/{shot_file}')
+run_cfg, solver, params = config.load_configs(f'shots/{shot_file}')
 
 print(solver)
 print(params)
