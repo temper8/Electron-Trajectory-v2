@@ -121,3 +121,26 @@ def plot_hilbert(df, a):
 
 
 
+def plot_partice_state(df, a, race_name):
+    fig = plt.figure(figsize=(10,8), layout='constrained', num=f"{race_name}_partice_state")
+    ax0, ax1, ax2 = fig.subplots(3, 1, sharex=True)
+    ax0.plot(df['time'], df['r']/a)
+    #ax0.scatter(df['time'], df['r']/a, c= 'r', s=8)
+    ax0.set_title(f'r(t)/a and energy(t)')
+    ax0.set_ylabel('r(t)/a')
+    #ax0.set_ylim(0.0, 1.0)
+    ax0.grid(True)
+
+    ax1.plot(df['time'], df['energy'])
+    #ax1.scatter(df['time'],  df['energy']), c= 'r', s=8)
+    #ax1.set_title(f'Trayectory {len(df)} points')
+    ax1.set_ylabel('energy(t)')
+    ax1.grid(True)
+
+    ax2.plot(df['time'], df['ppar'])
+    ax2.set_xlabel('time (ms)')
+    ax2.set_ylabel('ppar(t)')
+    ax2.grid(True)
+
+
+    fig.tight_layout()

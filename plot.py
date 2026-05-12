@@ -32,15 +32,20 @@ init_env(tau_norm*ccc_R0, R0, a)
 from src.plot_environment import plot_field_environment
 from src.envelope_fit import get_extremums, plot_envelope_fit
 from src.plot_r_phi import plot_r_phi_segments
-from src.plotting import plot_poincare, plot_timeline_r_phi_poincare, plot_traj, polar_plot_traj
+from src.plotting import plot_partice_state, plot_poincare, plot_timeline_r_phi_poincare, plot_traj, polar_plot_traj
 
-
+downsample_step = 1
 #df = pd.read_hdf(race_file, 'trajectory', mode='r', start=0, stop=100000)
+
 df = pd.read_hdf(race_file, 'trajectory', mode='r')
 df['R'] = R0 + df['r']*cos(df['theta'])
 df['Z'] = df['r']*sin(df['theta'])
 df['time']=df['tau']/ccc_R0*tau_norm
 df['floor_phi'] =  np.floor(df['phi']/(2*pi)).astype(int)
+
+#if downsample_step>0:
+#    indices = np.arange(0, sizes['poincare_points'], downsample_step)
+#    pp_df = pd.read_hdf(race_file, 'poincare_points', mode='r', where= pd.Index(indices))    
 
 pp_df = pd.read_hdf(race_file, 'poincare_points', mode='r')
 pp_df['time']=pp_df['tau']/ccc_R0*tau_norm
@@ -63,22 +68,27 @@ def show():
 if ion:
     plt.ion() # Включаем интерактивный режим
 
-plot_field_environment(pp_df['tau'], ccc_R0*tau_norm, race_file.stem)
+df_thin = df.iloc[::downsample_step]
+pp_df_thin = pp_df.iloc[::downsample_step]
+plot_field_environment(pp_df_thin['tau'], ccc_R0*tau_norm, race_file.stem)
 show()
 
-plot_r_phi_segments(df, 43)
+#plot_r_phi_segments(df, 43)
+#show()
+
+plot_traj(df_thin, pp_df_thin, race_file.stem)
 show()
 
-plot_traj(df, pp_df, race_file.stem)
+polar_plot_traj(df_thin, pp_df_thin, a, race_file.stem)
 show()
 
-polar_plot_traj(df, pp_df, a, race_file.stem)
+plot_timeline_r_phi_poincare(df_thin, pp_df_thin, a, race_file.stem)
 show()
 
-plot_timeline_r_phi_poincare(df, pp_df, a, race_file.stem)
+plot_poincare(df_thin, pp_df_thin, race_file.stem)
 show()
 
-plot_poincare(df, pp_df, race_file.stem)
+plot_partice_state(df_thin,  a, race_file.stem)
 show()
 
 title = f"solver={solver.method}, rtol={solver.rtol}, atol={solver.atol}"

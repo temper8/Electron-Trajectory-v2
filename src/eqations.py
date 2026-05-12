@@ -4,7 +4,7 @@ from line_profiler import profile
 from loguru import logger
 import numpy as np
 import numba 
-from numba import njit
+from numba import f8, i8, njit, vectorize
 numba.config.DISABLE_JIT = False # type: ignore
 from src.hyp2f import create_fast_hyp, create_pade_hyp, fast_hyp2f1_specific, fast_hyp_part
 
@@ -12,8 +12,8 @@ from scipy.integrate import odeint
 from scipy.integrate import quad
 from scipy.interpolate import CubicSpline
 
-#from numpy import pi, sin, cos, sqrt, log, tan, atan
-from math import pi, sin, cos, sqrt, log, tan, atan
+from numpy import pi, sin, cos, sqrt, log, tan, atan
+#from math import pi, sin, cos, sqrt, log, tan, atan
 
 from src.config import RunConfig, RunParams
 from src.env import B0_tau, get_field_environment, saf_fact, safety_factor, E_field_tau
@@ -62,6 +62,19 @@ def fn(x,n):
         res1=res1*(-1)**n/(1+x)
     return res1 
 
+@vectorize
+def vec_fn(x,n):
+    res1=0.
+    if abs(x) >=5.e-2:
+        for i in range(0,n):
+            res1=res1+(-1)**i*x**(n-i)/(n-i)
+        res1=res1+(-1)**n*log(abs(1.+x))
+        res1=res1/(1+x)/x**(n+1)
+    else:
+        for i in range(0,10):
+            res1=res1+(-1)**(n+i+2)*x**(+i)/(n+1+i)
+        res1=res1*(-1)**n/(1+x)
+    return res1 
 
 #hyp_fast = create_fast_hyp(a = 0.5, b = (2.0 + n) / 2.0, c = (4.0 + n) / 2.0)
 hyp_fast = create_pade_hyp(a = 0.5, b = (2.0 + n) / 2.0, c = (4.0 + n) / 2.0)
@@ -176,6 +189,58 @@ def Mag_field(r, thet, fi, tau, params :RunParams):
 
     return Btot,Btor,Bpol, Bpol1,Brad,brad,btor,bpol,bpol1,dBpoldr,dBtordfi,dBraddr,dBtordr,dBpoldfi,dBraddfi,  \
     dBpoldthet,dBtordthet,dBraddthet,dBpoldthet1,dBtordthet1,dBraddthet1,psitor,dpsidr,dpsidfi
+
+@njit
+def get_Btot(r, thet, fi, tau, params :RunParams):
+    #R0, a, delr, delfi, nfi, n, r, thet, fi, ppar, pperp
+    R0, a, delr, delfi, nfi, n, _, _, _, _, _ = params
+    B0 = B0_tau(tau)
+    x = r/R0
+    R = R0 + r*cos(thet)
+    xpr = r*cos(thet)/R0
+    Fnpr=vec_fn(xpr,n+1)
+    Btor=B0*R0/R*(1.+delfi*cos(nfi*fi)*(1.+delr*cos(thet))*(r/a)**n)
+    Gpr=B0*delfi*nfi*sin(nfi*fi)*(1.+delr*cos(thet))
+    Fpr=(r/a)**n*Fnpr
+
+    Brad1=Gpr*(1./R0)*Fpr
+    Brad=r*Brad1
+
+    psi0=2*pi*B0*R0**2
+    psi0n=psi0*(R0/a)**n
+
+    if x>0.02:
+        res=1.-sqrt(1.-x**2)
+    else:
+        res=x**2/2.*(1.+x**2/4.*(1.+x**2/2.*(1.+5.*x**2/16.)))
+
+    A1=psi0*res
+
+    #resn=x**(n+2)*fast_hyp_part(x, n)/(2+n)
+    resn=x**(n+2)*hyp_fast(x)/(2+n)
+
+    An=psi0n*resn
+
+    resn1=-x**(1+n)*(-1.+fast_hyp2f1_specific(x,n))/(1+n)
+    An1=psi0n*resn1
+    psitor=A1+(An+delr*An1)*delfi*cos(nfi*fi)
+    A1=psitor
+    rpsi=(R0/abs(psi0))*sqrt((2*psi0-A1)*A1)
+    sf0, sfa, sf = safety_factor(tau, rpsi/a)
+
+    dpsidA1=1.
+    dA1dr=(psi0/R0)*x/sqrt(1-x**2)
+    dpsidAn=delfi*cos(nfi*fi)
+    dAndr=psi0n/R0*integrandn(x,n)     #*(n+1+x**2/(1.-x**2))
+    dpsidAn1=delr*delfi*cos(nfi*fi)
+
+    dAn1dr=psi0n*integrandn1(x,n)
+    dpsidr=dpsidA1*dA1dr+dpsidAn*dAndr+dpsidAn1*dAn1dr
+    Bpol=dpsidr/sf/(R*2.*pi)*np.sign(B0)
+    Btot=sqrt(Btor**2+Bpol**2+Brad**2)
+
+    return Btot
+
 
 @njit
 def rot_b(r,thet,fi,R,Btot,Btor,Bpol,Bpol1,Brad,brad,btor,bpol,bpol1,dBpoldr,dBtordfi,dBraddr,dBtordr,dBpoldfi,dBraddfi,  \

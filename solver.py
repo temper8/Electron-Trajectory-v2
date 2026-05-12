@@ -37,8 +37,8 @@ ccc_R0 = ccc/params.R0
 from src.env import init_env
 init_env(tau_norm*ccc_R0, params.R0, params.a)
 
-from src.particle_state import initialize_particle_state
 from src.eqations import guiding_center_dynamics, hit_wall
+from src.particle_state import get_particle_state, initialize_particle_state
 
 # Расчет нормированного начального времени
 tau = run_cfg.time_start * ccc_R0 / tau_norm
@@ -100,8 +100,16 @@ with pd.HDFStore(race_folder/race_file, mode='w') as store:
         theta = theta%(2*pi)
         phi   = phi%(2*pi)
         
+        #energy, p_tot = get_particle_state(sol.t, sol.y, muini, params)
+        energy = np.empty(len(sol.t))
+        p_tot = np.empty(len(sol.t))
+        for i in range(len(sol.t)):
+            energy[i], p_tot[i] = get_particle_state(sol.t[i], sol.y[:, i], muini, params)
+
         df = pd.DataFrame(sol.y.T, columns=['ppar','r','theta','phi'])
-        df['tau'] =  sol.t
+        df['tau']    =  sol.t
+        df['energy'] =  energy
+        df['p_tot']  =  p_tot
 
         logger.debug("\n" + df.head().to_string())
         logger.info(f"df size= {len(df)}, {get_memory_usage()}.")
