@@ -33,7 +33,8 @@ race_folder.mkdir(parents=True, exist_ok=True)
 race_file = Path(f"{datetime.now().strftime('%Y_%m_%d_%H_%M_%S')}.h5")
 
 ccc_R0 = ccc/params.R0
-from src.env import init_env, get_field_environment
+# инициализация функций окружения
+from src.env import init_env
 init_env(tau_norm*ccc_R0, params.R0, params.a)
 
 from src.particle_state import initialize_particle_state
