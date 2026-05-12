@@ -15,6 +15,7 @@ from src.physical_constants import *
 from src.poincare import find_poincare_points
 from src.config import save_namedtuple
 
+
 if len(sys.argv) > 1:
     shot_file=sys.argv[1]
 else:
@@ -30,44 +31,17 @@ logger.info(config.param_string(params))
 race_folder = Path(f"race/{run_cfg.tokamak_name}_{run_cfg.shot_number}")
 race_folder.mkdir(parents=True, exist_ok=True)
 race_file = Path(f"{datetime.now().strftime('%Y_%m_%d_%H_%M_%S')}.h5")
-# eval const
-ccc_R0 = ccc/params.R0
 
+ccc_R0 = ccc/params.R0
 from src.env import init_env, get_field_environment
 init_env(tau_norm*ccc_R0, params.R0, params.a)
 
-from src.eqations import guiding_center_dynamics, hit_wall, Mag_field
-
-def initialize_particle_state(tau, params):
-    """
-    Инициализирует начальное состояние частицы и параметры магнитного поля.
-    """
-    
-    # Получение параметров окружения и расчет профиля safety factor
-    sf0, sfb, Uloop, B0 = get_field_environment(tau)
-
-    # Расчет компонентов магнитного поля
-    (Btot, Btorini, Bpolini, Bpol1, Bradini, brad, btor, bpol, bpol1, 
-     dBpoldr, dBtordfi, dBraddr, dBtordr, dBpoldfi, dBraddfi,
-     dBpoldthet, dBtordthet, dBraddthet, dBpoldthet1, dBtordthet1, dBraddthet1, 
-     psitorini, dpsidr, dpsidfi) = Mag_field(params.r, params.theta, params.phi, tau, params)
-    
-    # Расчет инвариантов и начальной энергии
-    pperp2 = params.pperp**2    
-    mu = pperp2 / Btot
-    p2 = params.ppar**2 + pperp2
-    
-    # Расчет полоидального потока
-    psipol = pi * B0 * params.a**2 / (sfb - sf0) * log((sf0 + (sfb - sf0) * (params.r / params.a)**2) / sf0)
-    
-    # Энергия в эВ (или МэВ, в зависимости от констант)
-    energy = m01 * ccc1**2 * (sqrt(1 + p2) - 1) / 1.6022e-12
-
-    # Возвращаем словарь со всеми рассчитанными значениями
-    return  Btot, mu, psipol, energy
+from src.particle_state import initialize_particle_state
+from src.eqations import guiding_center_dynamics, hit_wall
 
 # Расчет нормированного начального времени
 tau = run_cfg.time_start * ccc_R0 / tau_norm
+
 Btot, muini, psipol, energy = initialize_particle_state(tau, params)
 
 logger.info(f'r= {params.r}, theta={params.theta}, phi={params.phi}, ppar= {params.ppar}, energy= {energy}')
