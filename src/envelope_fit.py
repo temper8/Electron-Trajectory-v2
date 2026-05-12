@@ -95,23 +95,29 @@ def plot_envelope_fit(df, a, title, race_name, show_trend_line= True):
     ax1.plot(t_all, offset_t, 'k', label='Средняя линия (offset)', alpha=0.5)
 
     ax1.set_ylabel('r(t)/a')
-    ax1.legend(bbox_to_anchor=(1.02, 1), loc='upper left', borderaxespad=0.)
+    ax1.legend(bbox_to_anchor=(1.03, 1), loc='upper left', borderaxespad=0.)
     ax1.set_title(title)
 
     # Нижний график: Две частоты
 
-    ax2.plot(t_all, w_t, 'r.-', label='w(t) по максимумам', alpha=0.7)
-    #ax2.plot(t_w_upper, w_upper, 'r.-', label='w(t) по максимумам', alpha=0.7)
-    #ax2.plot(t_w_lower, w_lower, 'b.-', label='w(t) по минимумам', alpha=0.7)
+    ax2.plot(t_all, w_t, 'r.-', label='w(t) по максимумам', alpha=0.5)
     if show_trend_line:
         xy, slope = trend_line(t_all ,w_t)
-        ax2.axline(xy, slope= slope, color='blue', linestyle='--', label= f'slope = {slope:.3e}')
+        ax2.axline(xy, slope= slope, color='gray', linestyle='--', label= f'slope = {slope:.3e}')
 
     ax2.set_ylabel('Частота w')
     ax2.set_xlabel('time (s)')
     ax2.grid(True, which='both', alpha=0.2)
-    ax2.legend(bbox_to_anchor=(1.02, 1), loc='upper left', borderaxespad=0.)
+    ax2.legend(bbox_to_anchor=(1.03, 1), loc='upper left', borderaxespad=0.)
 
+    ax3   = ax2.twinx()
+
+    # Второй график (правая ось Y)
+    ax3.plot(t_raw,np.abs(df['ppar']), label='|ppar(t)|', color='blue', alpha=0.5) # Синяя линия
+    ax3.set_ylabel('|ppar(t)|', color='blue')
+    ax3.legend(bbox_to_anchor=(1.03, 0.7), loc='upper left', borderaxespad=0.)
+    #ax3.plot(t_raw,np.abs(df['energy']), color='gray', alpha=0.3) # Синяя линия
+    #ax3.set_ylabel('energy', color='gray')
     fig.tight_layout()
 
     #plt.show()
