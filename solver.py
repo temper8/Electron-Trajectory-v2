@@ -65,10 +65,10 @@ with pd.HDFStore(race_folder/race_file, mode='w') as store:
     save_namedtuple(store, 'config', run_cfg)
     logger.info(f"Open the HDF5 file :  {file.name}")
     tau_start = t_ini
-    rini = params.r
-    thetini = params.theta
-    fiini = params.phi
-    pparini = params.ppar
+    r = params.r
+    theta = params.theta
+    phi = params.phi
+    ppar = params.ppar
     logger.info(f"num_it= {run_cfg.num_it}, max_tau_step= {run_cfg.max_tau_step}, delta_tau= {run_cfg.delta_tau}")
     
     max_step = run_cfg.max_tau_step if run_cfg.max_tau_step>0 else np.inf
@@ -76,15 +76,15 @@ with pd.HDFStore(race_folder/race_file, mode='w') as store:
     for it in range(run_cfg.num_it):
         logger.info(f"Iteration {it}. Start")
         iteration_start_time = time.time()
-        t0c=tau_start
-        sf0, sfb, Uloop, B0 = get_field_environment(t0c)
-        logger.info(f'tau_start= {t0c}, sf0= {sf0}, sfb={sfb}, B0= {B0}, Uloop= {Uloop}')
-        sf=saf_fact(sf0,sfb,rini,params.a)
+        #t0c=tau_start
+        #sf0, sfb, Uloop, B0 = get_field_environment(t0c)
+        #logger.info(f'tau_start= {t0c}, sf0= {sf0}, sfb={sfb}, B0= {B0}, Uloop= {Uloop}')
+        #sf=saf_fact(sf0,sfb,r,params.a)
         
-        y0= [pparini, rini, thetini, fiini] #, pperp2ini, Bpolini, Btotini, Bradini, Btorini, psipolini, psitorini, energyini]
+        y0= [ppar, r, theta, phi] #, pperp2ini, Bpolini, Btotini, Bradini, Btorini, psipolini, psitorini, energyini]
         tau_end= tau_start + run_cfg.delta_tau  #t1UL
 
-        logger.info(f'r= {rini}, thet= {thetini}, fi= {fiini}, ppar= {pparini}')
+        logger.info(f'r= {r}, theta= {theta}, phi= {phi}, ppar= {ppar}')
         logger.info(f't_start(s)= {tau_start*params.R0/ccc*tau_norm}, del_t_calculation(s)= {(tau_end-tau_start)*params.R0/ccc*tau_norm}, time(s)={tau_end*params.R0/ccc*tau_norm}')
         logger.info(f'solve_ivp: method= {solver.method}, dense_output=True')
         logger.info(f'solve_ivp: rtol= {solver.rtol}, atol= {solver.atol}')
@@ -105,11 +105,11 @@ with pd.HDFStore(race_folder/race_file, mode='w') as store:
         tau_start= sol.t[-1]
         y_last = sol.y[:, -1]
         #pparini, rini, thetini, fiini , pperp2ini, Bpolini, Btotini, Bradini, Btorini, psipolini, psitorini, energyini = y_last
-        pparini, rini, thetini, fiini = y_last
+        ppar, r, theta, phi = y_last
 
-        logger.info(f'theta revolutions= {thetini/(2*pi):0.2f}, phi revolutions= {fiini/(2*pi):0.2f}')
-        thetini=thetini%(2*pi)
-        fiini=fiini%(2*pi)
+        logger.info(f'theta revolutions= {theta/(2*pi):0.2f}, phi revolutions= {phi/(2*pi):0.2f}')
+        theta = theta%(2*pi)
+        phi   = phi%(2*pi)
         
         df = pd.DataFrame(sol.y.T, columns=['ppar','r','theta','phi'])
         df['tau'] =  sol.t
