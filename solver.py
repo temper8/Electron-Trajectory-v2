@@ -5,6 +5,7 @@ from math import pi, sqrt, log
 from datetime import datetime
 from pathlib import Path
 import pandas as pd
+import numpy as np
 from scipy.integrate import solve_ivp  
 
 import src.config as config 
