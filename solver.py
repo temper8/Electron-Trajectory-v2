@@ -94,10 +94,6 @@ with pd.HDFStore(race_folder/race_file, mode='w') as store:
     for it in range(run_cfg.num_it):
         logger.info(f"Iteration {it}. Start")
         iteration_start_time = time.time()
-        #t0c=tau_start
-        #sf0, sfb, Uloop, B0 = get_field_environment(t0c)
-        #logger.info(f'tau_start= {t0c}, sf0= {sf0}, sfb={sfb}, B0= {B0}, Uloop= {Uloop}')
-        #sf=saf_fact(sf0,sfb,r,params.a)
         
         y0= [ppar, r, theta, phi] #, pperp2ini, Bpolini, Btotini, Bradini, Btorini, psipolini, psitorini, energyini]
         tau_end= tau_start + run_cfg.delta_tau  #t1UL
@@ -153,15 +149,7 @@ with pd.HDFStore(race_folder/race_file, mode='w') as store:
             #Z_collision = sol.y_events[0][0][2]
             #print(f"Координаты столкновения: R={R_collision:.3f}, Z={Z_collision:.3f}")
             break
-        #del df
-        #del sol
-        #del all_data
         gc.collect()
 
 
 logger.info(f"Full calculationtime: {time.time() - calculation_start_time:0.2f} sec")        
-
-#LSODA
-#DOP853
-# Сохраняем DataFrame в бинарный файл
-#result_df.to_pickle('result.pkl') 
