@@ -1,16 +1,16 @@
-from datetime import datetime
 import gc
-from pathlib import Path
 import sys
-import pandas as pd
-from  src.envelope_fit import get_extremums
-import src.config as config 
-from src.logger_config import get_memory_usage, logger
 import time
-from scipy.integrate import odeint,solve_ivp  
+from math import pi, sqrt, log
+from datetime import datetime
+from pathlib import Path
+import pandas as pd
+from scipy.integrate import solve_ivp  
 
+import src.config as config 
+from src.envelope_fit import get_extremums
+from src.logger_config import get_memory_usage, logger
 from src.physical_constants import *
-import src.parameters as parameters
 from src.poincare import find_poincare_points
 from src.config import save_namedtuple
 
@@ -35,7 +35,7 @@ ccc_R0 = ccc/params.R0
 from src.env import init_env, get_field_environment
 init_env(tau_norm*ccc_R0, params.R0, params.a)
 
-from src.eqations import *
+from src.eqations import guiding_center_dynamics, hit_wall, Mag_field
 
 def initialize_particle_state(tau, params):
     """
@@ -44,8 +44,7 @@ def initialize_particle_state(tau, params):
     
     # Получение параметров окружения и расчет профиля safety factor
     sf0, sfb, Uloop, B0 = get_field_environment(tau)
-    sf = saf_fact(sf0, sfb, params.r, params.a)
-    
+
     # Расчет компонентов магнитного поля
     (Btot, Btorini, Bpolini, Bpol1, Bradini, brad, btor, bpol, bpol1, 
      dBpoldr, dBtordfi, dBraddr, dBtordr, dBpoldfi, dBraddfi,
