@@ -40,7 +40,7 @@ def create_env_function(tau_factor, R0, a):
     def q_a(t):
         """ q-фактор на границе"""
         Bpl_curnp=2.e-4*cur_t(t)/a
-        return abs(a*B0_t(t)/(R0*Bpl_curnp))
+        return np.abs(a*B0_t(t)/(R0*Bpl_curnp))
 
     ctq0=1
     t_q0=t0  

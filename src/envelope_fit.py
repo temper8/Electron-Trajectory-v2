@@ -3,6 +3,8 @@ import numpy as np
 from scipy.signal import find_peaks
 from scipy.interpolate import interp1d
 
+from src.env import safety_factor
+
 
 def get_extremums(df, column='r', distance=None, prominence=None):
     """
@@ -126,13 +128,17 @@ def plot_envelope_fit(df, a, title, race_name, show_trend_line= True):
     ax2.grid(True, which='both', alpha=0.2)
     ax2.legend(bbox_to_anchor=(1.03, 1), loc='upper left', borderaxespad=0.)
 
-    ax3   = ax2.twinx()
+    ax3  = ax2.twinx()
 
+    tau  = np.array(df['tau'])
+    ppar = np.array(df['ppar'])
+    _, _, sf = safety_factor(tau, x_raw)
+    v = get_relativistic_velocity(ppar)
     # Второй график (правая ось Y)
     #ax3.plot(t_raw,np.abs(df['ppar']), label='|ppar(t)|', color='blue', alpha=0.5) # Синяя линия
-    ax3.plot(t_raw,get_relativistic_velocity(df['ppar']), label='|ppar(t)|', color='blue', alpha=0.5) # Синяя линия
+    ax3.plot(t_raw, v/sf, label='|v/sf|', color='blue', alpha=0.5) # Синяя линия
     
-    ax3.set_ylabel('|v(t)|', color='blue')
+    ax3.set_ylabel('|v/sf|', color='blue')
     ax3.legend(bbox_to_anchor=(1.03, 0.7), loc='upper left', borderaxespad=0.)
     #ax3.plot(t_raw,np.abs(df['energy']), color='gray', alpha=0.3) # Синяя линия
     #ax3.set_ylabel('energy', color='gray')
