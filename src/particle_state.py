@@ -14,10 +14,7 @@ def initialize_particle_state(tau, params: config.RunParams):
     sf0, sfb, Uloop, B0 = get_field_environment(tau)
     
     # Расчет компонентов магнитного поля
-    Btot, Btorini, Bpolini, Bpol1, Bradini, brad, btor, bpol, bpol1, \
-     dBpoldr, dBtordfi, dBraddr, dBtordr, dBpoldfi, dBraddfi,\
-     dBpoldthet, dBtordthet, dBraddthet, dBpoldthet1, dBtordthet1, dBraddthet1, \
-     psitorini, dpsidr, dpsidfi = Mag_field(params.r, params.theta, params.phi, tau, params)
+    Btot, *_ = Mag_field(params.r, params.theta, params.phi, tau, params)
     
     # Расчет инвариантов и начальной энергии
     pperp2 = params.pperp**2    
