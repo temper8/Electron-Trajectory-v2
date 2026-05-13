@@ -74,6 +74,22 @@ def trend_line(x ,y):
     xy = (x[0], trend_line(x[0]))
     return xy, coeffs[0]
 
+from src.physical_constants import m0, ccc
+def get_relativistic_velocity(p):
+    """
+    Вычисляет релятивистскую скорость частицы.
+    
+    :param p: Импульс частицы (кг*м/с)
+    :return: Скорость частицы (м/с)
+    """
+    # Если масса равна 0 (фотон), скорость всегда c
+    m = 1 # electron mass, g:
+    c = 1 # Скорость света (по умолчанию в м/с)
+        
+    denominator = np.sqrt(m**2 + (p**2 / c**2))
+    return np.abs(p / denominator)
+    
+
 def plot_envelope_fit(df, a, title, race_name, show_trend_line= True):
     x_raw = np.array(df['r'])/a
     t_raw = np.array(df['time'])
@@ -113,8 +129,10 @@ def plot_envelope_fit(df, a, title, race_name, show_trend_line= True):
     ax3   = ax2.twinx()
 
     # Второй график (правая ось Y)
-    ax3.plot(t_raw,np.abs(df['ppar']), label='|ppar(t)|', color='blue', alpha=0.5) # Синяя линия
-    ax3.set_ylabel('|ppar(t)|', color='blue')
+    #ax3.plot(t_raw,np.abs(df['ppar']), label='|ppar(t)|', color='blue', alpha=0.5) # Синяя линия
+    ax3.plot(t_raw,get_relativistic_velocity(df['ppar']), label='|ppar(t)|', color='blue', alpha=0.5) # Синяя линия
+    
+    ax3.set_ylabel('|v(t)|', color='blue')
     ax3.legend(bbox_to_anchor=(1.03, 0.7), loc='upper left', borderaxespad=0.)
     #ax3.plot(t_raw,np.abs(df['energy']), color='gray', alpha=0.3) # Синяя линия
     #ax3.set_ylabel('energy', color='gray')
