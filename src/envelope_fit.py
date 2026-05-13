@@ -92,9 +92,10 @@ def get_relativistic_velocity(p):
     return np.abs(p / denominator)
     
 
-def plot_envelope_fit(df, a, title, race_name, show_trend_line= True):
+def plot_envelope_fit(df, a, title, race_name):
     x_raw = np.array(df['r'])/a
     t_raw = np.array(df['time'])
+    show_trend_line= True if len(x_raw)<1000000 else False
 
     lower_env, upper_env, offset_t, w_t, t_all = get_envelope_fit(t_raw, x_raw)
  
@@ -126,20 +127,21 @@ def plot_envelope_fit(df, a, title, race_name, show_trend_line= True):
     ax2.set_ylabel('Частота w')
     ax2.set_xlabel('time (s)')
     ax2.grid(True, which='both', alpha=0.2)
-    ax2.legend(bbox_to_anchor=(1.03, 1), loc='upper left', borderaxespad=0.)
+    ax2.legend(bbox_to_anchor=(1.05, 1.0), loc='upper left', borderaxespad=0.)
 
     ax3  = ax2.twinx()
 
     tau  = np.array(df['tau'])
     ppar = np.array(df['ppar'])
-    _, _, sf = safety_factor(tau, x_raw)
+    _, sfa, sf = safety_factor(tau, x_raw)
     v = get_relativistic_velocity(ppar)
     # Второй график (правая ось Y)
     #ax3.plot(t_raw,np.abs(df['ppar']), label='|ppar(t)|', color='blue', alpha=0.5) # Синяя линия
-    ax3.plot(t_raw, v/sf, label='|v/sf|', color='blue', alpha=0.5) # Синяя линия
-    
-    ax3.set_ylabel('|v/sf|', color='blue')
-    ax3.legend(bbox_to_anchor=(1.03, 0.7), loc='upper left', borderaxespad=0.)
+    ax3.plot(t_raw, v/sf, label='|v/sf|', color='gray', alpha=0.5) # Синяя линия
+    ax3.plot(t_raw, v/sfa, label='|v/sfa|', color='blue', alpha=0.5) # Синяя линия   
+    ax3.set_ylabel('|v/sf|', color='gray')
+    ax3.set_ylabel('|v/sfa|', color='blue')
+    ax3.legend(bbox_to_anchor=(1.05, 0.8), loc='upper left', borderaxespad=0.)
     #ax3.plot(t_raw,np.abs(df['energy']), color='gray', alpha=0.3) # Синяя линия
     #ax3.set_ylabel('energy', color='gray')
     fig.tight_layout()
