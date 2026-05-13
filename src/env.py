@@ -1,6 +1,6 @@
 import numpy as np
 from numba import njit
-from math import pi, sin, cos
+from numpy import pi, sin, cos
 
 def create_env_function(tau_factor, R0, a):
     """
