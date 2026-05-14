@@ -4,7 +4,7 @@ from numpy import sin
 
 
 
-def plot_traj(df, pp_df, race_name):
+def plot_traj(df, pp_df, title, race_name):
     fig = plt.figure(figsize=(10,5), num=f"{race_name}_trajctory")
     ax0, ax1 = fig.subplots(1, 2)
     ax0.scatter(df['R'], df['Z'], c= df['time'], cmap='plasma', alpha=0.05, edgecolors='none', s=8)
@@ -121,12 +121,12 @@ def plot_hilbert(df, a):
 
 
 
-def plot_partice_state(df, a, race_name):
+def plot_partice_state(df, a, title, race_name):
     fig = plt.figure(figsize=(10,8), layout='constrained', num=f"{race_name}_partice_state")
     ax0, ax1, ax2 = fig.subplots(3, 1, sharex=True)
     ax0.plot(df['time'], df['r']/a)
     #ax0.scatter(df['time'], df['r']/a, c= 'r', s=8)
-    ax0.set_title(f'r(t)/a and energy(t)')
+    ax0.set_title(title)
     ax0.set_ylabel('r(t)/a')
     #ax0.set_ylim(0.0, 1.0)
     ax0.grid(True)

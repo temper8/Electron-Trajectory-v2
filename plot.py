@@ -67,20 +67,25 @@ def show():
 
 if ion:
     plt.ion() # Включаем интерактивный режим
+time_start = df['time'].iloc[0] 
+time_end = df['time'].iloc[-1]
+tau_start = df['tau'].iloc[0] 
+tau_end = df['tau'].iloc[-1]
 
-title = f"solver={solver.method}, rtol={solver.rtol}, atol={solver.atol}"
+title = f"r = {params.r}, delta_time = {time_end-time_start:0.7f} delta_tau = {tau_end-tau_start:0.1f}\n"
+title += f" solver={solver.method}, rtol={solver.rtol}, atol={solver.atol}"
 plot_envelope_fit(df, a, title, race_file.stem)
 show()
 
 df_thin = df.iloc[::downsample_step]
 pp_df_thin = pp_df.iloc[::downsample_step]
-plot_field_environment(pp_df_thin['tau'], ccc_R0*tau_norm, race_file.stem)
+plot_field_environment(pp_df_thin['tau'], ccc_R0*tau_norm, title, race_file.stem)
 show()
 
 #plot_r_phi_segments(df, 43)
 #show()
 
-plot_traj(df_thin, pp_df_thin, race_file.stem)
+plot_traj(df_thin, pp_df_thin, title, race_file.stem)
 show()
 
 polar_plot_traj(df_thin, pp_df_thin, a, race_file.stem)
@@ -92,7 +97,7 @@ show()
 plot_poincare(df_thin, pp_df_thin, race_file.stem)
 show()
 
-plot_partice_state(df_thin,  a, race_file.stem)
+plot_partice_state(df_thin, a, title, race_file.stem)
 show()
 
 

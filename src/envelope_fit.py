@@ -136,14 +136,9 @@ def plot_envelope_fit(df, a, title, race_name):
     _, sfa, sf = safety_factor(tau, offset_t_raw)
     v = get_relativistic_velocity(ppar)
     # Второй график (правая ось Y)
-    #ax3.plot(t_raw,np.abs(df['ppar']), label='|ppar(t)|', color='blue', alpha=0.5) # Синяя линия
-    ax3.plot(t_raw, v/sf, label='|v/sf|', color='gray', alpha=0.5) # Синяя линия
-    ax3.plot(t_raw, v/sfa, label='|v/sfa|', color='blue', alpha=0.5) # Синяя линия   
-    ax3.set_ylabel('|v/sf|', color='gray')
-    ax3.set_ylabel('|v/sfa|', color='blue')
+    ax3.plot(t_raw, v/sf, label='|v/sf_avg|', color='blue', alpha=0.5) # Синяя линия
+    ax3.set_ylabel('|v/sf_avg|', color='blue')
     ax3.legend(bbox_to_anchor=(1.05, 0.8), loc='upper left', borderaxespad=0.)
-    #ax3.plot(t_raw,np.abs(df['energy']), color='gray', alpha=0.3) # Синяя линия
-    #ax3.set_ylabel('energy', color='gray')
     fig.tight_layout()
 
     #plt.show()

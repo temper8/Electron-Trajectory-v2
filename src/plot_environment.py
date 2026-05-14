@@ -6,7 +6,7 @@ import numpy as np
 from src.env import get_field_environment
 
 
-def plot_field_environment(tau_array, time_scale, race_name):
+def plot_field_environment(tau_array, time_scale, title, race_name):
     """
     Визуализация параметров окружения плазмы.
     tau_array: numpy.ndarray с моментами времени.
