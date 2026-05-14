@@ -65,7 +65,8 @@ def get_envelope_fit(t_raw, x_raw):
     lower_env = lower_env_func(t_all)
     # Средняя линия (offset) — если центр колебаний смещен
     offset_t = (upper_env + lower_env) / 2   
-    return lower_env, upper_env, offset_t, w_t, t_all
+    offset_t_raw = (upper_env_func(t_raw) + lower_env_func(t_raw)) / 2   
+    return lower_env, upper_env, offset_t, offset_t_raw, w_t, t_all
 
 from scipy import stats
 
@@ -97,8 +98,7 @@ def plot_envelope_fit(df, a, title, race_name):
     t_raw = np.array(df['time'])
     show_trend_line= True if len(x_raw)<1000000 else False
 
-    lower_env, upper_env, offset_t, w_t, t_all = get_envelope_fit(t_raw, x_raw)
- 
+    lower_env, upper_env, offset_t, offset_t_raw, w_t, t_all = get_envelope_fit(t_raw, x_raw)
     # 3. Визуализация
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 6), sharex=True, num=f"{race_name}_envelope_fit")
 
@@ -133,7 +133,7 @@ def plot_envelope_fit(df, a, title, race_name):
 
     tau  = np.array(df['tau'])
     ppar = np.array(df['ppar'])
-    _, sfa, sf = safety_factor(tau, x_raw)
+    _, sfa, sf = safety_factor(tau, offset_t_raw)
     v = get_relativistic_velocity(ppar)
     # Второй график (правая ось Y)
     #ax3.plot(t_raw,np.abs(df['ppar']), label='|ppar(t)|', color='blue', alpha=0.5) # Синяя линия
