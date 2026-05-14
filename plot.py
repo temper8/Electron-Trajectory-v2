@@ -60,7 +60,7 @@ ion = True
 def show():
     if ion:
         plt.draw() # Принудительная отрисовка
-        plt.pause(0.1)
+        plt.pause(1.5)
     else:
         plt.show()
 
