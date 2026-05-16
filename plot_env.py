@@ -36,7 +36,7 @@ plt.ion() # Включаем интерактивный режим
 tau_start = run_cfg.time_start*ccc_R0/tau_norm
 tau_end   = tau_start + run_cfg.delta_tau*run_cfg.num_it
 tau = np.linspace(tau_start, tau_end, 1000)
-plot_field_environment(tau, ccc_R0*tau_norm, shot_file)
+plot_field_environment(tau, ccc_R0*tau_norm, "title", shot_file)
 plt.draw() # Принудительная отрисовка
 plt.pause(0.1)
 
@@ -44,7 +44,7 @@ tau_start = 0.0*ccc_R0/tau_norm
 tau_end   = 1.0*ccc_R0/tau_norm
 
 tau = np.linspace(tau_start, tau_end, 1000)
-plot_field_environment(tau, ccc_R0*tau_norm, 'shot_file')
+plot_field_environment(tau, ccc_R0*tau_norm, "full", 'full')
 
 plt.draw() 
 plt.pause(0.1)
