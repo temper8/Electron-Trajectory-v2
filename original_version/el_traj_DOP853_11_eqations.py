@@ -1,9 +1,11 @@
 # from math import tan, atan
+import time as timer
 import numpy as np
 import scipy.special as sc
 from scipy.integrate import odeint 
 from scipy.integrate import quad
 from scipy.interpolate import CubicSpline
+
 import pandas as pd
 #from mgn_best_DOP853 import saf_fact, Mag_field, fin_fun, eq_mot, rot_b, eq_mot_1
 
@@ -537,7 +539,7 @@ if os.path.exists("result_11_equations_EXL_50U_13976_r_0.2_t_0.1_00"
 print('rini=',rini,'thetini=',thetini,'fiini=',fiini,'pparini=',pparini,'energyini=',energyini)
 #exit()
 
-num_it=2000
+num_it=5
 nrange=20000
 delt=200000
 #result_df = pd.DataFrame(columns=['pparnp', 'rnp', 'finp', 'thetnp', 'tnp1',])
@@ -545,6 +547,7 @@ result_df = pd.DataFrame(columns=['pparini','rini','thetini','fiini','pperp2ini'
 
 from scipy.integrate import odeint,solve_ivp    
 for it in range(num_it):
+    iteration_start_time = timer.time()
     print(f"num it={it}")
     t0c=t_ini
     sf0=spl_q0(t0c)
@@ -578,6 +581,8 @@ for it in range(num_it):
                    t_eval= np.linspace(t_ini, time, nrange),
                    args=(eqq,m0,ccc,a,R0,delr,delfi,nfi,n,pparini,pperpini,muini),
                    rtol = 1e-7, atol= 1e-10) 
+    iteration_time = timer.time() - iteration_start_time
+    print(f"Iteration {it}. calculation time: {iteration_time:0.2f} sec")
     # print(sol.t)
     # print(len(sol.t))
     t_ini=sol.t[nrange-1]
