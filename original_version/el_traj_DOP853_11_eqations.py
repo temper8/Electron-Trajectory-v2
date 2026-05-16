@@ -572,7 +572,12 @@ for it in range(num_it):
     #sol= solve_ivp(fin_fun,  [0, time], y0, method='DOP853', args=(eqq,m0,ccc,a,R0,B0,sf0,sfb,delr,delfi,nfi,Uloop,n,pparini,pperpini,muini),  \
     #rtol = 1e-6, atol= 1e-9)
     #sol= solve_ivp(fin_fun,[0, time],y0,method='DOP853',t_eval= np.linspace(0., time, nrange), args=(eqq,m0,ccc,a,R0,B0,sf0,sfb,delr,delfi,nfi,Uloop,n,pparini,pperpini,muini)) 
-    sol= solve_ivp(fin_fun,[t_ini, time],y0,method='DOP853',t_eval= np.linspace(t_ini, time, nrange),args=(eqq,m0,ccc,a,R0,delr,delfi,nfi,n,pparini,pperpini,muini),rtol = 1e-7, atol= 1e-10) 
+    sol= solve_ivp(fin_fun,[t_ini, time],
+                   y0,
+                   method='DOP853',
+                   t_eval= np.linspace(t_ini, time, nrange),
+                   args=(eqq,m0,ccc,a,R0,delr,delfi,nfi,n,pparini,pperpini,muini),
+                   rtol = 1e-7, atol= 1e-10) 
     # print(sol.t)
     # print(len(sol.t))
     t_ini=sol.t[nrange-1]
