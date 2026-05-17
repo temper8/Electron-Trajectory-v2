@@ -13,6 +13,15 @@ from rich.table import Table
 from rich.prompt import Prompt, IntPrompt
 from rich.panel import Panel
 
+def nt_to_str(nt) -> str:
+    # Имитируем обычный вывод, но убираем типы данных
+    pairs = ", ".join(f"{k}={v}" for k, v in nt._asdict().items())
+    return f"{pairs}"
+
+def dict_to_str(d) -> str:
+    return ", ".join(f"{k}={v}" for k, v in d.items())
+
+
 def select_h5_file(directory="race"):
     console = Console()
     base_path = Path(directory)
@@ -43,11 +52,11 @@ def select_h5_file(directory="race"):
         # Читаем и выводим параметры файла
         try:
             solver, params, config = read_config_hdf5(str(file))
-            console.print(f"   [bold blue]Solver:[/bold blue] {solver}")
-            console.print(f"   [bold blue]Params:[/bold blue] {params}")
-            console.print(f"   [bold blue]Config:[/bold blue] {config}")
+            console.print(f"   [bold blue]Solver:[/bold blue] {nt_to_str(solver)}")
+            console.print(f"   [bold blue]Params:[/bold blue] {nt_to_str(params)}")
+            console.print(f"   [bold blue]Config:[/bold blue] {nt_to_str(config)}")
             sizes = get_dataset_sizes(file, ['trajectory', 'poincare_points'])
-            console.print(f"   [bold blue]Sizes:[/bold blue] {sizes}")
+            console.print(f"   [bold blue]Sizes:[/bold blue] {dict_to_str(sizes)}")
         except Exception as e:
             console.print(f"   [red]Ошибка чтения параметров: {e}[/red]")
         
