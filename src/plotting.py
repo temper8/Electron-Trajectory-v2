@@ -14,12 +14,13 @@ def plot_traj(df, pp_df, title, race_name):
     ax0.grid(True)
     ax0.axis('equal')
 
-    ax1.scatter(pp_df['R'], pp_df['Z'], c= pp_df['time'], cmap='plasma', alpha=0.05, edgecolors='none', s=8)
-    ax1.set_title(f'Poincare ({len(pp_df)}) points')
-    ax1.set_xlabel('R')
-    #ax1.set_ylabel('Z')
-    ax1.grid(True)
-    ax1.axis('equal')
+    if pp_df:
+        ax1.scatter(pp_df['R'], pp_df['Z'], c= pp_df['time'], cmap='plasma', alpha=0.05, edgecolors='none', s=8)
+        ax1.set_title(f'Poincare ({len(pp_df)}) points')
+        ax1.set_xlabel('R')
+        #ax1.set_ylabel('Z')
+        ax1.grid(True)
+        ax1.axis('equal')
     fig.tight_layout()
 
 def polar_plot_traj(df, pp_df, a, race_name):
@@ -34,11 +35,12 @@ def polar_plot_traj(df, pp_df, a, race_name):
     ax0.grid(True)
     #ax.set_title("Electron trajectory in poloidal crossection", va='bottom')
     
-    ax1.scatter( pp_df['theta'], pp_df['r']/a, c= pp_df['time'], cmap='plasma', alpha=0.05, edgecolors='none', s=8)
-    ax1.set_rmax(1)
-    #ax.set_rticks([0.2, 0.4, 0.6, 0.8])  # Less radial ticks
-    ax1.set_rlabel_position(-22.5)  # Move radial labels away from plotted line
-    ax1.grid(True)    
+    if pp_df:
+        ax1.scatter( pp_df['theta'], pp_df['r']/a, c= pp_df['time'], cmap='plasma', alpha=0.05, edgecolors='none', s=8)
+        ax1.set_rmax(1)
+        #ax.set_rticks([0.2, 0.4, 0.6, 0.8])  # Less radial ticks
+        ax1.set_rlabel_position(-22.5)  # Move radial labels away from plotted line
+        ax1.grid(True)    
     fig.tight_layout()
 
 def plot_12(df, pp_df, a):
