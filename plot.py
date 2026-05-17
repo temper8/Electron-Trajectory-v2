@@ -3,12 +3,13 @@ import sys
 import numpy as np
 import pandas as pd
 from numpy import cos, sin, pi
-import matplotlib.pyplot as plt    
+import matplotlib.pyplot as plt
+from rich.console import Console    
 
 
 from src.config import RunParams, SolverParams, load_configs, read_config_hdf5
 from src.physical_constants import *
-from src.utils import get_dataset_sizes, select_h5_file
+from src.utils import dict_to_str, get_dataset_sizes, nt_to_str, select_h5_file
 
 #race_file = 'race/EXL-50U_13976/2026_05_04_22_20_06.h5'
 race_file = select_h5_file() 
@@ -17,9 +18,11 @@ if race_file is None:
 
 solver, params, cfg = read_config_hdf5(race_file)
 sizes = get_dataset_sizes(race_file, ['trajectory', 'poincare_points'])
-print(sizes)
-print(solver)
-print(params)
+console = Console()
+console.print(f"   [bold blue]Solver:[/bold blue] {nt_to_str(solver)}")
+console.print(f"   [bold blue]Params:[/bold blue] {nt_to_str(params)}")
+console.print(f"   [bold blue]Config:[/bold blue] {nt_to_str(cfg)}")
+console.print(f"   [bold blue]Sizes:[/bold blue] {dict_to_str(sizes)}")
 
 ccc_R0= ccc/params.R0
 a = params.a
