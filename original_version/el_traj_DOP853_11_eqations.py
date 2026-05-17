@@ -495,7 +495,7 @@ def fin_fun(t,y,eqq,m0,ccc,a,R0,delr,delfi,nfi,n,pparini,pperpini,muini):
 
 #from parameters_FT2_r_3 import *
 from parameters_EXL_50U_13976 import *
-t_ini=0.2*ccc_R0/tau_norm
+t_ini=0.5*ccc_R0/tau_norm
 t0c=t_ini
 sf0=spl_q0(t0c)
 sfb=spl_qa(t0c)
@@ -513,8 +513,7 @@ psipolini=pi*B0*a**2/(sfb-sf0)*log((sf0+(sfb-sf0)*(rini/a)**2)/sf0)
 energyini=m01*ccc1**2*(sqrt(1+p2ini)-1)/1.6022e-12
 import os
 print('++++++++++++++++')
-if os.path.exists("result_11_equations_EXL_50U_13976_r_0.2_t_0.1_00"
-".pkl"):
+if os.path.exists("result_11_equations_EXL_50U_13976_r_0.2_t_0.1_00.pkl"):
     print('----------------')
     df = pd.read_pickle('result_11_equations_EXL_50U_13976_r_0.2_t_0.1_00.pkl')
     print(df)
@@ -543,7 +542,7 @@ num_it=5
 nrange=20000
 delt=200000
 #result_df = pd.DataFrame(columns=['pparnp', 'rnp', 'finp', 'thetnp', 'tnp1',])
-result_df = pd.DataFrame(columns=['pparini','rini','thetini','fiini','pperp2ini','Bpolini','Btotini','Bradini','Btorini','psipolini','psitorini','energyini','t_ini',])
+result_df = pd.DataFrame(columns=['ppar','r','theta','phi','pperp2','Bpol','Btot','Brad','Btor','psipol','psitor','energy','tau',])
 
 from scipy.integrate import odeint,solve_ivp    
 for it in range(num_it):
@@ -620,24 +619,24 @@ for it in range(num_it):
     #    'tnp1'  : sol.t
     #    })
     df = pd.DataFrame({
-        'pparini'  : sol.y[0],
-        'rini'     : sol.y[1],
-        'thetini'  : sol.y[2],
-        'fiini'    : sol.y[3],
-        'pperp2ini': sol.y[4],
-        'Bpolini'  : sol.y[5],
-        'Btotini'  : sol.y[6],
-        'Bradini'  : sol.y[7],
-        'Btorini'  : sol.y[8],
-        'psipolini': sol.y[9],
-        'psitorini': sol.y[10],
-        'energyini': sol.y[11],
-        't_ini'    : sol.t
+        'ppar'  : sol.y[0],
+        'r'     : sol.y[1],
+        'theta' : sol.y[2],
+        'phi'   : sol.y[3],
+        'pperp2': sol.y[4],
+        'Bpol'  : sol.y[5],
+        'Btot'  : sol.y[6],
+        'Brad'  : sol.y[7],
+        'Btor'  : sol.y[8],
+        'psipol': sol.y[9],
+        'psitor': sol.y[10],
+        'energy': sol.y[11],
+        'tau'   : sol.t
         })
     #print(df.head)
     result_df = pd.concat([result_df, df])
     print(result_df.head)
-    result_df.to_pickle('result_11_equations_EXL_50U_13976_r_0.2_t_0.2_.pkl') 
+    result_df.to_pickle('result_11_equations_EXL_50U_13976_r_0.5_t_0.5_.pkl') 
 #    df.to_pickle('final_data.pkl') 
 #LSODA
 #DOP853
