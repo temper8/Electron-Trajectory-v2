@@ -56,14 +56,9 @@ df['floor_phi'] =  np.floor(df['phi']/(2*pi)).astype(int)
 #    indices = np.arange(0, sizes['poincare_points'], downsample_step)
 #    pp_df = pd.read_hdf(race_file, 'poincare_points', mode='r', where= pd.Index(indices))    
 
-pp_df = pd.read_hdf(race_file, 'poincare_points', mode='r')
-pp_df['time']=pp_df['tau']/ccc_R0*tau_norm
-pp_df['R'] = R0 + pp_df['r']*cos(pp_df['theta'])
-pp_df['Z'] = pp_df['r']*sin(pp_df['theta'])
 
 #print(df.head(5).to_string())
 print(f"trajectory size = {len(df)}")
-print(f"poincare size   = {len(pp_df)}")
 
 ion = True
 def show():
@@ -82,28 +77,21 @@ tau_start = df['tau'].iloc[0]
 tau_end = df['tau'].iloc[-1]
 
 title = f"r = {params.r}, delta_time = {time_end-time_start:0.7f} delta_tau = {tau_end-tau_start:0.1f}\n"
-title += f" solver={solver.method}, rtol={solver.rtol}, atol={solver.atol}"
+title += f"original code: solver=DOP853, rtol = 1e-7, atol= 1e-10, nrange=20000"
 plot_envelope_fit(df, a, title, race_file.stem)
 show()
 
 df_thin = df.iloc[::downsample_step]
-pp_df_thin = pp_df.iloc[::downsample_step]
-plot_field_environment(pp_df_thin['tau'], ccc_R0*tau_norm, title, race_file.stem)
+plot_field_environment(df_thin['tau'], ccc_R0*tau_norm, title, race_file.stem)
 show()
 
 #plot_r_phi_segments(df, 43)
 #show()
 
-plot_traj(df_thin, pp_df_thin, title, race_file.stem)
+plot_traj(df_thin, None, title, race_file.stem)
 show()
 
-polar_plot_traj(df_thin, pp_df_thin, a, race_file.stem)
-show()
-
-plot_timeline_r_phi_poincare(df_thin, pp_df_thin, a, race_file.stem)
-show()
-
-plot_poincare(df_thin, pp_df_thin, race_file.stem)
+polar_plot_traj(df_thin, None, a, race_file.stem)
 show()
 
 plot_partice_state(df_thin, a, title, race_file.stem)
