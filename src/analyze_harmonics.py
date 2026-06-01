@@ -25,7 +25,7 @@ def compute_guiding_center_harmonics(sol:OdeResult, coordinate_idx:int, f_polo, 
     amplitude_spectrogram : ndarray (матрица амплитуд гармоник)
     """
     # 1. Генерация равномерной сетки времени через dense_output
-    fs = f_toro * 15  
+    fs = f_toro * 50  
     delta_tau= sol.t[-1] - sol.t[0]
     dt = 1 / fs
     print(f'delta_tau= {delta_tau}, dt = {dt}')
@@ -37,7 +37,7 @@ def compute_guiding_center_harmonics(sol:OdeResult, coordinate_idx:int, f_polo, 
     
     # 3. Настройка параметров окна Ханна
     points_per_period = int(fs / f_polo)
-    nperseg = points_per_period * 50       # Окно в 10 полоидальных периодов
+    nperseg = points_per_period * 100       # Окно в 10 полоидальных периодов
     noverlap = int(nperseg * 0.75)         # Перекрытие 75%
     # 4. Расчет оконного преобразования Фурье
     frequencies, times, Zxx = stft(
@@ -59,14 +59,15 @@ def plot_guiding_center_harmonics(frequencies, times, amplitude_spectrogram, f_t
     plt.figure(figsize=(12, 6))
     
     # Ограничиваем график первыми четырьмя тороидальными гармониками
-    max_freq_to_show = f_toro * 8
+    max_freq_to_show = f_toro * 16
     freq_mask = frequencies <= max_freq_to_show
-    
+    log_amplitude = np.log10(amplitude_spectrogram[freq_mask, :] + 1e-4)
     # Построение тепловой карты
     mesh = plt.pcolormesh(
         times, 
         frequencies[freq_mask], 
-        amplitude_spectrogram[freq_mask, :], 
+        log_amplitude,
+        #amplitude_spectrogram[freq_mask, :], 
         shading='gouraud', 
         cmap='inferno'
     )
