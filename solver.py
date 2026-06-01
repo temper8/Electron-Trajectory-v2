@@ -8,6 +8,7 @@ import pandas as pd
 import numpy as np
 from scipy.integrate import solve_ivp  
 
+from src.analyze_harmonics import compute_guiding_center_harmonics, plot_guiding_center_harmonics
 import src.config as config 
 from src.envelope_fit import get_extremums
 from src.logger_config import get_memory_usage, logger
@@ -90,7 +91,28 @@ with pd.HDFStore(race_folder/race_file, mode='w') as store:
         logger.info(f"Number of function evaluations {sol.nfev}")
         iteration_time = time.time() - iteration_start_time
         logger.info(f"Number of function evaluations per sec {(sol.nfev/iteration_time):0.2f}")
+        
+        delta_tau= sol.t[-1] - sol.t[0]
+        f_polo = abs(sol.y[3, -1] - sol.y[3, 0])/(2*pi*delta_tau)
+        f_toro = abs(sol.y[2, -1] - sol.y[2, 0])/(2*pi*delta_tau)
+        logger.info(f'f_polo= {f_polo:0.2f}, f_toro= {f_toro:0.2f}, delta_tau= {delta_tau}')
+        # Шаг 1: Только считаем (график не выводится, можно крутить в цикле по разным координатам)
+        freqs, times, spec = compute_guiding_center_harmonics(
+            sol=sol, 
+            coordinate_idx=3,   # Например, полоидальный угол
+            f_polo=f_polo, # Ожидаемая полоидальная частота (Гц или у.е.)
+            f_toro=f_toro,  # Ожидаемая тороидальная частота
+            is_angle=True       # Сглаживаем угол синусом
+        )
 
+        # Шаг 2: Передаем результаты в визуализатор
+        plot_guiding_center_harmonics(
+            frequencies=freqs, 
+            times=times, 
+            amplitude_spectrogram=spec, 
+            f_toro=f_toro,
+            title_suffix="(полоидальный угол)"
+        )        
         tau_start= sol.t[-1]
         y_last = sol.y[:, -1]
         #pparini, rini, thetini, fiini , pperp2ini, Bpolini, Btotini, Bradini, Btorini, psipolini, psitorini, energyini = y_last
@@ -99,7 +121,7 @@ with pd.HDFStore(race_folder/race_file, mode='w') as store:
         logger.info(f'theta revolutions= {theta/(2*pi):0.2f}, phi revolutions= {phi/(2*pi):0.2f}')
         theta = theta%(2*pi)
         phi   = phi%(2*pi)
-        
+        exit(0)
         #energy, p_tot = get_particle_state(sol.t, sol.y, muini, params)
         energy = np.empty(len(sol.t))
         p_tot = np.empty(len(sol.t))
