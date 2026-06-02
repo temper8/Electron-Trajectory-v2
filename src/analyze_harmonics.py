@@ -38,8 +38,8 @@ def compute_guiding_center_harmonics(sol:OdeResult, coordinate_idx:int, f_polo, 
     
     # 3. Настройка параметров окна Ханна
     points_per_period = int(fs / f_polo)
-    nperseg = points_per_period * 1000       # Окно в 10 полоидальных периодов
-    noverlap = int(nperseg * 0.75)         # Перекрытие 75%
+    nperseg = points_per_period * 100       # Окно в 10 полоидальных периодов
+    noverlap = int(nperseg * 0.0)         # Перекрытие 75%
     # 4. Расчет оконного преобразования Фурье
     frequencies, times, Zxx = stft(
         signal, 
@@ -62,13 +62,13 @@ def plot_guiding_center_harmonics(frequencies, times, amplitude_spectrogram, f_t
     # Ограничиваем график первыми четырьмя тороидальными гармониками
     max_freq_to_show = f_toro * 16
     freq_mask = frequencies <= max_freq_to_show
-    log_amplitude = np.log10(amplitude_spectrogram[freq_mask, :] + 1e-4)
+    #amp = np.log10(amplitude_spectrogram[freq_mask, :] + 1e-4)
+    amp = amplitude_spectrogram[freq_mask, :]
     # Построение тепловой карты
     mesh = plt.pcolormesh(
         times, 
         frequencies[freq_mask], 
-        log_amplitude,
-        #amplitude_spectrogram[freq_mask, :], 
+        amp,
         shading='gouraud', 
         cmap='inferno'
     )
@@ -89,13 +89,13 @@ def plot_harmonics(ax, frequencies, times, amplitude_spectrogram, f_toro, title_
     # Ограничиваем график первыми четырьмя тороидальными гармониками
     max_freq_to_show = f_toro * 16
     freq_mask = frequencies <= max_freq_to_show
-    log_amplitude = np.log10(amplitude_spectrogram[freq_mask, :] + 1e-4)
+    #amp = np.log10(amplitude_spectrogram[freq_mask, :] + 1e-4)
+    amp = amplitude_spectrogram[freq_mask, :]
     # Построение тепловой карты
     mesh = ax.pcolormesh(
         times, 
         frequencies[freq_mask], 
-        log_amplitude,
-        #amplitude_spectrogram[freq_mask, :], 
+        amp,
         shading='gouraud', 
         cmap='inferno'
     )
