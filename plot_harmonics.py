@@ -33,7 +33,7 @@ n = params.n
 from src.env import init_env
 init_env(tau_norm*ccc_R0, R0, a)
 
-load_and_plot_peaks(race_file)
+load_and_plot_peaks(race_file, ccc_R0*tau_norm)
 
 fig, ax = plt.subplots(figsize=(12, 6))
 

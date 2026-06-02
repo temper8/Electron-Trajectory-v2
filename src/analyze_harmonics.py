@@ -39,7 +39,7 @@ def compute_guiding_center_harmonics(sol:OdeResult, coordinate_idx:int, f_polo, 
     # 3. Настройка параметров окна Ханна
     points_per_period = int(fs / f_polo)
     nperseg = points_per_period * 100       # Окно в 10 полоидальных периодов
-    noverlap = int(nperseg * 0.0)         # Перекрытие 75%
+    noverlap = int(nperseg * 0.75)         # Перекрытие 75%
     # 4. Расчет оконного преобразования Фурье
     frequencies, times, Zxx = stft(
         signal, 
@@ -177,20 +177,20 @@ def save_harmonic_peaks(store: pd.HDFStore, frequencies, times, amplitude_spectr
                 
         data_records.append(record)
         
-        key=f'harmonic_pieaks'
-        # 3. Создание DataFrame и запись в HDFStore
-        df_peaks = pd.DataFrame(data_records)
-        
-        store.put(key, df_peaks, format='fixed')
-        storer = store.get_storer(key) # type: ignore
-        storer.attrs.metadata = {
-            'num_peaks': num_peaks,
-            'f_polo': f_polo,
-            'f_toro': f_toro,
-            'coordinate_idx': coordinate_idx,
-            'is_angle': is_angle,
-            'title_suffix': title_suffix            
-        }
+    key=f'harmonic_pieaks'
+    # 3. Создание DataFrame и запись в HDFStore
+    df_peaks = pd.DataFrame(data_records)
+    #print(df_peaks.to_string())
+    store.append(key, df_peaks, index=False)
+    storer = store.get_storer(key) # type: ignore
+    storer.attrs.metadata = {
+        'num_peaks': num_peaks,
+        'f_polo': f_polo,
+        'f_toro': f_toro,
+        'coordinate_idx': coordinate_idx,
+        'is_angle': is_angle,
+        'title_suffix': title_suffix            
+    }
             
     
 
@@ -213,7 +213,7 @@ def load_from_hdf(filepath, it_num):
         title_suffix= metadata.get('title_suffix', 0)
     return df_spec, f_toro, f_polo, coordinate_idx, is_angle, title_suffix    
 
-def load_and_plot_peaks(filepath, key='harmonic_pieaks'):
+def load_and_plot_peaks(filepath, tau_factor, key='harmonic_pieaks'):
     """
     Загружает таблицу пиков из HDFStore и строит их частотные треки.
     """
@@ -239,7 +239,7 @@ def load_and_plot_peaks(filepath, key='harmonic_pieaks'):
         if f_col in df_peaks.columns and amp_col in df_peaks.columns:
             # Верхний график: Частота
             ax1.plot(
-                df_peaks['time'], 
+                df_peaks['time']/tau_factor, 
                 df_peaks[f_col], 
                 label=f'Пик {i}', 
                 color=colors[i-1], 
@@ -248,7 +248,7 @@ def load_and_plot_peaks(filepath, key='harmonic_pieaks'):
             
             # Нижний график: Амплитуда
             ax2.plot(
-                df_peaks['time'], 
+                df_peaks['time']/tau_factor, 
                 df_peaks[amp_col], 
                 color=colors[i-1], 
                 linewidth=1.5
@@ -269,5 +269,4 @@ def load_and_plot_peaks(filepath, key='harmonic_pieaks'):
     # если высшие гармоники сильно слабее первой (раскомментируйте при необходимости):
     # ax2.set_yscale('log')
 
-    plt.tight_layout()
-    plt.show()
+
