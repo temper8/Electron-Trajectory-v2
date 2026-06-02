@@ -225,15 +225,49 @@ def load_and_plot_peaks(filepath, key='harmonic_pieaks'):
 
     plt.figure(figsize=(10, 6))
     
-    # Последовательно строим линии для f1, f2, f3...
+    # 2. Создаем сетку из двух графиков (sharex=True связывает оси времени)
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8), sharex=True)
+    
+    # Цветовая палитра для соответствия линий на верхнем и нижнем графиках
+    colors = plt.cm.tab10(range(num_peaks))
+
+    # 3. Цикл по всем сохраненным пикам
     for i in range(1, num_peaks + 1):
-        if f'f{i}' in df_peaks.columns:
-            plt.plot(df_peaks['time'], df_peaks[f'f{i}'], label=f'Линия пика {i}', linewidth=1.5)
+        f_col = f'f{i}'
+        amp_col = f'amp{i}'
+        
+        if f_col in df_peaks.columns and amp_col in df_peaks.columns:
+            # Верхний график: Частота
+            ax1.plot(
+                df_peaks['time'], 
+                df_peaks[f_col], 
+                label=f'Пик {i}', 
+                color=colors[i-1], 
+                linewidth=1.5
+            )
             
-    plt.title('Треки первых доминирующих пиков спектра')
-    plt.xlabel('Время симуляции (t)')
-    plt.ylabel('Частота (f)')
-    plt.grid(alpha=0.3, linestyle='--')
-    plt.legend()
+            # Нижний график: Амплитуда
+            ax2.plot(
+                df_peaks['time'], 
+                df_peaks[amp_col], 
+                color=colors[i-1], 
+                linewidth=1.5
+            )
+
+    # 4. Оформление верхнего графика (Частота)
+    ax1.set_title('Эволюция частот и амплитуд доминирующих пиков спектра', fontsize=12)
+    ax1.set_ylabel('Частота (f)', fontsize=10)
+    ax1.grid(alpha=0.3, linestyle='--')
+    ax1.legend(loc='upper left')
+
+    # 5. Оформление нижнего графика (Амплитуда)
+    ax2.set_xlabel('Время симуляции (t)', fontsize=10)
+    ax2.set_ylabel('Амплитуда (A)', fontsize=10)
+    ax2.grid(alpha=0.3, linestyle='--')
+    
+    # Рекомендуется использовать логарифмический масштаб для амплитуды, 
+    # если высшие гармоники сильно слабее первой (раскомментируйте при необходимости):
+    # ax2.set_yscale('log')
+
     plt.tight_layout()
     plt.show()
