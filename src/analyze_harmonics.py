@@ -38,7 +38,7 @@ def compute_guiding_center_harmonics(sol:OdeResult, coordinate_idx:int, f_polo, 
     
     # 3. Настройка параметров окна Ханна
     points_per_period = int(fs / f_polo)
-    nperseg = points_per_period * 100       # Окно в 10 полоидальных периодов
+    nperseg = points_per_period * 1000       # Окно в 10 полоидальных периодов
     noverlap = int(nperseg * 0.75)         # Перекрытие 75%
     # 4. Расчет оконного преобразования Фурье
     frequencies, times, Zxx = stft(
@@ -80,6 +80,33 @@ def plot_guiding_center_harmonics(frequencies, times, amplitude_spectrogram, f_t
     plt.grid(alpha=0.2, linestyle='--')
     plt.tight_layout()
     plt.show()
+
+def plot_harmonics(ax, frequencies, times, amplitude_spectrogram, f_toro, title_suffix=""):
+    """
+    Визуализирует рассчитанные гармонические моменты в виде спектрограммы.
+    """
+    
+    # Ограничиваем график первыми четырьмя тороидальными гармониками
+    max_freq_to_show = f_toro * 16
+    freq_mask = frequencies <= max_freq_to_show
+    log_amplitude = np.log10(amplitude_spectrogram[freq_mask, :] + 1e-4)
+    # Построение тепловой карты
+    mesh = ax.pcolormesh(
+        times, 
+        frequencies[freq_mask], 
+        log_amplitude,
+        #amplitude_spectrogram[freq_mask, :], 
+        shading='gouraud', 
+        cmap='inferno'
+    )
+    
+    #plt.title(f'Эволюция гармонических моментов траектории {title_suffix}')
+    #plt.xlabel('Время симуляции (t)')
+    #plt.ylabel('Частота (f)')
+    #plt.colorbar(mesh, label='Амплитуда гармоники')
+    ax.grid(alpha=0.2, linestyle='--')
+
+
 
 def save_harmonics(store: pd.HDFStore, it_num, frequencies, times, amplitude_spectrogram, f_toro, f_polo, coordinate_idx, is_angle, title_suffix=""):
     """

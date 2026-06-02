@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from rich.console import Console    
 
 
-from src.analyze_harmonics import load_from_hdf, plot_guiding_center_harmonics
+from src.analyze_harmonics import load_from_hdf, plot_guiding_center_harmonics, plot_harmonics
 from src.config import RunParams, SolverParams, load_configs, read_config_hdf5
 from src.physical_constants import *
 from src.utils import dict_to_str, get_dataset_sizes, nt_to_str, select_h5_file
@@ -33,17 +33,25 @@ n = params.n
 from src.env import init_env
 init_env(tau_norm*ccc_R0, R0, a)
 
+fig, ax = plt.subplots(figsize=(12, 6))
+
 for it in range(5):
     df_spec, f_toro, f_polo, coordinate_idx, is_angle, title_suffix = load_from_hdf(race_file, it)
 
     freqs = df_spec.index.values
-    times = df_spec.columns.values
+    times = df_spec.columns.values/ccc_R0*tau_norm
     spec = df_spec.values
-
-    plot_guiding_center_harmonics(
+    print(max(times))
+    print(min(times))
+    plot_harmonics(
+        ax,
         frequencies=freqs, 
         times=times, 
         amplitude_spectrogram=spec, 
         f_toro=f_toro,
         title_suffix= title_suffix
     )        
+
+fig.tight_layout()
+#fig.show()    
+plt.show()

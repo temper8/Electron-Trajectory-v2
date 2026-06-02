@@ -104,6 +104,9 @@ with pd.HDFStore(race_folder/race_file, mode='w') as store:
             f_toro=f_toro,  # Ожидаемая тороидальная частота
             is_angle=True       # Сглаживаем угол синусом
         )
+        times = times + sol.t[0]
+        logger.info(f'tau(0)= {sol.t[0]}, tau(-1)= {sol.t[-1]}')
+        logger.info(f'times(0)= {times[0]}, times(-1)= {times[-1]}')
         save_harmonics(store, it, 
                        freqs, times, spec, 
                        f_toro, f_polo, 3, True, title_suffix="полоидальный угол")
