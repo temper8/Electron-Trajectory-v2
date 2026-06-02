@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
-from scipy.signal import stft
+from scipy.signal import stft, find_peaks
 from scipy.integrate._ivp.ivp import OdeResult
 
 def compute_guiding_center_harmonics(sol:OdeResult, coordinate_idx:int, f_polo, f_toro, is_angle=False):
@@ -137,6 +137,64 @@ def save_harmonics(store: pd.HDFStore, it_num, frequencies, times, amplitude_spe
 
     print(f"Данные сохранены в HDFStore под ключом '{key}'")
 
+def save_harmonic_peaks(store: pd.HDFStore, frequencies, times, amplitude_spectrogram, f_toro, f_polo, coordinate_idx, is_angle, title_suffix=""):
+    """
+    Сохранение максимумов гармонических моменты в hdf.
+    """
+    num_peaks = 10
+    # Списки для сборки структурированных данных
+    data_records = []
+    
+    # 2. Сканируем спектр по времени (столбец за столбцом)
+    for idx, t in enumerate(times):
+        spectrum_slice = amplitude_spectrogram[:, idx]
+        
+        # Ищем пики на спектре в этом временном окне
+        # prominence помогает отсечь случайный шум
+        peaks, props = find_peaks(spectrum_slice, prominence=0.001)
+
+        if len(peaks) == 0:
+            continue
+
+        peak_freqs = frequencies[peaks]
+        peak_amps = spectrum_slice[peaks]
+
+                # Сортируем пики строго по возрастанию частоты
+        sort_idx = np.argsort(peak_freqs)
+        peak_freqs = peak_freqs[sort_idx]
+        peak_amps = peak_amps[sort_idx]
+        
+        # Формируем строку таблицы для текущего момента времени
+        record = {'time': t}
+        for i in range(num_peaks):
+            if i < len(peak_freqs):
+                record[f'f{i+1}'] = peak_freqs[i]
+                record[f'amp{i+1}'] = peak_amps[i]
+            else:
+                # Если пиков обнаружилось меньше, чем запрошено, пишем NaN
+                record[f'f{i+1}'] = np.nan
+                record[f'amp{i+1}'] = np.nan
+                
+        data_records.append(record)
+        
+        key=f'harmonic_pieaks'
+        # 3. Создание DataFrame и запись в HDFStore
+        df_peaks = pd.DataFrame(data_records)
+        
+        store.put(key, df_peaks, format='fixed')
+        storer = store.get_storer(key) # type: ignore
+        storer.attrs.metadata = {
+            'num_peaks': num_peaks,
+            'f_polo': f_polo,
+            'f_toro': f_toro,
+            'coordinate_idx': coordinate_idx,
+            'is_angle': is_angle,
+            'title_suffix': title_suffix            
+        }
+            
+    
+
+
 def load_from_hdf(filepath, it_num):
     """
     Загружает DataFrame спектра из pd.HDFStore и строит спектрограмму.
@@ -154,3 +212,28 @@ def load_from_hdf(filepath, it_num):
         is_angle = metadata.get('is_angle', 0)
         title_suffix= metadata.get('title_suffix', 0)
     return df_spec, f_toro, f_polo, coordinate_idx, is_angle, title_suffix    
+
+def load_and_plot_peaks(filepath, key='harmonic_pieaks'):
+    """
+    Загружает таблицу пиков из HDFStore и строит их частотные треки.
+    """
+    with pd.HDFStore(filepath, mode='r') as store:
+        df_peaks = store.get(key)
+        storer = store.get_storer(key)
+        metadata = getattr(storer.attrs, 'metadata', {})
+        num_peaks = metadata.get('num_peaks', 4)
+
+    plt.figure(figsize=(10, 6))
+    
+    # Последовательно строим линии для f1, f2, f3...
+    for i in range(1, num_peaks + 1):
+        if f'f{i}' in df_peaks.columns:
+            plt.plot(df_peaks['time'], df_peaks[f'f{i}'], label=f'Линия пика {i}', linewidth=1.5)
+            
+    plt.title('Треки первых доминирующих пиков спектра')
+    plt.xlabel('Время симуляции (t)')
+    plt.ylabel('Частота (f)')
+    plt.grid(alpha=0.3, linestyle='--')
+    plt.legend()
+    plt.tight_layout()
+    plt.show()

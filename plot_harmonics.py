@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from rich.console import Console    
 
 
-from src.analyze_harmonics import load_from_hdf, plot_guiding_center_harmonics, plot_harmonics
+from src.analyze_harmonics import load_and_plot_peaks, load_from_hdf, plot_guiding_center_harmonics, plot_harmonics
 from src.config import RunParams, SolverParams, load_configs, read_config_hdf5
 from src.physical_constants import *
 from src.utils import dict_to_str, get_dataset_sizes, nt_to_str, select_h5_file
@@ -32,6 +32,8 @@ n = params.n
 
 from src.env import init_env
 init_env(tau_norm*ccc_R0, R0, a)
+
+load_and_plot_peaks(race_file)
 
 fig, ax = plt.subplots(figsize=(12, 6))
 

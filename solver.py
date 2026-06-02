@@ -8,7 +8,7 @@ import pandas as pd
 import numpy as np
 from scipy.integrate import solve_ivp  
 
-from src.analyze_harmonics import compute_guiding_center_harmonics, plot_guiding_center_harmonics, save_harmonics
+from src.analyze_harmonics import compute_guiding_center_harmonics, plot_guiding_center_harmonics, save_harmonic_peaks, save_harmonics
 import src.config as config 
 from src.envelope_fit import get_extremums
 from src.logger_config import get_memory_usage, logger
@@ -110,6 +110,7 @@ with pd.HDFStore(race_folder/race_file, mode='w') as store:
         save_harmonics(store, it, 
                        freqs, times, spec, 
                        f_toro, f_polo, 3, True, title_suffix="полоидальный угол")
+        save_harmonic_peaks(store, freqs, times, spec, f_toro, f_polo, 3, True, title_suffix="полоидальный угол")
         # Шаг 2: Передаем результаты в визуализатор
         #plot_guiding_center_harmonics(
         #    frequencies=freqs, 
