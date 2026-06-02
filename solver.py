@@ -8,7 +8,7 @@ import pandas as pd
 import numpy as np
 from scipy.integrate import solve_ivp  
 
-from src.analyze_harmonics import compute_guiding_center_harmonics, plot_guiding_center_harmonics
+from src.analyze_harmonics import compute_guiding_center_harmonics, plot_guiding_center_harmonics, save_harmonics
 import src.config as config 
 from src.envelope_fit import get_extremums
 from src.logger_config import get_memory_usage, logger
@@ -104,15 +104,17 @@ with pd.HDFStore(race_folder/race_file, mode='w') as store:
             f_toro=f_toro,  # Ожидаемая тороидальная частота
             is_angle=True       # Сглаживаем угол синусом
         )
-
+        save_harmonics(store, it, 
+                       freqs, times, spec, 
+                       f_toro, f_polo, 3, True, title_suffix="полоидальный угол")
         # Шаг 2: Передаем результаты в визуализатор
-        plot_guiding_center_harmonics(
-            frequencies=freqs, 
-            times=times, 
-            amplitude_spectrogram=spec, 
-            f_toro=f_toro,
-            title_suffix="(полоидальный угол)"
-        )        
+        #plot_guiding_center_harmonics(
+        #    frequencies=freqs, 
+        #    times=times, 
+        #    amplitude_spectrogram=spec, 
+        #    f_toro=f_toro,
+        #    title_suffix="(полоидальный угол)"
+        #)        
         tau_start= sol.t[-1]
         y_last = sol.y[:, -1]
         #pparini, rini, thetini, fiini , pperp2ini, Bpolini, Btotini, Bradini, Btorini, psipolini, psitorini, energyini = y_last
@@ -121,7 +123,7 @@ with pd.HDFStore(race_folder/race_file, mode='w') as store:
         logger.info(f'theta revolutions= {theta/(2*pi):0.2f}, phi revolutions= {phi/(2*pi):0.2f}')
         theta = theta%(2*pi)
         phi   = phi%(2*pi)
-        exit(0)
+        #exit(0)
         #energy, p_tot = get_particle_state(sol.t, sol.y, muini, params)
         energy = np.empty(len(sol.t))
         p_tot = np.empty(len(sol.t))

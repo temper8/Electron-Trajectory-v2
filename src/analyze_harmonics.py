@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import pandas as pd
 from scipy.signal import stft
 from scipy.integrate._ivp.ivp import OdeResult
 
@@ -79,3 +80,31 @@ def plot_guiding_center_harmonics(frequencies, times, amplitude_spectrogram, f_t
     plt.grid(alpha=0.2, linestyle='--')
     plt.tight_layout()
     plt.show()
+
+def save_harmonics(store: pd.HDFStore, it_num, frequencies, times, amplitude_spectrogram, f_toro, f_polo, coordinate_idx, is_angle, title_suffix=""):
+    """
+    Сохранение гармонических моменты в hdf.
+    """
+
+    # 4. Упаковка матрицы спектра в pandas.DataFrame
+    # Строки — частоты, Столбцы — временные метки окон
+    df_spec = pd.DataFrame(
+        data=    amplitude_spectrogram,
+        index=   frequencies,
+        columns= times
+    )
+    key=f'harmonics/it_{it_num}'
+
+    # Используем формат 'fixed', так как мы записываем матрицу целиком и не планируем append по строкам
+    store.put(key, df_spec, format='fixed')
+        
+        # Сохраняем физические метаданные в атрибуты хранилища (storer)
+    storer = store.get_storer(key) 
+    storer.attrs.metadata = {
+            'f_polo': f_polo,
+            'f_toro': f_toro,
+            'coordinate_idx': coordinate_idx,
+            'is_angle': is_angle
+        }
+
+    print(f"Данные сохранены в HDFStore под ключом '{key}'")
