@@ -104,7 +104,26 @@ def save_harmonics(store: pd.HDFStore, it_num, frequencies, times, amplitude_spe
             'f_polo': f_polo,
             'f_toro': f_toro,
             'coordinate_idx': coordinate_idx,
-            'is_angle': is_angle
+            'is_angle': is_angle,
+            'title_suffix': title_suffix
         }
 
     print(f"Данные сохранены в HDFStore под ключом '{key}'")
+
+def load_from_hdf(filepath, it_num):
+    """
+    Загружает DataFrame спектра из pd.HDFStore и строит спектрограмму.
+    """
+    key=f'harmonics/it_{it_num}'
+    # 1. Извлечение DataFrame и метаданных
+    with pd.HDFStore(filepath, mode='r') as store:
+        df_spec = store.get(key)
+        # Считываем сохраненные атрибуты
+        storer = store.get_storer(key)
+        metadata = getattr(storer.attrs, 'metadata', {})
+        coordinate_idx = metadata.get('coordinate_idx', 0)
+        f_polo = metadata.get('f_polo', 0)
+        f_toro = metadata.get('f_toro', 0)
+        is_angle = metadata.get('is_angle', 0)
+        title_suffix= metadata.get('title_suffix', 0)
+    return df_spec, f_toro, f_polo, coordinate_idx, is_angle, title_suffix    
