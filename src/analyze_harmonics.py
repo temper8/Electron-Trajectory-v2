@@ -191,7 +191,7 @@ def approximate_peak_parabolic(spectrum_slice, frequencies, idx_max):
         
     # Расчет математического сдвига 'p' относительно центральной корзины (в долях шага БПФ)
     # Значение 'p' всегда лежит в строго пределах [-0.5, 0.5]
-    p = 0.5 * (alpha - gamma) / denom
+    p = - 0.5 * (alpha - gamma) / denom
     
     # Шаг дискретизации сетки частот БПФ
     df = frequencies[1] - frequencies[0]
@@ -200,8 +200,7 @@ def approximate_peak_parabolic(spectrum_slice, frequencies, idx_max):
     f_true = frequencies[idx_max] + p * df
     
     # 2. Вычисляем истинную амплитуду в вершине параболы
-    #amp_true = beta - 0.25 * (alpha - gamma) * p
-    amp_true = beta + 0.125 * ((alpha - gamma) ** 2) / denom
+    amp_true = beta + 0.125 * ((alpha - gamma) ** 2) / denom 
     return f_true, amp_true
 
 def save_harmonic_peaks(store: pd.HDFStore, frequencies, times, amplitude_spectrogram, f_toro, f_polo, coordinate_idx, is_angle, title_suffix=""):
