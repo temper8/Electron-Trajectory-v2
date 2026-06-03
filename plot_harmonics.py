@@ -38,8 +38,10 @@ load_and_plot_peaks(race_file, ccc_R0*tau_norm)
 fig, ax = plt.subplots(figsize=(12, 6))
 
 for it in range(5):
-    df_spec, f_toro, f_polo, coordinate_idx, is_angle, title_suffix = load_from_hdf(race_file, it)
-
+    try:
+        df_spec, f_toro, f_polo, coordinate_idx, is_angle, title_suffix = load_from_hdf(race_file, it)
+    except:
+        break
     freqs = df_spec.index.values
     times = df_spec.columns.values/ccc_R0*tau_norm
     spec = df_spec.values
