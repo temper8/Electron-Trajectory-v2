@@ -34,8 +34,8 @@ def compute_guiding_center_harmonics(sol:OdeResult, coordinate_idx:int, f_polo, 
     print(len(t_uniform))
     # 2. Извлечение данных и обработка цикличности углов
     raw_data = sol.sol(t_uniform)[coordinate_idx, :]
-    signal = np.sin(raw_data) if is_angle else raw_data
-    #signal = np.exp(-1j * raw_data) if is_angle else raw_data
+    #signal = np.sin(raw_data) if is_angle else raw_data
+    signal = np.exp(-1j * raw_data) if is_angle else raw_data
     # 3. Настройка параметров окна Ханна
     # 1. Считаем базовый физический размер окна (строго 8 периодов)
     points_per_period = int(fs / f_polo)
@@ -174,7 +174,7 @@ def approximate_peak_parabolic(spectrum_slice, frequencies, idx_max):
         Аппроксимированная истинная амплитуда (высота купола).
     """
     # Защита от выхода за границы массива (если пик на самом краю спектра)
-    if idx_max <= 0 or idx_max >= len(frequencies) - 1:
+    if idx_max <= 1 or idx_max >= len(frequencies) - 2:
         return frequencies[idx_max], spectrum_slice[idx_max]
         
     # Извлекаем три точки: сам пик (beta) и его соседей слева (alpha) и справа (gamma)
@@ -201,7 +201,9 @@ def approximate_peak_parabolic(spectrum_slice, frequencies, idx_max):
     
     # 2. Вычисляем истинную амплитуду в вершине параболы
     amp_true = beta + 0.125 * ((alpha - gamma) ** 2) / denom 
-    return f_true, amp_true
+    energy_nodes = spectrum_slice[idx_max - 2 : idx_max + 3]
+    energy = np.sqrt(np.sum(energy_nodes**2))
+    return f_true, energy #amp_true
 
 def save_harmonic_peaks(store: pd.HDFStore, frequencies, times, amplitude_spectrogram, f_toro, f_polo, coordinate_idx, is_angle, title_suffix=""):
     """
