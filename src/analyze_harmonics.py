@@ -37,16 +37,25 @@ def compute_guiding_center_harmonics(sol:OdeResult, coordinate_idx:int, f_polo, 
     signal = np.sin(raw_data) if is_angle else raw_data
     
     # 3. Настройка параметров окна Ханна
+    # 1. Считаем базовый физический размер окна (строго 8 периодов)
     points_per_period = int(fs / f_polo)
-    nperseg = points_per_period * 100       # Окно в 10 полоидальных периодов
+    raw_nperseg = points_per_period * 64      
+    
+    # 2. Округляем до ближайшей честной степени 2 (например: 256, 512, 1024, 2048)
+    nperseg = 1 << int(np.round(np.log2(raw_nperseg)))
+
+    #nperseg = points_per_period * 100       # Окно в 10 полоидальных периодов
     noverlap = int(nperseg * 0.75)         # Перекрытие 75%
     # 4. Расчет оконного преобразования Фурье
     frequencies, times, Zxx = stft(
         signal, 
         fs=fs, 
         window='hann', 
+        #window='blackman',
         nperseg=nperseg, 
-        noverlap=noverlap
+        noverlap=noverlap,
+        boundary=None,   # <--- Убирает искусственное дополнение краев
+        padded=False     # <--- Отключает падинг до ближайшей степени двойки
     )
     amplitude_spectrogram = np.abs(Zxx)
     
@@ -137,6 +146,58 @@ def save_harmonics(store: pd.HDFStore, it_num, frequencies, times, amplitude_spe
 
     print(f"Данные сохранены в HDFStore под ключом '{key}'")
 
+def approximate_peak_parabolic(spectrum_slice, frequencies, idx_max):
+    """
+    Выполняет параболическую аппроксимацию спектрального пика по 3 точкам.
+    Находит суб-пиксельное (непрерывное) положение частоты и истинную амплитуду.
+    
+    Параметры:
+    ----------
+    spectrum_slice : ndarray
+        Одномерный массив амплитуд спектра в текущий момент времени.
+    frequencies : ndarray
+        Массив дискретных частот БПФ.
+    idx_max : int
+        Индекс дискретного максимума в массивах.
+        
+    Возвращает:
+    -----------
+    f_true : float
+        Аппроксимированная истинная частота пика.
+    amp_true : float
+        Аппроксимированная истинная амплитуда (высота купола).
+    """
+    # Защита от выхода за границы массива (если пик на самом краю спектра)
+    if idx_max <= 0 or idx_max >= len(frequencies) - 1:
+        return frequencies[idx_max], spectrum_slice[idx_max]
+        
+    # Извлекаем три точки: сам пик (beta) и его соседей слева (alpha) и справа (gamma)
+    alpha = spectrum_slice[idx_max - 1]
+    beta  = spectrum_slice[idx_max]
+    gamma = spectrum_slice[idx_max + 1]
+    
+    # Знаменатель формулы (определяет кривизну параболы)
+    denom = 2.0 * beta - alpha - gamma
+    
+    # Если знаменатель равен 0 (абсолютно плоский пик), сдвига нет
+    if denom == 0:
+        return frequencies[idx_max], beta
+        
+    # Расчет математического сдвига 'p' относительно центральной корзины (в долях шага БПФ)
+    # Значение 'p' всегда лежит в строго пределах [-0.5, 0.5]
+    p = 0.5 * (alpha - gamma) / denom
+    
+    # Шаг дискретизации сетки частот БПФ
+    df = frequencies[1] - frequencies[0]
+    
+    # 1. Вычисляем истинную непрерывную частоту
+    f_true = frequencies[idx_max] + p * df
+    
+    # 2. Вычисляем истинную амплитуду в вершине параболы
+    amp_true = beta - 0.25 * (alpha - gamma) * p
+    
+    return f_true, amp_true
+
 def save_harmonic_peaks(store: pd.HDFStore, frequencies, times, amplitude_spectrogram, f_toro, f_polo, coordinate_idx, is_angle, title_suffix=""):
     """
     Сохранение максимумов гармонических моменты в hdf.
@@ -161,6 +222,7 @@ def save_harmonic_peaks(store: pd.HDFStore, frequencies, times, amplitude_spectr
 
                 # Сортируем пики строго по возрастанию частоты
         sort_idx = np.argsort(peak_freqs)
+        peaks = peaks[sort_idx]
         peak_freqs = peak_freqs[sort_idx]
         peak_amps = peak_amps[sort_idx]
         
@@ -168,8 +230,11 @@ def save_harmonic_peaks(store: pd.HDFStore, frequencies, times, amplitude_spectr
         record = {'time': t}
         for i in range(num_peaks):
             if i < len(peak_freqs):
-                record[f'f{i+1}'] = peak_freqs[i]
-                record[f'amp{i+1}'] = peak_amps[i]
+                #record[f'f{i+1}'] = peak_freqs[i]
+                #record[f'amp{i+1}'] = peak_amps[i]
+                f_true, amp_true = approximate_peak_parabolic(spectrum_slice, frequencies, peaks[i])
+                record[f'f{i+1}'] = f_true
+                record[f'amp{i+1}'] =amp_true
             else:
                 # Если пиков обнаружилось меньше, чем запрошено, пишем NaN
                 record[f'f{i+1}'] = np.nan
@@ -223,7 +288,6 @@ def load_and_plot_peaks(filepath, tau_factor, key='harmonic_pieaks'):
         metadata = getattr(storer.attrs, 'metadata', {})
         num_peaks = metadata.get('num_peaks', 4)
 
-    plt.figure(figsize=(10, 6))
     
     # 2. Создаем сетку из двух графиков (sharex=True связывает оси времени)
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8), sharex=True)
