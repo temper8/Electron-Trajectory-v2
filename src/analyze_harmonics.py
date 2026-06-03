@@ -39,7 +39,7 @@ def compute_guiding_center_harmonics(sol:OdeResult, coordinate_idx:int, f_polo, 
     # 3. Настройка параметров окна Ханна
     # 1. Считаем базовый физический размер окна (строго 8 периодов)
     points_per_period = int(fs / f_polo)
-    raw_nperseg = points_per_period * 64      
+    raw_nperseg = points_per_period * 128      
     
     # 2. Округляем до ближайшей честной степени 2 (например: 256, 512, 1024, 2048)
     nperseg = 1 << int(np.round(np.log2(raw_nperseg)))
