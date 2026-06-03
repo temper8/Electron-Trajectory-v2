@@ -60,8 +60,8 @@ def compute_guiding_center_harmonics(sol:OdeResult, coordinate_idx:int, f_polo, 
     amplitude_spectrogram = np.abs(Zxx)
     # --- МАГИЯ ДЛЯ КОМПЛЕКСНОГО СИГНАЛА ---
     # Сдвигаем частоты и строки матрицы спектра, чтобы они шли от минус бесконечности к плюс бесконечности
-    #frequencies = np.fft.fftshift(frequencies)
-    #amplitude_spectrogram = np.fft.fftshift(amplitude_spectrogram, axes=0)
+    frequencies = np.fft.fftshift(frequencies)
+    amplitude_spectrogram = np.fft.fftshift(amplitude_spectrogram, axes=0)
     return frequencies, times, amplitude_spectrogram
 
 
