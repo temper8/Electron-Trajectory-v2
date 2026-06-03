@@ -35,7 +35,7 @@ def compute_guiding_center_harmonics(sol:OdeResult, coordinate_idx:int, f_polo, 
     # 2. Извлечение данных и обработка цикличности углов
     raw_data = sol.sol(t_uniform)[coordinate_idx, :]
     signal = np.sin(raw_data) if is_angle else raw_data
-    
+    #signal = np.exp(-1j * raw_data) if is_angle else raw_data
     # 3. Настройка параметров окна Ханна
     # 1. Считаем базовый физический размер окна (строго 8 периодов)
     points_per_period = int(fs / f_polo)
@@ -43,7 +43,7 @@ def compute_guiding_center_harmonics(sol:OdeResult, coordinate_idx:int, f_polo, 
     
     # 2. Округляем до ближайшей честной степени 2 (например: 256, 512, 1024, 2048)
     nperseg = 1 << int(np.round(np.log2(raw_nperseg)))
-
+    print(f"nperseg={nperseg}")
     #nperseg = points_per_period * 100       # Окно в 10 полоидальных периодов
     noverlap = int(nperseg * 0.75)         # Перекрытие 75%
     # 4. Расчет оконного преобразования Фурье
@@ -58,7 +58,10 @@ def compute_guiding_center_harmonics(sol:OdeResult, coordinate_idx:int, f_polo, 
         padded=False     # <--- Отключает падинг до ближайшей степени двойки
     )
     amplitude_spectrogram = np.abs(Zxx)
-    
+    # --- МАГИЯ ДЛЯ КОМПЛЕКСНОГО СИГНАЛА ---
+    # Сдвигаем частоты и строки матрицы спектра, чтобы они шли от минус бесконечности к плюс бесконечности
+    #frequencies = np.fft.fftshift(frequencies)
+    #amplitude_spectrogram = np.fft.fftshift(amplitude_spectrogram, axes=0)
     return frequencies, times, amplitude_spectrogram
 
 
@@ -69,15 +72,16 @@ def plot_guiding_center_harmonics(frequencies, times, amplitude_spectrogram, f_t
     plt.figure(figsize=(12, 6))
     
     # Ограничиваем график первыми четырьмя тороидальными гармониками
-    max_freq_to_show = f_toro * 16
-    freq_mask = frequencies <= max_freq_to_show
+    #max_freq_to_show = f_toro * 16
+    #freq_mask = frequencies <= max_freq_to_show
     #amp = np.log10(amplitude_spectrogram[freq_mask, :] + 1e-4)
-    amp = amplitude_spectrogram[freq_mask, :]
+    #amp = amplitude_spectrogram[freq_mask, :]
     # Построение тепловой карты
     mesh = plt.pcolormesh(
         times, 
-        frequencies[freq_mask], 
-        amp,
+        frequencies, 
+        #amplitude_spectrogram,
+        np.log10(amplitude_spectrogram + 1e-4),
         shading='gouraud', 
         cmap='inferno'
     )
@@ -96,14 +100,16 @@ def plot_harmonics(ax, frequencies, times, amplitude_spectrogram, f_toro, title_
     """
     
     # Ограничиваем график первыми четырьмя тороидальными гармониками
-    max_freq_to_show = f_toro * 16
-    freq_mask = frequencies <= max_freq_to_show
+    #max_freq_to_show = f_toro * 16
+    #freq_mask = frequencies <= max_freq_to_show
     #amp = np.log10(amplitude_spectrogram[freq_mask, :] + 1e-4)
-    amp = amplitude_spectrogram[freq_mask, :]
+    #amp = amplitude_spectrogram[freq_mask, :]
+    amp = np.log10(amplitude_spectrogram + 1e-4)
+    #amp = amplitude_spectrogram
     # Построение тепловой карты
     mesh = ax.pcolormesh(
         times, 
-        frequencies[freq_mask], 
+        frequencies, 
         amp,
         shading='gouraud', 
         cmap='inferno'
@@ -194,8 +200,8 @@ def approximate_peak_parabolic(spectrum_slice, frequencies, idx_max):
     f_true = frequencies[idx_max] + p * df
     
     # 2. Вычисляем истинную амплитуду в вершине параболы
-    amp_true = beta - 0.25 * (alpha - gamma) * p
-    
+    #amp_true = beta - 0.25 * (alpha - gamma) * p
+    amp_true = beta + 0.125 * ((alpha - gamma) ** 2) / denom
     return f_true, amp_true
 
 def save_harmonic_peaks(store: pd.HDFStore, frequencies, times, amplitude_spectrogram, f_toro, f_polo, coordinate_idx, is_angle, title_suffix=""):
@@ -233,6 +239,7 @@ def save_harmonic_peaks(store: pd.HDFStore, frequencies, times, amplitude_spectr
                 #record[f'f{i+1}'] = peak_freqs[i]
                 #record[f'amp{i+1}'] = peak_amps[i]
                 f_true, amp_true = approximate_peak_parabolic(spectrum_slice, frequencies, peaks[i])
+                #print((f_true- peak_freqs[i])/(frequencies[1] - frequencies[0]), (amp_true-peak_amps[i]))
                 record[f'f{i+1}'] = f_true
                 record[f'amp{i+1}'] =amp_true
             else:
