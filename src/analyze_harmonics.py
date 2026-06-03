@@ -174,7 +174,7 @@ def approximate_peak_parabolic(spectrum_slice, frequencies, idx_max):
         Аппроксимированная истинная амплитуда (высота купола).
     """
     # Защита от выхода за границы массива (если пик на самом краю спектра)
-    if idx_max <= 1 or idx_max >= len(frequencies) - 2:
+    if idx_max <= 0 or idx_max >= len(frequencies) - 1:
         return frequencies[idx_max], spectrum_slice[idx_max]
         
     # Извлекаем три точки: сам пик (beta) и его соседей слева (alpha) и справа (gamma)
