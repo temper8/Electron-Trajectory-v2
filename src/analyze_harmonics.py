@@ -33,9 +33,11 @@ def compute_guiding_center_harmonics(sol:OdeResult, coordinate_idx:int, f_polo, 
     t_uniform = np.arange(sol.t[0], sol.t[-1], dt)
     print(len(t_uniform))
     # 2. Извлечение данных и обработка цикличности углов
-    raw_data = sol.sol(t_uniform)[coordinate_idx, :]
+    #raw_data = sol.sol(t_uniform)[coordinate_idx, :]
     #signal = np.sin(raw_data) if is_angle else raw_data
-    signal = np.exp(-1j * raw_data) if is_angle else raw_data
+    #signal = np.exp(-1j * raw_data) if is_angle else raw_data
+    raw_data = sol.sol(t_uniform) # ppar, r, theta, phi
+    signal = raw_data[1,:] * np.exp(-1j * raw_data[3,:])
     # 3. Настройка параметров окна Ханна
     # 1. Считаем базовый физический размер окна (строго 8 периодов)
     points_per_period = int(fs / f_polo)
@@ -45,7 +47,7 @@ def compute_guiding_center_harmonics(sol:OdeResult, coordinate_idx:int, f_polo, 
     nperseg = 1 << int(np.round(np.log2(raw_nperseg)))
     print(f"nperseg={nperseg}")
     #nperseg = points_per_period * 100       # Окно в 10 полоидальных периодов
-    noverlap = int(nperseg * 0.75)         # Перекрытие 75%
+    noverlap = int(nperseg * 0.0)         # Перекрытие 75%
     # 4. Расчет оконного преобразования Фурье
     frequencies, times, Zxx = stft(
         signal, 
