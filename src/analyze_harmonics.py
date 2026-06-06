@@ -303,13 +303,16 @@ def load_and_plot_peaks(filepath, tau_factor, key='harmonic_pieaks'):
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8), sharex=True)
     
     # Цветовая палитра для соответствия линий на верхнем и нижнем графиках
-    colors = plt.cm.tab10(range(num_peaks))
+    colors = plt.cm.tab10(range(num_peaks+1))
+    df_peaks[f'diff_f1']= 0.0
+    for i in range(2, num_peaks + 1):
+        df_peaks[f'diff_f{i}']= df_peaks[f'f{i}'] - df_peaks[f'f{i-1}']
 
     # 3. Цикл по всем сохраненным пикам
     for i in range(1, num_peaks + 1):
         f_col = f'f{i}'
         amp_col = f'amp{i}'
-        
+        diff_f_col = f'diff_f{i}'
         if f_col in df_peaks.columns and amp_col in df_peaks.columns:
             # Верхний график: Частота
             ax1.plot(
@@ -323,7 +326,8 @@ def load_and_plot_peaks(filepath, tau_factor, key='harmonic_pieaks'):
             # Нижний график: Амплитуда
             ax2.plot(
                 df_peaks['time']/tau_factor, 
-                df_peaks[amp_col], 
+                #df_peaks[amp_col], 
+                df_peaks[diff_f_col], 
                 color=colors[i-1], 
                 linewidth=1.5
             )
