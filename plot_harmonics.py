@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from rich.console import Console    
 
 
-from src.analyze_harmonics import load_and_plot_peaks, load_from_hdf, plot_guiding_center_harmonics, plot_harmonics
+from src.analyze_harmonics import load_and_plot_peaks, load_from_hdf, plot_guiding_center_harmonics, plot_harmonics, verify_mode_coupling
 from src.config import RunParams, SolverParams, load_configs, read_config_hdf5
 from src.physical_constants import *
 from src.utils import dict_to_str, get_dataset_sizes, nt_to_str, select_h5_file
@@ -32,6 +32,10 @@ n = params.n
 
 from src.env import init_env
 init_env(tau_norm*ccc_R0, R0, a)
+
+verify_mode_coupling(race_file, target_mode=3)
+verify_mode_coupling(race_file, target_mode=4)
+verify_mode_coupling(race_file, target_mode=5)
 
 load_and_plot_peaks(race_file, ccc_R0*tau_norm)
 

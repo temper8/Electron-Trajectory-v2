@@ -288,6 +288,33 @@ def load_from_hdf(filepath, it_num):
         title_suffix= metadata.get('title_suffix', 0)
     return df_spec, f_toro, f_polo, coordinate_idx, is_angle, title_suffix    
 
+def verify_mode_coupling(filepath, target_mode=4 , key='harmonic_pieaks'):
+    # 1. Загружаем данные из вашего HDFStore
+    with pd.HDFStore(filepath, mode='r') as store:
+        df = store.get(key)
+        storer = store.get_storer(key)
+        metadata = getattr(storer.attrs, 'metadata', {})
+        num_peaks = metadata.get('num_peaks', 4)
+
+    # 2. Считаем скорость изменения амплитуды целевой моды (производную)
+    df['d_amp_dt'] = np.gradient(df[f'amp{target_mode}'], df['time'])
+    
+    # 3. Считаем разность амплитуд соседних зацепленных мод (m-1 и m+1)
+    df['coupling_term'] = df[f'amp{target_mode-1}'] - df[f'amp{target_mode+1}']
+    
+    # 4. Строим фазовый портрет зацепления
+    plt.figure(figsize=(8, 5))
+    plt.plot(df['coupling_term'], df['d_amp_dt'], label='Траектория баланса', linewidth=1.5)
+    
+    plt.title(f'Проверка зацепления для моды {target_mode}')
+    plt.xlabel(f'Разность соседних амплитуд (A_{target_mode-1} - A_{target_mode+1})')
+    plt.ylabel(f'Скорость изменения моды d(A_{target_mode})/dt')
+    plt.grid(alpha=0.3, linestyle='--')
+    plt.axhline(0, color='black', linewidth=0.5)
+    plt.axvline(0, color='black', linewidth=0.5)
+    #plt.show()
+    
+
 def load_and_plot_peaks(filepath, tau_factor, key='harmonic_pieaks'):
     """
     Загружает таблицу пиков из HDFStore и строит их частотные треки.
